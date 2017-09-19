@@ -1,0 +1,16 @@
+<% include ../partials/header %>
+    <h1>All Users</h1>
+    <ul>
+        <% users.forEach((user) => { %>
+            <li><%= user.username %>
+            <a href="/users/<%= user._id %>/courses/edit" class="btn btn-sm btn-danger">edit</a>
+                <ul>
+                    <% user.courses.forEach((courseBundle) => { %>
+                        <li><%= courseBundle.course.title %></li>
+                    <% }) %>
+                </ul>
+            </li>
+        <% }); %>
+    </ul>
+    <a href="users/new">Sign Up New User</a>
+<% include ../partials/footer %>

@@ -1,0 +1,9 @@
+<% include ../partials/header %>
+    <form action="/courses/checkout" method="POST">
+        <% cartCourses.forEach((course) => { %>
+            <li><strong><%= course.title %></strong> - <%= course.price %> Baht</li>
+            <input type="hidden" name="buyCourses" value="<%= course._id %>">
+        <% }); %>
+        <button class="btn btn-success">Checkout</button>
+    </form>
+<% include ../partials/footer %>

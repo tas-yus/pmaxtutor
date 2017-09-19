@@ -1,0 +1,51 @@
+<% include ../partials/header %>
+
+<% if(!user.isAdmin) { %>
+    <h1>Hello <%= user.username%></h1>
+    <p>Your Courses</p>
+    <% userCourses.forEach((userCourseBundle) => { %>
+        <li><a href="/<%= userCourseBundle.course.code %>/learn"><%= userCourseBundle.course.title %></a>
+            <ul>
+                <% var userCourseParts = getPartInArrayByCourseTitle(userParts, userCourseBundle.course.title) %>
+                <% userCourseParts.forEach((partBundle) => { %>
+                     <li><%= partBundle.part.title %></li> 
+                     <% if (partBundle.expired) { %>
+                         <p>Expired!!!!</p>
+                     <% } %>
+                <% }); %>
+            </ul>
+        </li>
+    <% }); %> 
+<% } else { %>
+    <h1>Hello Admin <%= user.username%></h1>
+    <p>All Courses</p>
+    <% courses.forEach((course) => { %>
+        <li><a href="/<%= course.code %>/learn"><%= course.title %></a>
+        <a href="/<%= course.code %>/parts/new" class="btn btn-sm btn-danger">Add Part</a>
+            <ul>
+                <% course.parts.forEach((part) => { %>
+                     <li><%= part.title %></li>
+                <% }); %>
+                <li><h5><%= course.users.length %> Students</h5>
+                    <ul>
+                        <% course.users.forEach((user) => { %>
+                            <li><%= user.username %></li>
+                        <% }); %>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    <% }); %> 
+    <a class="btn btn-primary" href="/courses/new">Add New Course</a>
+    <a class="btn btn-danger" href="/users">Manage Users</a>
+<% } %>
+
+<h5>Your Cart</h1>
+<% cartCourses.forEach((course) => { %>
+    <li><%= course.title %></li>
+<% }); %>
+<% if(cartCourses.length !== 0) { %>
+    <a class="btn btn-primary" href="/courses/checkout">Checkout</a>
+<% } %>
+
+<% include ../partials/footer %>

@@ -1,0 +1,15 @@
+<% include ../partials/header %>
+    <h1>All Questions for <%= course.title %></h1>
+    <ul>
+        <% questions.forEach((question) => { %>
+            <h3><%= question.title %></h3>
+            <li><%= question.body %></li>
+            <p><strong>posted by <%= question.author.username %></strong></p>
+            <hr>
+            <% question.answers.forEach((ans) => { %>
+                <h4><%= ans.body %></h4>
+                <p><strong>posted by <%= ans.author.username %></strong></p>
+            <% }); %>
+        <% }); %>
+    </ul>
+<% include ../partials/footer %>

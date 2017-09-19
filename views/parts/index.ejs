@@ -1,0 +1,12 @@
+<% include ../partials/header %>
+<h1>Learn <%= part.title %></h1>
+<h4><%= part.description %></h4>
+<% videos.forEach((vid) => { %>
+    <a href="/<%= course.code %>/<%= part.code %>/<%= vid.code %>/learn"><%= vid.title %></a>
+<% }); %>  
+<a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+    <% if (user && user.isAdmin) { %>
+        <a class="btn btn-primary" href="/<%= course.code %>/<%= part.code %>/edit">Edit Part</a>
+        <a class="btn btn-primary" href="/<%= course.code %>/<%= part.code %>/videos/new">Add Video</a>
+    <% } %>
+<% include ../partials/footer %>

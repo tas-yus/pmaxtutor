@@ -1,0 +1,54 @@
+<% include ../partials/header %>
+    <h1>Edit <%= user.username %></h1>
+    <ul>
+        <li>Remove
+            <ul>
+                <% user.courses.forEach((userCourseBundle) => { %>
+                <form action="/users/<%= user._id %>/<%= userCourseBundle.course.code %>?_method=DELETE" method="POST">
+                <li><%= userCourseBundle.course.title %>
+                    <ul>
+                        <li>
+                            <% var removableParts = getPartInArrayByCourseTitle(user.parts, userCourseBundle.course.title); %>
+                            <% removableParts.forEach((partBundle) => { %>
+                                <label><%= partBundle.part.title %></label>
+                                <input type="checkbox" name="removeParts" value="<%= partBundle.part._id.toString() %>">
+                            <% }); %> 
+                        </li>
+                    </ul>
+                </li>
+                <button>Remove Courses</button>
+                </form>
+                <% }); %>
+            </ul>
+        </li>
+        <li>Add
+            <ul>
+                <% courses.forEach((course) => { %>
+                    <form action="/users/<%= user._id %>/<%= course.code %>?_method=PUT" method="POST">
+                    <li><%= course.title %>
+                        <ul>
+                            <% if (user.courses.length === 0 ) { %>
+                                <% course.parts.forEach((part) => { %>
+                                    <li>
+                                        <label><%= part.title %></label>
+                                        <input type="checkbox" name="addParts" value="<%= part._id.toString() %>">
+                                    </li>
+                                <% }); %>
+                            <% } else { %>
+                                    <% var addableParts = getBuyableParts(course.parts, user.parts); %>
+                                    <% addableParts.forEach((partBundle) => { %>
+                                        <li>
+                                            <label><%= partBundle.title %></label>
+                                            <input type="checkbox" name="addParts" value="<%= partBundle._id.toString() %>">
+                                        </li>
+                                    <% }); %>
+                            <% } %>
+                        </ul>
+                    </li>
+                    <button>Add Courses</button>
+                    </form>
+                <% }); %>
+            </ul>
+        </li>
+    </ul>
+<% include ../partials/footer %> 

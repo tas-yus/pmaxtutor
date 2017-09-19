@@ -1,0 +1,76 @@
+<% include ../partials/header %>
+<h1><%= vid.title %></h1>
+    <video width="560" height="315" controls>
+      <source src="/assets/videos/<%= vid.path %>" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <br>
+     <% vid.resources.forEach((res) => { %>
+            <a href="/assets/resources/<%= res.path %>" download>Download <%= res.title %></a><br>
+            <% if(user.isAdmin) { %>
+                <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>/<%= res.code %>?_method=DELETE" method="POST">
+                    <button><i class="fa fa-times" aria-hidden="true"></i></button>
+                </form>
+            <% } %>
+        <% }) %>
+    <% if(user.isAdmin) { %>
+        <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>?_method=DELETE" method="POST">
+            <button class="btn btn-danger">Delete Video</button>
+        </form>
+        <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>/resources/new" method="GET">
+            <button class="btn btn-success">Add Resource</button>
+        </form>
+        <br>
+    <% } %>
+    <h3>All Questions for <%= vid.title %></h3>
+    <div id="myGroup">
+    <ul>
+            <% questions.forEach((question) => { %>
+                <h4 style="color:blue"><%= question.title %></h4>
+                <li><%= question.body %></li>
+                <p><strong>posted by <%= question.author.username %></strong></p>
+                <button class="btn btn-primary" type="button" data-toggle="collapse" data-parent="#myGroup" data-target="#collapse<%= question.code %>" aria-expanded="false" aria-controls="collapseExample<%= question.code %>">
+                  Reply
+                </button>
+                <div class="collapse" id="collapse<%= question.code %>">
+                  <div class="well">
+                    <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>/<%= question.code %>/answers" method="POST" id="regular-form">
+                        <div class="form-group">
+                            <textarea class="form-control" type="text" name="answer[body]" placeholder="answer goes here!"></textarea>
+                        </div>
+                        <button class="btn btn-primary btn-block">Reply</button>
+                    </form>
+                  </div>
+                </div>
+                <hr>
+                <% question.answers.forEach((ans) => { %>
+                    <div class="container">
+                        <h4><%= ans.body %></h4>
+                        <p><strong>posted by <%= ans.author.username %></strong></p>
+                    </div>
+                    <hr>
+                <% }); %>
+            <% }); %>
+    </ul>
+     <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#askQuestion" aria-expanded="false" aria-controls="askQuestion">
+        Ask New Question
+    </button>
+    <div class="collapse" id="askQuestion">
+         <div class="well">
+            <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>/questions" method="POST" id="regular-form">
+                <div class="form-group">
+                        <input class="form-control" type="text" name="question[title]" placeholder="title">
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" type="text" name="question[body]" placeholder="question goes here!"></textarea>
+                </div>
+                <button class="btn btn-primary btn-block">Ask New Question</button>
+            </form>
+        </div>
+    </div>
+    </div>
+    <hr>
+    <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
+    
+     <script src="/assets/js/main.js"></script>
+<% include ../partials/footer %> 

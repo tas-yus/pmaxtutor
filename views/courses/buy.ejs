@@ -1,0 +1,10 @@
+<% include ../partials/header %>
+    <form action="/<%= course.code %>/buy" method="POST">
+        <% parts.forEach((part) => { %>
+            <label><%= part.title %></label><input type="checkbox" name="selectedParts" value="<%= part._id.toString() %>">
+        <% }); %>
+        <label>Buy All</label><input type="checkbox" id="checkAllRadios">
+        <button class="btn btn-success">Buy now</button>
+    </form>
+    <script src="/assets/js/main.js"></script>
+<% include ../partials/footer %>

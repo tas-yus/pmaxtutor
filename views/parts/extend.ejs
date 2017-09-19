@@ -1,0 +1,7 @@
+<% include ../partials/header %>
+    <h3><%= part.title %> is already expired.</h3>
+    <form action="/<%= courseCode %>/<%= partCode %>/extend" method="POST">
+        <input type="hidden" name="extendedPart" value="<%= part._id.toString() %>">
+        <button class="btn btn-success">Extend</button>
+    </form>
+<% include ../partials/footer %>

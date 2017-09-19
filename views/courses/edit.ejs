@@ -1,0 +1,21 @@
+<% include ../partials/header %>
+    <h1 id="form-header">Edit <%= course.title %></h1>
+        <form action="/<%= course.code %>?_method=PUT" enctype="multipart/form-data" method="POST" id="regular-form">
+            <div class="form-group">
+                <input class="form-control" type="text" name="title" value="<%= course.title %>">
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="text" name="price" value="<%= course.price %>">
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="text" name="video" value="<%= course.video %>">
+            </div>
+            <div class="form-group">
+                <textarea class="form-control" type="text" name="description" placeholder="คำบรรยายคอร์ส"><%= course.description %></textarea>
+            </div>
+            <div class="form-group">
+                <input type="file" name="file">
+            </div>
+            <button class="btn btn-primary btn-block">Edit</button>
+        </form>
+<% include ../partials/footer %> 
