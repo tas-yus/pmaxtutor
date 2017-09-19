@@ -8,12 +8,13 @@ middlewareObj.isLoggedIn = function (req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
+    req.flash("error", "โปรดลงชื่อเข้าใช้งาน");
     res.redirect("/login");
 };
 
 middlewareObj.canAccessLearn = function (req, res, next) {
     Course.findOne({code: req.params.courseCode}, (err, course) => {
-        if (err) return console.log(err); 
+        if (err) return console.log(err);
         if (req.user.isAdmin || method.checkCourseOwnership(req.user.courses, course._id.toString()) === true) {
             return next();
         } else if (method.checkCourseOwnership(req.user.courses, course._id.toString()) === "expired") {
@@ -26,9 +27,9 @@ middlewareObj.canAccessLearn = function (req, res, next) {
 
 middlewareObj.canLearn = function(req, res, next) {
     Course.findOne({code: req.params.courseCode}, (err, course) => {
-        if (err) return console.log(err); 
+        if (err) return console.log(err);
         Part.findOne({code: req.params.partCode}, (err, part) => {
-            if (err) return console.log(err); 
+            if (err) return console.log(err);
             if (req.user.isAdmin || method.checkPartOwnership(req.user.parts, part._id.toString()) === true) {
                 return next();
             } else if (method.checkPartOwnership(req.user.parts, part._id.toString()) === "expired") {
@@ -47,7 +48,7 @@ middlewareObj.canBuy = function(req, res, next) {
     Course.findOne({code: req.params.courseCode}).populate("parts").exec().then((course) => {
         var buyableParts = method.getBuyableParts(course.parts, req.user.parts);
         if (buyableParts.length === 0) {
-            res.redirect(`/${req.params.courseCode}/learn`);   
+            res.redirect(`/${req.params.courseCode}/learn`);
         } else {
             next();
         }
@@ -61,7 +62,7 @@ middlewareObj.canExtend = function(req, res, next) {
     Course.findOne({code: req.params.courseCode}).populate("parts").exec().then((course) => {
         var extendableParts = method.getExtendableParts(course.parts, req.user.parts);
         if (extendableParts.length === 0) {
-            res.redirect(`/${req.params.courseCode}/learn`);   
+            res.redirect(`/${req.params.courseCode}/learn`);
         } else {
             next();
         }

@@ -23,7 +23,7 @@
                           </button>
                           <a class="navbar-brand" href="/courses">P'Max Tutor</a>
                         </div>
-                    
+
                         <!-- Collect the nav links, forms, and other content for toggling -->
                         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                           <ul class="nav navbar-nav navbar-right">
@@ -41,8 +41,15 @@
                 </div>
             </nav>
         </div>
-        
-        
+
+        <% if (error && error.length > 0) { %>
+        <div class="alert alert-danger alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <%= error %>
+        </div>
+        <% } else { %>
+          <% } %>
+
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="gridSystemModalLabel">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -71,6 +78,3 @@
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
-     
-
-                

@@ -177,20 +177,6 @@ router.post("/:partCode/extend", (req, res) => {
        });
      });
    });
-  //  User.findById(req.user._id.toString()).populate("parts.part").populate("courses.course").exec().then((user) => {
-  //      var targetedPartBundle = method.getPartInArrayById(user.parts, extendedPart.toString());
-  //      targetedPartBundle.expired = false;
-  //      targetedPartBundle.expiredAt += 10000;
-  //      var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
-  //          if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
-  //              var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
-  //              userCourse.expired = false;
-  //      return user.save();
-  //  }).then(() => {
-  //      res.redirect("/dashboard");
-  //  }).catch((err) => {
-  //     console.log(err);
-  //  });
 });
 
 module.exports = router;
