@@ -7,13 +7,14 @@ var fs = require("fs");
 var middleware = require("./../middleware");
 var method = require("./../method");
 var Promise = require("bluebird");
+var config = require("./../config");
 
 // NEW RESOURCES
 router.get("/:courseCode/:partCode/:videoCode/resources/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     var courseCode = req.params.courseCode;
     var partCode = req.params.partCode;
     var videoCode = req.params.videoCode;
-    res.render("resources/new", {courseCode, partCode, videoCode}); 
+    res.render("resources/new", {courseCode, partCode, videoCode});
 });
 
 // CREATE RESOURCES
@@ -34,7 +35,7 @@ router.post("/:courseCode/:partCode/:videoCode/resources", (req, res) => {
         course.resources.push(resource);
         vid.resources.push(resource);
         course.save().then(() => {
-            file.mv(__dirname + '/../public/assets/resources/' + path, (err) => {
+            file.mv(__dirname + config.resourcePath + path, (err) => {
                 if (err) {
                     return console.log(err);
                 }
@@ -46,7 +47,7 @@ router.post("/:courseCode/:partCode/:videoCode/resources", (req, res) => {
             console.log(err);
         });
     }).catch((err) => {
-       console.log(err); 
+       console.log(err);
     });
 });
 
@@ -65,7 +66,7 @@ router.delete("/:courseCode/:partCode/:videoCode/:resourceCode", middleware.isLo
     }).then(() => {
         return Resource.findOneAndRemove({code: req.params.resourceCode});
     }).then((resource) => {
-        var path = __dirname + "/../public/assets/resources/" + resource.path;
+        var path = __dirname + config.resourcePath + resource.path;
         fs.stat(path, (err, stats) => {
             console.log(stats);
             if (err) {
@@ -74,7 +75,7 @@ router.delete("/:courseCode/:partCode/:videoCode/:resourceCode", middleware.isLo
             fs.unlink(path, (err) => {
                 if(err) return console.log(err);
                 console.log('file deleted successfully');
-            });  
+            });
         });
         res.redirect(`/${req.params.courseCode}/${req.params.partCode}/learn`);
     });

@@ -40,7 +40,7 @@ router.post("/parts", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     }
     let file = req.files.file;
     var path = req.body.image + ".jpg";
-    file.mv(__dirname + '/public/assets/images/' + path, (err) => {
+    file.mv(__dirname + '/../public/assets/images/' + path, (err) => {
         if (err) {
             return console.log(err);
         }
@@ -134,7 +134,7 @@ router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, (req, res) =
         let file = req.files.file;
         if (file) {
             var path = part.image;
-            file.mv(__dirname + '/public/assets/images/' + path, (err) => {
+            file.mv(__dirname + '/../public/assets/images/' + path, (err) => {
                 if (err) {
                     return console.log(err);
                 }
@@ -147,7 +147,7 @@ router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, (req, res) =
 });
 
 // EXTEND PART
-router.get("/:partCode/extend", (req, res) => {
+router.get("/:partCode/extend", middleware.isLoggedIn, middleware.canExtend, (req, res) => {
     var courseCode = req.params.courseCode;
     var partCode = req.params.partCode;
     Part.findOne({code: partCode}).then((part) => {
@@ -157,7 +157,7 @@ router.get("/:partCode/extend", (req, res) => {
     });
 });
 
-router.post("/:partCode/extend", (req, res) => {
+router.post("/:partCode/extend", middleware.isLoggedIn, middleware.canExtend, (req, res) => {
    var extendedPart = req.body.extendedPart;
    Course.findOne({code: req.params.courseCode}, (err, course) => {
      if (err) return console.log(err);

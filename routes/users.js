@@ -28,9 +28,18 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     User.register(newUser, req.body.password, (err, user) => {
         if (err) {
             return console.log(err);
-        } 
-        res.redirect("/users"); 
-    }); 
+        }
+        res.redirect("/users");
+    });
+});
+
+// USERS SHOW
+router.get("/:id", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+    User.findById(req.params.id).populate("courses.course").populate("parts.part").exec((err, user) => {
+      if(err) return console.log(err);
+      var getPartInArrayByCourseTitle = method.getPartInArrayByCourseTitle;
+      res.render("users/show", {user, getPartInArrayByCourseTitle});
+    });
 });
 
 // USERS EDIT

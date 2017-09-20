@@ -14,21 +14,24 @@ router.get("/register", (req, res) => {
 
 router.post("/register", (req, res) => {
     var newUser = new User({username: req.body.username});
-    User.register(newUser, req.body.password).then((user) => {
+    User.register(newUser, req.body.password, (err, user) => {
+        if (err) {
+          req.flash("error", err.message);
+          return res.redirect("/register");
+        }
         passport.authenticate("local")(req, res, () => {
-           res.redirect("/dashboard"); 
+           req.flash("success", `คุณ ${user.username} ได้ทำการลงทะเบียนเรียบร้อยแล้ว`);
+           res.redirect("/dashboard");
         });
-    }).catch((err) => {
-        if (err) return res.register("/register");
     });
 });
 
 // LOGIN
 router.get("/login", middleware.noDuplicateLogin, (req, res) => {
-   res.render("login"); 
+   res.render("login");
 });
 
-router.post("/login", middleware.noDuplicateLogin, passport.authenticate("local", 
+router.post("/login", middleware.noDuplicateLogin, passport.authenticate("local",
     {
         successRedirect: "/dashboard",
         failureRedirect: "/courses"
@@ -38,6 +41,7 @@ router.post("/login", middleware.noDuplicateLogin, passport.authenticate("local"
 // LOGOUT
 router.get("/logout", function(req, res){
   req.logout();
+  req.flash("success", "ออกจากระบบการใช้งานเรียบร้อย!");
   res.redirect("/courses");
 });
 
@@ -45,13 +49,13 @@ router.get("/logout", function(req, res){
 // more efficient population!!!!!
 router.get("/dashboard", middleware.isLoggedIn, (req, res) => {
     var findUser = User.findById(req.user._id).populate({path: "courses.course", select: "code title"}).populate({path: "parts.part", select: "title course"}).populate("cartCourses").exec();
-    var findCourses = Course.find({}).populate("users").populate("parts").exec();
+    var findCourses = Course.find({}).populate("users").populate("expiredUsers").populate("parts").exec();
     return Promise.join(findUser, findCourses, (user, courses) => {
         var userCourses = user.courses;
         var userParts = user.parts;
         var cartCourses = user.cartCourses;
         var getPartInArrayByCourseTitle = method.getPartInArrayByCourseTitle;
-        res.render("users/dashboard", {userCourses, userParts, courses, cartCourses, getPartInArrayByCourseTitle}); 
+        res.render("users/dashboard", {userCourses, userParts, courses, cartCourses, getPartInArrayByCourseTitle});
     }).catch((err) => {
         console.log(err);
     });

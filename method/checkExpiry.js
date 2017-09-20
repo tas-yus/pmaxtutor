@@ -1,4 +1,5 @@
 var User = require("./../models/user");
+var Course = require("./../models/course");
 var method = require("./../method");
 
 var checkExpiry = function() {
@@ -15,19 +16,34 @@ var checkExpiry = function() {
                     user.courses.forEach((courseBundle) => {
                         if (method.checkIfCourseShouldExpired(courseBundle, user.parts)) {
                             courseBundle.expired = true;
-                        } 
-                        ctr2++;
-                        if (ctr2 === user.courses.length) {
-                            user.save((err) => {
-                               if (err) return console.log(err); 
+                            Course.findById(courseBundle.course._id.toString(), (err, course) => {
+                              if (err) return console.log(err);
+                              course.users = course.users.filter(function(courseUser) {return courseUser.toString() !== user._id.toString() } );
+                              if (!method.checkIfCourseContainsUserOfId(course.expiredUsers, user._id.toString())) course.expiredUsers.push(user);
+                              course.save((err) => {
+                                if (err) return console.log(err);
+                              });
                             });
+                            ctr2++;
+                            if (ctr2 === user.courses.length) {
+                              user.save((err) => {
+                                 if (err) return console.log(err);
+                              });
+                            }
+                        } else {
+                          ctr2++;
+                          if (ctr2 === user.courses.length) {
+                              user.save((err) => {
+                                 if (err) return console.log(err);
+                              });
+                          }
                         }
                     });
                 }
-            }); 
+            });
         });
     }).catch((err) => {
-       console.log(err); 
+       console.log(err);
     });
 };
 

@@ -1,4 +1,5 @@
 var methodObj = {};
+var User = require("./../models/user");
 
 methodObj.getPartInArrayById = function (arr, id) {
     var result  = arr.filter(function(o){
@@ -135,5 +136,19 @@ methodObj.checkIfCourseShouldExpired = function(populatedUserCourseBundle, popul
     }
     return true;
 };
+
+methodObj.checkIfCourseContainsUserOfId = function (courseUserArray, id) {
+    for (var i = 0; i < courseUserArray.length; i++) {
+      var courseUser = courseUserArray[i];
+      if (courseUser.toString() === id) return true;
+    }
+    return false;
+};
+
+methodObj.searchUsersByUsername = function (str) {
+  User.find({username: str}, (err, users) => {
+    console.log(users);
+  });
+}
 
 module.exports = methodObj;

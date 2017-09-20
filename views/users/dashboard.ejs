@@ -8,14 +8,14 @@
             <ul>
                 <% var userCourseParts = getPartInArrayByCourseTitle(userParts, userCourseBundle.course.title) %>
                 <% userCourseParts.forEach((partBundle) => { %>
-                     <li><%= partBundle.part.title %></li> 
+                     <li><%= partBundle.part.title %></li>
                      <% if (partBundle.expired) { %>
                          <p>Expired!!!!</p>
                      <% } %>
                 <% }); %>
             </ul>
         </li>
-    <% }); %> 
+    <% }); %>
 <% } else { %>
     <h1>Hello Admin <%= user.username%></h1>
     <p>All Courses</p>
@@ -26,16 +26,28 @@
                 <% course.parts.forEach((part) => { %>
                      <li><%= part.title %></li>
                 <% }); %>
-                <li><h5><%= course.users.length %> Students</h5>
-                    <ul>
-                        <% course.users.forEach((user) => { %>
-                            <li><%= user.username %></li>
-                        <% }); %>
-                    </ul>
-                </li>
+                <strong><p>Overall - <%= course.users.length + course.expiredUsers.length %> Students</p></strong>
+                <ul>
+                  <li>
+                    <h5><%= course.users.length %> Active Students</h5>
+                      <ul>
+                          <% course.users.forEach((user) => { %>
+                              <li><%= user.username %></li>
+                          <% }); %>
+                      </ul>
+                  </li>
+                  <li>
+                    <h5><%= course.expiredUsers.length %> Expired Students</h5>
+                      <ul>
+                          <% course.expiredUsers.forEach((user) => { %>
+                              <li><%= user.username %></li>
+                          <% }); %>
+                      </ul>
+                  </li>
+                </ul>
             </ul>
         </li>
-    <% }); %> 
+    <% }); %>
     <a class="btn btn-primary" href="/courses/new">Add New Course</a>
     <a class="btn btn-danger" href="/users">Manage Users</a>
 <% } %>

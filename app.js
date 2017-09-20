@@ -50,6 +50,7 @@ passport.deserializeUser(User.deserializeUser());
 app.use(function(req, res, next) {
     res.locals.user = req.user;
     res.locals.error = req.flash("error");
+    res.locals.success = req.flash("success");
     next();
 });
 
@@ -65,25 +66,16 @@ app.use("/:courseCode/:partCode/:vidCode/:questionCode", answerRoutes);
 // ========================
 
 // AGENDA
-// Implement Questions and Answers to all route possible
-// Done routes: ---->
+
+// when delete course all resources should be deleted and all parts and all vids associated with it
 
 // Invoice model + Credit card validation
 
-// Course model => expired
 // User manage =>
-
-// Add res to Course model
 
 // video player
 
-// flash masseges
-
 // Checkout Cart ******
-
-// extend routes
-
-// Extend Now instead of buy now
 
 schedule.scheduleJob('0,30 * * * * *', function(){
     checkExpiry();

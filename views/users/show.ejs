@@ -1,0 +1,18 @@
+<% include ../partials/header %>
+    <h1>Overview of <%= user.username %></h1>
+    <strong><p>Courses: </p></strong>
+    <% user.courses.forEach((userCourseBundle) => { %>
+        <li><%= userCourseBundle.course.title %>
+            <ul>
+                <% var userCourseParts = getPartInArrayByCourseTitle(user.parts, userCourseBundle.course.title) %>
+                <% userCourseParts.forEach((partBundle) => { %>
+                     <li><%= partBundle.part.title %></li>
+                     <% if (partBundle.expired) { %>
+                         <p>Expired!!!!</p>
+                     <% } %>
+                <% }); %>
+            </ul>
+        </li>
+    <% }); %>
+    <a href="/users/<%= user._id %>/courses/edit" class="btn btn-info">edit</a>
+<% include ../partials/footer %>

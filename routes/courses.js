@@ -8,14 +8,15 @@ var middleware = require("./../middleware");
 var method = require("./../method");
 var Promise = require("bluebird");
 var checkExpiry = require("./../method/checkExpiry");
+var config = require("./../config");
 
 // ALL COURSES
 router.get("/courses", (req, res) => {
     Course.find({}).sort({order:1}).exec((err, courses) => {
         if (err) {
            return console.log(err);
-        } 
-        res.render("courses/index", {courses}); 
+        }
+        res.render("courses/index", {courses});
     });
 });
 
@@ -66,7 +67,7 @@ router.post("/courses", middleware.isLoggedIn, middleware.isAdmin, (req, res) =>
         if (err) {
             return console.log(err);
         }
-        file.mv(__dirname + '/public/assets/images/' + path, (err) => {
+        file.mv(__dirname + config.imagePath + path, (err) => {
             if (err) {
                 return console.log(err);
             }
@@ -75,13 +76,13 @@ router.post("/courses", middleware.isLoggedIn, middleware.isAdmin, (req, res) =>
     });
 });
 
-// EDIT COURSE 
+// EDIT COURSE
 router.get("/:courseCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     Course.findOne({code: req.params.courseCode}, (err, course) => {
         if (err) {
             return console.log(err);
         }
-        res.render("courses/edit", {course}); 
+        res.render("courses/edit", {course});
     });
 });
 
@@ -104,7 +105,7 @@ router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, (req, res)
         let file = req.files.file;
         if (file) {
             var path = course.image;
-            file.mv(__dirname + '/public/assets/images/' + path, (err) => {
+            file.mv(__dirname + config.imagePath + path, (err) => {
                 if (err) {
                     return console.log(err);
                 }
@@ -122,13 +123,13 @@ router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLear
         if (err) {
             return console.log(err);
         }
-        var parts; 
+        var parts;
         if (req.user.isAdmin) {
             parts = course.parts;
             res.render("courses/learn", {course, parts});
         } else {
             User.findById(req.user._id.toString()).populate({path: "parts.part", select: "code title course"}).exec((err, user) => {
-                if (err) return console.log(err); 
+                if (err) return console.log(err);
                 var getPartInArrayByCourseTitle = method.getPartInArrayByCourseTitle;
                 res.render("courses/learn", {course, user, getPartInArrayByCourseTitle});
             });
@@ -136,12 +137,12 @@ router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLear
     });
 });
 
-//BUY 
+//BUY
 router.get("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, res) => {
     Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "title"}).exec((err, course) => {
        if (err) {
            return console.log(err);
-       } 
+       }
        var parts = method.getBuyableParts(course.parts, req.user.parts);
        res.render("courses/buy", {course, parts});
     });
@@ -151,7 +152,7 @@ router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, 
     Course.findOne({code: req.params.courseCode}, (err, course) => {
        if (err) {
            return console.log(err);
-       } 
+       }
        var insertedParts = [];
        var selectedParts = req.body.selectedParts;
        if (Array.isArray(selectedParts)) {
@@ -183,7 +184,7 @@ router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, 
                 course.save((err, data) => {
                     if (err) {
                         return console.log(err);
-                    } 
+                    }
                 });
                 console.log(`${user.username} just bought ${course.title} for ${course.price} Baht`, new Date().toDateString());
                 res.redirect("/dashboard");
@@ -211,7 +212,7 @@ router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, 
     Course.findOne({code: req.params.courseCode}, (err, course) => {
         if (err) return console.log(err);
         User.findById(req.user._id.toString()).populate("parts.part").populate("courses.course").exec((err, user) => {
-            if (err) return console.log(err); 
+            if (err) return console.log(err);
             selectedParts.forEach((selectedPart) => {
                 var targetedPartBundle = method.getPartInArrayById(user.parts, selectedPart.toString());
                 targetedPartBundle.expired = false;
@@ -223,12 +224,17 @@ router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, 
                         var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
                         userCourse.expired = false;
                         user.save((err) => {
-                           if (err) return console.log(err); 
-                           res.redirect("/dashboard");
+                           if (err) return console.log(err);
+                        });
+                        course.expiredUsers = course.expiredUsers.filter(function(courseExpiredUser) {return courseExpiredUser.toString() !== user._id.toString()} );
+                        course.users.push(user);
+                        course.save((err) => {
+                          if (err) return console.log(err);
+                          res.redirect("/dashboard");
                         });
                     } else {
                         user.save((err) => {
-                           if (err) return console.log(err); 
+                           if (err) return console.log(err);
                            res.redirect("/dashboard");
                         });
                     }
