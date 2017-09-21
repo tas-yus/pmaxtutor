@@ -8,12 +8,16 @@ var method = require("./../method");
 
 // USERS GET
 router.get("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-   User.find({isAdmin: false}).populate({path: "courses.course", select:"title"}).exec((err, users) => {
+  var key = "";
+  if (req.query.key) {
+    key = req.query.key;
+  }
+   User.find({isAdmin: false, username : new RegExp(key, 'i')}).populate({path: "courses.course", select:"title"}).exec((err, users) => {
        if (err) {
            console.log(err);
            return res.render("register");
        }
-       res.render("users/index", {users});
+       res.render("users/index", {users, key});
    });
 });
 

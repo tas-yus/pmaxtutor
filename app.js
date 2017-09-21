@@ -156,10 +156,6 @@ app.post("/courses/:id/cart", middleware.isLoggedIn, (req, res) => {
     });
 });
 
-Array.prototype.diff = function(a) {
-    return this.filter(function(i) {return a.indexOf(i) < 0;});
-};
-
 app.listen(3000, () => {
    console.log("Server started");
 });

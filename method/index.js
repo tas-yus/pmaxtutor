@@ -146,8 +146,9 @@ methodObj.checkIfCourseContainsUserOfId = function (courseUserArray, id) {
 };
 
 methodObj.searchUsersByUsername = function (str) {
-  User.find({username: str}, (err, users) => {
-    console.log(users);
+  User.find({username : new RegExp(str, 'i')}, (err, users) => {
+    if (err) return console.log(err);
+    return users;
   });
 }
 

@@ -16,6 +16,7 @@ router.get("/courses", (req, res) => {
         if (err) {
            return console.log(err);
         }
+        console.log("/courses");
         res.render("courses/index", {courses});
     });
 });

@@ -1,4 +1,9 @@
 <% include ../partials/header %>
+    <h1>Search Users</h1>
+    <form action="/users" method="GET">
+      <input type="text" autofocus name="key" placeholder="username" value="<%= key %>" id="search">
+      <button>Search</button>
+    </form>
     <h1>All Users</h1>
     <ul>
         <% users.forEach((user) => { %>
@@ -8,4 +13,5 @@
         <% }); %>
     </ul>
     <a href="users/new">Sign Up New User</a>
+    <script src="/assets/js/search.js"></script>
 <% include ../partials/footer %>
