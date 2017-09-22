@@ -127,12 +127,13 @@ methodObj.checkIfPartsOfCourseNameExisted = function(populatedUserPartArray, cou
 };
 
 methodObj.checkIfCourseShouldExpired = function(populatedUserCourseBundle, populatedUserPartArray) {
+    if (populatedUserPartArray.length === 0) return false;
     for (var i = 0; i < populatedUserPartArray.length; i++) {
         var populatedUserPartBundle = populatedUserPartArray[i];
          if (populatedUserPartBundle.part.course === populatedUserCourseBundle.course.title &&
             !populatedUserPartBundle.expired) {
-                return false;
-            }
+              return false;
+          }
     }
     return true;
 };

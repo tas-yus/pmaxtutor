@@ -142,7 +142,7 @@ var parts = [
         image: "chem1-s.jpg",
         description: "fwnefewjfiejwfoiewjfoewijfeowijfewofjweofjewofijewjoifew",
         price: 650
-    }, 
+    },
     {
         course: "Chem Olympic 2",
         title: "Stoichiometry",
@@ -190,6 +190,45 @@ var user = [
     },
     {
         username: "andre"
+    },
+    {
+        username: "sarah"
+    },
+    {
+        username: "edric"
+    },
+    {
+        username: "vincent"
+    },
+    {
+        username: "maria"
+    },
+    {
+        username: "charlie"
+    },
+    {
+        username: "willie"
+    },
+    {
+        username: "MAX"
+    },
+    {
+        username: "tas31745"
+    },
+    {
+        username: "big"
+    },
+    {
+        username: "binSu"
+    },
+    {
+        username: "eminem"
+    },
+    {
+        username: "Kinu"
+    },
+    {
+        username: "Keane123"
     }
 ];
 
@@ -201,7 +240,7 @@ var questions = [{
         title: "When do we use delta and when do we use differential sign?",
         body: "I cant wrap my head around calculus at all. My dead cat at home is way smarter than me. That's why I really need help from you doctor Tas"
     }];
-    
+
 var answers = [{
         body: "Oh I think you should go back to your mom and ask her repeatedly why she sent you to school!",
     },
@@ -213,7 +252,7 @@ function seedDB() {
     Resource.remove({}, (err) => {
         if (err) {
             return console.log(err);
-        } 
+        }
         console.log("Resources Removed");
     });
     User.remove({}, (err) => {
@@ -225,7 +264,7 @@ function seedDB() {
            User.register(user, "password", (err, user) => {
               if (err) {
                   return console.log(err);
-              } 
+              }
               console.log("Users Added");
            });
         });
@@ -233,7 +272,7 @@ function seedDB() {
     Course.remove({}, (err) => {
        if (err) {
            return console.log(err);
-       } 
+       }
        console.log("courses removed");
        data.forEach((course) => {
             Course.create(course, (err, data) => {
@@ -252,13 +291,13 @@ function seedDB() {
     Video.remove({}, (err) => {
         if (err) {
             return console.log(err);
-        } 
+        }
         console.log("Videos Removed")
         videos.forEach((video) => {
             Video.create(video, (err) => {
                if (err) {
                    return console.log(err);
-               } 
+               }
                console.log("Videos Added");
             });
         });
@@ -266,7 +305,7 @@ function seedDB() {
             Part.create(part, (err) => {
                if (err) {
                    return console.log(err);
-               } 
+               }
                console.log("Parts Added");
             });
         });
@@ -278,7 +317,7 @@ function seedDB() {
           Question.create(q, (err) => {
               if (err) return console.log(err);
               console.log("Questions Added");
-          }) 
+          })
        });
     });
     Answer.remove({}, (err) => {
@@ -291,11 +330,11 @@ function seedDB() {
           });
        });
     });
-    
+
     setTimeout(linkVideos, 2000);
     setTimeout(linkParts, 3000);
     // setTimeout(setUpQA, 2000);
-    
+
     function linkVideos() {
         Part.find({}, (err, parts) => {
             if (err) {
@@ -306,18 +345,18 @@ function seedDB() {
                     if (err) {
                         return console.log(err);
                     }
-                    part.videos = foundVideos;  
+                    part.videos = foundVideos;
                     part.save((err) => {
                        if (err) {
                            return console.log(err);
-                       } 
+                       }
                        console.log("Vids Linked With Parts: " + part.title);
                     });
                 });
             });
         });
    }
-   
+
    function linkParts() {
        Course.find({}, (err, courses) => {
           if (err) return console.log(err);
@@ -331,7 +370,7 @@ function seedDB() {
                      if (ctr === foundParts.length) {
                           course.save((err) => {
                                 if (err) return console.log(err);
-                                console.log("Parts Linked With Courses: " + course.title); 
+                                console.log("Parts Linked With Courses: " + course.title);
                           });
                       }
                   });
@@ -339,7 +378,7 @@ function seedDB() {
           });
        });
    }
-   
+
    function linkQuestionsWithUsers() {
        User.findOne({username: "audy"}, (err, user) => {
            if (err) return console.log(err);
@@ -371,8 +410,8 @@ function seedDB() {
                });
            });
        });
-   } 
-   
+   }
+
    function linkAnswersWithUsers() {
        User.findOne({username: "tas"}, (err, user) => {
            if (err) return console.log(err);
@@ -384,7 +423,7 @@ function seedDB() {
                    if (err) return console.log(err);
                    user.save((err) => {
                         if (err) return console.log(err);
-                        console.log("Answer " + ans.code + " linked to " + user.username); 
+                        console.log("Answer " + ans.code + " linked to " + user.username);
                    });
                 });
            });
@@ -399,13 +438,13 @@ function seedDB() {
                    if (err) return console.log(err);
                    user.save((err) => {
                         if (err) return console.log(err);
-                        console.log("Answer " + ans.code + " linked to " + user.username); 
+                        console.log("Answer " + ans.code + " linked to " + user.username);
                    });
                });
            });
        });
-   } 
-   
+   }
+
    function linkQuestionsWithVideos() {
        Question.findOne({title: "What's the difference between Oxidation State and Charge?"}, (err, q) => {
            if (err) return console.log(err);
@@ -427,7 +466,7 @@ function seedDB() {
                                   if (err) return console.log(err);
                                   course.save((err) => {
                                       if (err) return console.log(err);
-                                     console.log("Question " + q.code + " linked to Video " + vid.code);  
+                                     console.log("Question " + q.code + " linked to Video " + vid.code);
                                   });
                               });
                            });
@@ -456,7 +495,7 @@ function seedDB() {
                                   if (err) return console.log(err);
                                   course.save((err) => {
                                       if (err) return console.log(err);
-                                     console.log("Question " + q.code + " linked to Video " + vid.code);  
+                                     console.log("Question " + q.code + " linked to Video " + vid.code);
                                   });
                               });
                            });
@@ -481,7 +520,7 @@ function seedDB() {
                        q.answers.push(ans2);
                        ans2.question = q;
                        ans2.save((err) => {
-                          if (err) return console.log(err); 
+                          if (err) return console.log(err);
                        });
                        q.save((err) => {
                            if (err) return console.log(err);
@@ -491,7 +530,7 @@ function seedDB() {
                });
            });
        }
-   
+
    function setUpQA() {
         linkQuestionsWithUsers();
         linkAnswersWithUsers();
