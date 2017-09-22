@@ -170,6 +170,13 @@ router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, 
                     user.courses.push({course});
                 }
                 insertedParts.forEach((part) => {
+                  Part.findById(part.toString(), (err, part) => {
+                    if (err) return console.log(err);
+                    part.users.push(user);
+                    part.save((err) => {
+                      part.users.push(user);
+                    });
+                  });
                    user.parts.push({part});
                    ctr++;
                    if (ctr === insertedParts.length) {
@@ -218,6 +225,7 @@ router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, 
                 var targetedPartBundle = method.getPartInArrayById(user.parts, selectedPart.toString());
                 targetedPartBundle.expired = false;
                 targetedPartBundle.expiredAt += 10000;
+
                 ctr++;
                 if (ctr === selectedParts.length) {
                 var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
