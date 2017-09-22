@@ -6,7 +6,7 @@
     <% userCourses.forEach((userCourseBundle) => { %>
         <li><a href="/<%= userCourseBundle.course.code %>/learn"><%= userCourseBundle.course.title %></a>
             <ul>
-                <% var userCourseParts = getPartInArrayByCourseTitle(userParts, userCourseBundle.course.title) %>
+                <% var userCourseParts = getPartInUserArrayByCourseTitle(userParts, userCourseBundle.course.title) %>
                 <% userCourseParts.forEach((partBundle) => { %>
                      <li><%= partBundle.part.title %></li>
                      <% if (partBundle.expired) { %>
@@ -23,8 +23,27 @@
         <li><a href="/<%= course.code %>/learn"><%= course.title %></a>
         <a href="/<%= course.code %>/parts/new" class="btn btn-sm btn-danger">Add Part</a>
             <ul>
-                <% course.parts.forEach((part) => { %>
+              <% var userPart = getPartInPartArrayByCourseTitle(parts, course.title) %>
+                <% userPart.forEach((part) => { %>
                      <li><%= part.title %></li>
+                     <ul>
+                       <li>
+                         <h5><%= part.users.length %> Active Students</h5>
+                           <ul>
+                               <% part.users.forEach((user) => { %>
+                                   <li><%= user.username %></li>
+                               <% }); %>
+                           </ul>
+                       </li>
+                       <li>
+                         <h5><%= part.expiredUsers.length %> Expired Students</h5>
+                           <ul>
+                               <% part.expiredUsers.forEach((user) => { %>
+                                   <li><%= user.username %></li>
+                               <% }); %>
+                           </ul>
+                       </li>
+                     </ul>
                 <% }); %>
                 <strong><p>Overall - <%= course.users.length + course.expiredUsers.length %> Students</p></strong>
                 <ul>

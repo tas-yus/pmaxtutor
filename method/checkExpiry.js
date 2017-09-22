@@ -1,6 +1,7 @@
 var User = require("./../models/user");
 var Course = require("./../models/course");
 var method = require("./../method");
+var Part = require("./../models/part");
 var forEach = require('async-foreach').forEach;
 
 var checkExpiry = function() {
@@ -17,6 +18,15 @@ var checkExpiry = function() {
                 if (partBundle.expiredAt < new Date().getTime()) {
                     partBundle.expired = true;
                     console.log(user.username + "\'s " + partBundle.part.title + " has expired!");
+                    Part.findById(partBundle.part._id.toString(), (err, part) => {
+                      if (err) return console.log(err);
+                      part.users = part.users.filter(function(partUser) {return partUser.toString() !== user._id.toString() } );
+                      if (!method.checkIfPartContainsUserOfId(part.expiredUsers, user._id.toString())) part.expiredUsers.push(user);
+                      part.save((err) => {
+                        if (err) return console.log(err);
+                        console.log(user.username + "\'s " + partBundle.part.title + " has expired!")
+                      });
+                    });
                 }
                 ctr++;
                 // done1();

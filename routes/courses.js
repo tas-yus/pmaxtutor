@@ -131,8 +131,8 @@ router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLear
         } else {
             User.findById(req.user._id.toString()).populate({path: "parts.part", select: "code title course"}).exec((err, user) => {
                 if (err) return console.log(err);
-                var getPartInArrayByCourseTitle = method.getPartInArrayByCourseTitle;
-                res.render("courses/learn", {course, user, getPartInArrayByCourseTitle});
+                var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
+                res.render("courses/learn", {course, user, getPartInUserArrayByCourseTitle});
             });
         }
     });

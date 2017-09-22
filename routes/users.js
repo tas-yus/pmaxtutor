@@ -41,8 +41,8 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
 router.get("/:id", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     User.findById(req.params.id).populate("courses.course").populate("parts.part").exec((err, user) => {
       if(err) return console.log(err);
-      var getPartInArrayByCourseTitle = method.getPartInArrayByCourseTitle;
-      res.render("users/show", {user, getPartInArrayByCourseTitle});
+      var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
+      res.render("users/show", {user, getPartInUserArrayByCourseTitle});
     });
 });
 
@@ -52,7 +52,7 @@ router.get("/:id/courses/edit", middleware.isLoggedIn, middleware.isAdmin, (req,
         if (err) return console.log(err);
         Course.find({}).populate("parts").exec((err, courses) => {
             if (err) return console.log(err);
-            res.render("users/edit", {user, courses, getBuyableParts: method.getBuyableParts, getPartInArrayByCourseTitle: method.getPartInArrayByCourseTitle});
+            res.render("users/edit", {user, courses, getBuyableParts: method.getBuyableParts, getPartInUserArrayByCourseTitle: method.getPartInUserArrayByCourseTitle});
         });
     });
 });

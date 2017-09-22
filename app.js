@@ -77,7 +77,7 @@ app.use("/:courseCode/:partCode/:vidCode/:questionCode", answerRoutes);
 
 // Checkout Cart ******
 
-schedule.scheduleJob('0,30 * * * * *', function(){
+schedule.scheduleJob('0 * * * * *', function(){
     checkExpiry();
 });
 

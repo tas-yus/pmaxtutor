@@ -8,7 +8,7 @@
                 <li><%= userCourseBundle.course.title %>
                     <ul>
                         <li>
-                            <% var removableParts = getPartInArrayByCourseTitle(user.parts, userCourseBundle.course.title); %>
+                            <% var removableParts = getPartInUserArrayByCourseTitle(user.parts, userCourseBundle.course.title); %>
                             <% removableParts.forEach((partBundle) => { %>
                                 <label><%= partBundle.part.title %></label>
                                 <input type="checkbox" name="removeParts" value="<%= partBundle.part._id.toString() %>">

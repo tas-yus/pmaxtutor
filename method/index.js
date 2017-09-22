@@ -17,8 +17,13 @@ methodObj.getCourseInArrayByTitle = function (courseArray, title) {
     return result? result[0] : null; // or undefined
 };
 
-methodObj.getPartInArrayByCourseTitle = function (partArray, courseTitle) {
+methodObj.getPartInUserArrayByCourseTitle = function (partArray, courseTitle) {
     var result  = partArray.filter(function(partBundle){return partBundle.part.course === courseTitle;} );
+    return result? result : null; // or undefined
+};
+
+methodObj.getPartInPartArrayByCourseTitle = function (partArray, courseTitle) {
+    var result  = partArray.filter(function(part){return part.course === courseTitle;} );
     return result? result : null; // or undefined
 };
 
@@ -142,6 +147,14 @@ methodObj.checkIfCourseContainsUserOfId = function (courseUserArray, id) {
     for (var i = 0; i < courseUserArray.length; i++) {
       var courseUser = courseUserArray[i];
       if (courseUser.toString() === id) return true;
+    }
+    return false;
+};
+
+methodObj.checkIfPartContainsUserOfId = function (partUserArray, id) {
+    for (var i = 0; i < partUserArray.length; i++) {
+      var partUser = partUserArray[i];
+      if (partUser.toString() === id) return true;
     }
     return false;
 };

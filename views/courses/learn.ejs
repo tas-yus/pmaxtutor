@@ -4,7 +4,7 @@
 <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
     
     <% if (!user.isAdmin) { %>
-        <% var userCourseParts = getPartInArrayByCourseTitle(user.parts, course.title) %>
+        <% var userCourseParts = getPartInUserArrayByCourseTitle(user.parts, course.title) %>
         <% userCourseParts.forEach((partBundle) => { %>
             <a href="/<%= course.code %>/<%= partBundle.part.code %>/learn"><%= partBundle.part.title %></a>
         <% }); %>

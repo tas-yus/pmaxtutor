@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var User = require("./../models/user");
 var Course = require("./../models/course");
+var Part = require("./../models/part");
 var passport = require("passport");
 var middleware = require("./../middleware");
 var Promise = require("bluebird");
@@ -50,12 +51,14 @@ router.get("/logout", function(req, res){
 router.get("/dashboard", middleware.isLoggedIn, (req, res) => {
     var findUser = User.findById(req.user._id).populate({path: "courses.course", select: "code title"}).populate({path: "parts.part", select: "title course"}).populate("cartCourses").exec();
     var findCourses = Course.find({}).populate("users").populate("expiredUsers").populate("parts").exec();
-    return Promise.join(findUser, findCourses, (user, courses) => {
+    var findParts = Part.find({}).populate("users").populate("expiredUsers").exec();
+    return Promise.join(findUser, findCourses, findParts, (user, courses, parts) => {
         var userCourses = user.courses;
         var userParts = user.parts;
         var cartCourses = user.cartCourses;
-        var getPartInArrayByCourseTitle = method.getPartInArrayByCourseTitle;
-        res.render("users/dashboard", {userCourses, userParts, courses, cartCourses, getPartInArrayByCourseTitle});
+        var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
+        var getPartInPartArrayByCourseTitle = method.getPartInPartArrayByCourseTitle;
+        res.render("users/dashboard", {userCourses, userParts, courses, parts, cartCourses, getPartInUserArrayByCourseTitle, getPartInPartArrayByCourseTitle});
     }).catch((err) => {
         console.log(err);
     });

@@ -4,7 +4,7 @@
     <% user.courses.forEach((userCourseBundle) => { %>
         <li><%= userCourseBundle.course.title %>
             <ul>
-                <% var userCourseParts = getPartInArrayByCourseTitle(user.parts, userCourseBundle.course.title) %>
+                <% var userCourseParts = getPartInUserArrayByCourseTitle(user.parts, userCourseBundle.course.title) %>
                 <% userCourseParts.forEach((partBundle) => { %>
                      <li><%= partBundle.part.title %></li>
                      <% if (partBundle.expired) { %>

@@ -27,6 +27,13 @@ var PartSchema = new mongoose.Schema({
             ref: "User",
             default: []
         }
+    ],
+    expiredUsers: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: []
+        }
     ]
 });
 
