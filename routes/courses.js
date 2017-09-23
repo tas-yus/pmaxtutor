@@ -174,7 +174,7 @@ router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, 
                     if (err) return console.log(err);
                     part.users.push(user);
                     part.save((err) => {
-                      part.users.push(user);
+                      if (err) return console.log(err);
                     });
                   });
                    user.parts.push({part});
@@ -225,7 +225,14 @@ router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, 
                 var targetedPartBundle = method.getPartInArrayById(user.parts, selectedPart.toString());
                 targetedPartBundle.expired = false;
                 targetedPartBundle.expiredAt += 10000;
-
+                Part.findById(selectedPart.toString(), (err, part) => {
+                  if (err) return console.log(err);
+                  part.expiredUsers = part.expiredUsers.filter(function(expiredUser) { return expiredUser.toString() !== user._id.toString()});
+                  part.users.push(user);
+                  part.save((err) => {
+                    if (err) return console.log(err);
+                  });
+                });
                 ctr++;
                 if (ctr === selectedParts.length) {
                 var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());

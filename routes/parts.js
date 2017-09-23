@@ -166,6 +166,14 @@ router.post("/:partCode/extend", middleware.isLoggedIn, middleware.canExtend, (r
        var targetedPartBundle = method.getPartInArrayById(user.parts, extendedPart.toString());
        targetedPartBundle.expired = false;
        targetedPartBundle.expiredAt += 10000;
+       Part.findById(targetedPartBundle.part._id.toString(), (err, part) => {
+         if (err) return console.log(err);
+         part.expiredUsers = part.expiredUsers.filter(function(expiredUser) { return expiredUser.toString() !== user._id.toString()});
+         part.users.push(user);
+         part.save((err) => {
+           if (err) return console.log(err);
+         });
+       });
        var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
        if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
            var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());

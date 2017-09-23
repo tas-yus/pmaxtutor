@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var User = require("./../models/user");
 var Course = require("./../models/course");
+var Part = require("./../models/part");
 var mongoose = require("mongoose");
 var middleware = require("./../middleware");
 var method = require("./../method");
@@ -80,6 +81,13 @@ router.put("/:id/:courseCode", middleware.isLoggedIn, middleware.isAdmin, (req, 
                     method.checkPartOwnership(user.parts, addPart.toString()) !== "expired") {
                     user.parts.push({part: mongoose.Types.ObjectId(addPart)});
                 }
+                Part.findById(addPart.toString(), (err, part) => {
+                  if (err) return console.log(err);
+                  part.users.push(user);
+                  part.save((err) => {
+                    if (err) return console.log(err);
+                  });
+                });
                 ctr++;
                 if (ctr === addParts.length) {
                     user.save((err) => {

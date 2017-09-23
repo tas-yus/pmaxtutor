@@ -67,11 +67,13 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 
 // AGENDA
 
-// when delete course all resources should be deleted and all parts and all vids associated with it
+// when delete course all resources should be deleted and all parts and all vids associated with it should be dispatched!
 
-// Invoice model + Credit card validation
+// Invoice model (confirmation) + Credit card validation
 
-// User manage =>
+// choose from old file? when upload
+
+// Notifications
 
 // video player
 
