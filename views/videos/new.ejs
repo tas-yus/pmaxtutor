@@ -2,7 +2,7 @@
     <h1 id="form-header">Add Video</h1>
     <!--<h1>Add Videos <i class="fa fa-plus" aria-hidden="true" id="add-vids"></i>-->
     <!--<i class="fa fa-minus" aria-hidden="true" id="remove-vids"></i></h1>-->
-    <form action="/<%= courseCode %>/<%= partCode %>/videos" enctype="multipart/form-data" method="POST" id="regular-form">
+    <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos" enctype="multipart/form-data" method="POST" id="regular-form">
         <div class="form-group">
             <input class="form-control" type="text" name="title" placeholder="video title">
         </div>
@@ -12,4 +12,4 @@
         <button>Add</button>
     </form>
     <script src="/assets/js/main.js"></script>
-<% include ../partials/footer %> 
+<% include ../partials/footer %>

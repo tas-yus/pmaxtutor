@@ -19,10 +19,10 @@ middlewareObj.canAccessLearn = function (req, res, next) {
             return next();
         } else if (method.checkCourseOwnership(req.user.courses, course._id.toString()) === "expired") {
             req.flash("error", "โปรดต่ออายุคอร์สต่อไปนี้เพื่อเข้าดู");
-            res.redirect(`/${req.params.courseCode}/extend`);
+            res.redirect(`/courses/${req.params.courseCode}/extend`);
         } else {
             req.flash("error", "โปรดซื้อคอร์สต่อไปนี้เพื่อเข้าดู");
-            res.redirect(`/${req.params.courseCode}/buy`);
+            res.redirect(`/courses/${req.params.courseCode}/buy`);
         }
     });
 };
@@ -36,10 +36,10 @@ middlewareObj.canLearn = function(req, res, next) {
                 return next();
             } else if (method.checkPartOwnership(req.user.parts, part._id.toString()) === "expired") {
                 req.flash("error", "โปรดต่ออายุบทนี้เพื่อเข้าดู");
-                res.redirect(`/${req.params.courseCode}/${req.params.partCode}/extend`);
+                res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/extend`);
             } else {
                 req.flash("error", "โปรดซื้อบทนี้เพื่อเข้าดู");
-                res.redirect(`/${req.params.courseCode}/buy`);
+                res.redirect(`/courses/${req.params.courseCode}/buy`);
             }
         });
     });
@@ -54,7 +54,7 @@ middlewareObj.canBuy = function(req, res, next) {
         var buyableParts = method.getBuyableParts(course.parts, req.user.parts);
         if (buyableParts.length === 0) {
             req.flash("error", "ไม่มีบทที่คุณสามารถซื้อได้");
-            res.redirect(`/${req.params.courseCode}/learn`);
+            res.redirect(`/courses/${req.params.courseCode}/learn`);
         } else {
             next();
         }
@@ -70,7 +70,7 @@ middlewareObj.canExtend = function(req, res, next) {
         var extendableParts = method.getExtendableParts(course.parts, req.user.parts);
         if (extendableParts.length === 0) {
             req.flash("error", "ไม่มีบทที่จำเป็นต้องต่ออายุ");
-            res.redirect(`/${req.params.courseCode}/learn`);
+            res.redirect(`/courses/${req.params.courseCode}/learn`);
         } else {
             next();
         }

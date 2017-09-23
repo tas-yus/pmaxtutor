@@ -4,7 +4,7 @@
     <h1>Hello <%= user.username%></h1>
     <p>Your Courses</p>
     <% userCourses.forEach((userCourseBundle) => { %>
-        <li><a href="/<%= userCourseBundle.course.code %>/learn"><%= userCourseBundle.course.title %></a>
+        <li><a href="/courses/<%= userCourseBundle.course.code %>/learn"><%= userCourseBundle.course.title %></a>
             <ul>
                 <% var userCourseParts = getPartInUserArrayByCourseTitle(userParts, userCourseBundle.course.title) %>
                 <% userCourseParts.forEach((partBundle) => { %>
@@ -20,8 +20,8 @@
     <h1>Hello Admin <%= user.username%></h1>
     <p>All Courses</p>
     <% courses.forEach((course) => { %>
-        <li><a href="/<%= course.code %>/learn"><%= course.title %></a>
-        <a href="/<%= course.code %>/parts/new" class="btn btn-sm btn-danger">Add Part</a>
+        <li><a href="/courses/<%= course.code %>/learn"><%= course.title %></a>
+        <a href="/courses/<%= course.code %>/parts/new" class="btn btn-sm btn-danger">Add Part</a>
             <ul>
               <% var userPart = getPartInPartArrayByCourseTitle(parts, course.title) %>
                 <% userPart.forEach((part) => { %>

@@ -8,16 +8,16 @@
      <% vid.resources.forEach((res) => { %>
             <a href="/assets/resources/<%= res.path %>" download>Download <%= res.title %></a><br>
             <% if(user.isAdmin) { %>
-                <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>/<%= res.code %>?_method=DELETE" method="POST">
+                <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/resources/<%= res.code %>?_method=DELETE" method="POST">
                     <button><i class="fa fa-times" aria-hidden="true"></i></button>
                 </form>
             <% } %>
         <% }) %>
     <% if(user.isAdmin) { %>
-        <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>?_method=DELETE" method="POST">
+        <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>?_method=DELETE" method="POST">
             <button class="btn btn-danger">Delete Video</button>
         </form>
-        <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>/resources/new" method="GET">
+        <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/resources/new" method="GET">
             <button class="btn btn-success">Add Resource</button>
         </form>
         <br>
@@ -34,7 +34,7 @@
                 </button>
                 <div class="collapse" id="collapse<%= question.code %>">
                   <div class="well">
-                    <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>/<%= question.code %>/answers" method="POST" id="regular-form">
+                    <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/questions/<%= question.code %>/answers" method="POST" id="regular-form">
                         <div class="form-group">
                             <textarea class="form-control" type="text" name="answer[body]" placeholder="answer goes here!"></textarea>
                         </div>
@@ -57,7 +57,7 @@
     </button>
     <div class="collapse" id="askQuestion">
          <div class="well">
-            <form action="/<%= courseCode %>/<%= partCode %>/<%= vid.code %>/questions" method="POST" id="regular-form">
+            <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/questions" method="POST" id="regular-form">
                 <div class="form-group">
                         <input class="form-control" type="text" name="question[title]" placeholder="title">
                 </div>

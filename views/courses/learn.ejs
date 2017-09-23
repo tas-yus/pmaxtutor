@@ -2,17 +2,17 @@
 <h1>Learn <%= course.title %></h1>
 <iframe width="560" height="315" src="<%= course.video %>" frameborder="0" allowfullscreen></iframe>
 <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
-    
+
     <% if (!user.isAdmin) { %>
         <% var userCourseParts = getPartInUserArrayByCourseTitle(user.parts, course.title) %>
         <% userCourseParts.forEach((partBundle) => { %>
-            <a href="/<%= course.code %>/<%= partBundle.part.code %>/learn"><%= partBundle.part.title %></a>
+            <a href="/courses/<%= course.code %>/parts/<%= partBundle.part.code %>/learn"><%= partBundle.part.title %></a>
         <% }); %>
     <% } else { %>
         <% course.parts.forEach((part) => { %>
-            <a href="/<%= course.code %>/<%= part.code %>/learn"><%= part.title %></a>
+            <a href="/courses/<%= course.code %>/parts/<%= part.code %>/learn"><%= part.title %></a>
         <% }); %>
-        <a class="btn btn-primary" href="/<%= course.code %>/edit">Edit Course</a>
+        <a class="btn btn-primary" href="/courses/<%= course.code %>/edit">Edit Course</a>
     <% } %>
 
 <% include ../partials/footer %>

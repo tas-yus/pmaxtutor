@@ -29,14 +29,14 @@ router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, 
 });
 
 // NEW VIDS
-router.get("/videos/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     var courseCode = req.params.courseCode;
     var partCode = req.params.partCode;
     res.render("videos/new", {courseCode, partCode});
 });
 
 // CREATE VIDS **** sucks
-router.post("/videos", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     if (!req.files.file) {
             return res.redirect("/courses");
     }
@@ -63,7 +63,7 @@ router.post("/videos", middleware.isLoggedIn, middleware.isAdmin, (req, res) => 
                    part.videos.push(vid);
                    part.save((err) => {
                        if (err) return console.log(err);
-                       res.redirect(`/${req.params.courseCode}/${req.params.partCode}/learn`);
+                       res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/learn`);
                    });
                 });
             }).catch((err) => {
@@ -74,7 +74,7 @@ router.post("/videos", middleware.isLoggedIn, middleware.isAdmin, (req, res) => 
 });
 
 // DELETE VID
-router.delete("/:videoCode", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+router.delete("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     Part.findOne({code: req.params.partCode}).populate("videos").exec((err, part) => {
        if (err) {
            return console.log(err);
@@ -84,11 +84,11 @@ router.delete("/:videoCode", middleware.isLoggedIn, middleware.isAdmin, (req, re
           if (err) {
               return console.log(err);
           }
-          Video.findOneAndRemove({code: req.params.videoCode}, (err) => {
+          Video.findOneAndRemove({code: req.params.vidCode}, (err) => {
                 if (err) {
                     return console.log(err);
                 }
-                res.redirect(`/${req.params.courseCode}/${req.params.partCode}/learn`);
+                res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/learn`);
             });
        });
     });

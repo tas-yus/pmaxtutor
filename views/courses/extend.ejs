@@ -1,5 +1,5 @@
 <% include ../partials/header %>
-    <form action="/<%= course.code %>/extend" method="POST">
+    <form action="/courses/<%= course.code %>/extend" method="POST">
         <% parts.forEach((part) => { %>
             <label><%= part.title %></label><input type="checkbox" name="selectedParts" value="<%= part._id.toString() %>">
         <% }); %>

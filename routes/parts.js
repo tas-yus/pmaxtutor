@@ -28,15 +28,15 @@ router.get("/:partCode/learn", middleware.isLoggedIn, middleware.canAccessLearn,
 });
 
 // NEW PART
-router.get("/parts/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     var courseCode = req.params.courseCode;
     res.render("parts/new", {courseCode});
 });
 
 // CREATE PART
-router.post("/parts", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     if (!req.files.file) {
-        return res.redirect(`/${req.params.courseCode}/parts/new`);
+        return res.redirect(`/courses/${req.params.courseCode}/parts/new`);
     }
     let file = req.files.file;
     var path = req.body.image + ".jpg";
@@ -66,7 +66,7 @@ router.post("/parts", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
                 if (err) {
                     return console.log(err);
                 }
-                res.redirect(`/${course.code}/${part.code}/videos/new`);
+                res.redirect(`/courses/${course.code}/parts/${part.code}/videos/new`);
             });
         });
     });

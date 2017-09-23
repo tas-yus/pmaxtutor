@@ -57,12 +57,12 @@ app.use(function(req, res, next) {
 // ======== ROUTES ========
 app.use("/", indexRoutes);
 app.use("/users", userRoutes);
-app.use("/", courseRoutes);
-app.use("/:courseCode", partRoutes);
-app.use("/:courseCode/:partCode", videoRoutes);
-app.use("/", resourceRoutes);
-app.use("/:courseCode", questionRoutes);
-app.use("/:courseCode/:partCode/:vidCode/:questionCode", answerRoutes);
+app.use("/courses", courseRoutes);
+app.use("/courses/:courseCode/parts", partRoutes);
+app.use("/courses/:courseCode/parts/:partCode/videos", videoRoutes);
+app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/resources", resourceRoutes);
+app.use("/courses/:courseCode", questionRoutes);
+app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questionCode/answers", answerRoutes);
 // ========================
 
 // AGENDA

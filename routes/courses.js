@@ -11,7 +11,7 @@ var checkExpiry = require("./../method/checkExpiry");
 var config = require("./../config");
 
 // ALL COURSES
-router.get("/courses", (req, res) => {
+router.get("/", (req, res) => {
     Course.find({}).sort({order:1}).exec((err, courses) => {
         if (err) {
            return console.log(err);
@@ -19,6 +19,11 @@ router.get("/courses", (req, res) => {
         console.log("/courses");
         res.render("courses/index", {courses});
     });
+});
+
+// NEW COURSE
+router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+    res.render("courses/new");
 });
 
 // SHOW COURSE
@@ -44,13 +49,8 @@ router.get("/:courseCode", (req, res) => {
     });
 });
 
-// NEW COURSE
-router.get("/courses/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-    res.render("courses/new");
-});
-
 // CREATE COURSE
-router.post("/courses", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     if (!req.files.file) {
         return res.redirect("/courses/new");
     }

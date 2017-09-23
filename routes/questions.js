@@ -25,7 +25,7 @@ router.get("/questions", (req, res) => {
 });
 
 // CREATE QUESTIONS
-router.post("/:partCode/:vidCode/questions", (req, res) => {
+router.post("/parts/:partCode/videos/:vidCode/questions", (req, res) => {
     var newQuestion = req.body.question;
     newQuestion.author = req.user;
     var findVideo = Video.findOne({code: req.params.vidCode});
@@ -34,9 +34,9 @@ router.post("/:partCode/:vidCode/questions", (req, res) => {
         newQuestion.video = video;
         video.questions.push(question);
         video.save().then(() => {
-            res.redirect(`/${req.params.courseCode}/${req.params.partCode}/${req.params.vidCode}/learn`);
+            res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/videos/${req.params.vidCode}/learn`);
         }).catch((err) => {
-           console.log(err); 
+           console.log(err);
         });
     }).catch((err) => {
         console.log(err);

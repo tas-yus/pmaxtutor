@@ -10,17 +10,17 @@ var Promise = require("bluebird");
 var config = require("./../config");
 
 // NEW RESOURCES
-router.get("/:courseCode/:partCode/:videoCode/resources/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     var courseCode = req.params.courseCode;
     var partCode = req.params.partCode;
-    var videoCode = req.params.videoCode;
+    var videoCode = req.params.vidCode;
     res.render("resources/new", {courseCode, partCode, videoCode});
 });
 
 // CREATE RESOURCES
-router.post("/:courseCode/:partCode/:videoCode/resources", (req, res) => {
+router.post("/", (req, res) => {
     if (!req.files.file) {
-        return res.redirect(`/${req.params.courseCode}/${req.params.partCode}/${req.params.videoCode}/resources/new`);
+        return res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/videos/${req.params.vidCode}/resources/new`);
     }
     let file = req.files.file;
     var path = method.createCode(req.body.title) + ".pdf";
@@ -30,7 +30,7 @@ router.post("/:courseCode/:partCode/:videoCode/resources", (req, res) => {
     };
     var createResource = Resource.create(newResource);
     var findCourse = Course.findOne({code: req.params.courseCode});
-    var findVideo = Video.findOne({code: req.params.videoCode});
+    var findVideo = Video.findOne({code: req.params.vidCode});
     return Promise.join(createResource, findCourse, findVideo, (resource, course, vid) => {
         course.resources.push(resource);
         vid.resources.push(resource);
@@ -42,7 +42,7 @@ router.post("/:courseCode/:partCode/:videoCode/resources", (req, res) => {
             });
             return vid.save();
         }).then(() => {
-            res.redirect(`/${req.params.courseCode}/${req.params.partCode}/learn`);
+            res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/learn`);
         }).catch((err) => {
             console.log(err);
         });
@@ -54,12 +54,12 @@ router.post("/:courseCode/:partCode/:videoCode/resources", (req, res) => {
 // DELETE RESOURCE
 // when delete vid resources should all go
 // actually delete res files
-router.delete("/:courseCode/:partCode/:videoCode/:resourceCode", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+router.delete("/:resourceCode", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     Course.findOne({code: req.params.courseCode}).populate({path: "resources", select: "code"}).exec().then((course) => {
         course.resources = course.resources.filter(function(res) { return res.code !== req.params.resourceCode });
         return course.save();
     }).then(() => {
-        return Video.findOne({code: req.params.videoCode}).populate({path: "resources", select: "code"}).exec();
+        return Video.findOne({code: req.params.vidCode}).populate({path: "resources", select: "code"}).exec();
     }).then((vid) => {
         vid.resources = vid.resources.filter(function(res) { return res.code !== req.params.resourceCode });
         return vid.save();
@@ -77,7 +77,7 @@ router.delete("/:courseCode/:partCode/:videoCode/:resourceCode", middleware.isLo
                 console.log('file deleted successfully');
             });
         });
-        res.redirect(`/${req.params.courseCode}/${req.params.partCode}/learn`);
+        res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/learn`);
     });
 });
 
