@@ -68,19 +68,19 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // AGENDA
 
 // when delete course all resources should be deleted and all parts and all vids associated with it should be dispatched!
-
 // Invoice model (confirmation) + Credit card validation
-
 // choose from old file? when upload
-
 // Notifications
-
 // video player
-
 // Checkout Cart ******
+// logging
 
 schedule.scheduleJob('0,30 * * * * *', function(){
     checkExpiry();
+});
+
+app.get("/test", (req, res) => {
+  res.render("videos/test");
 });
 
 app.get("/courses/checkout", middleware.isLoggedIn, (req, res) => {
