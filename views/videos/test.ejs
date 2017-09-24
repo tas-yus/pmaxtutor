@@ -1,7 +1,8 @@
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="assets/js/video-player.js"></script>
 <div id="video-container">
-  <!-- Video -->
+
+
   <video id="video" width="640" height="365">
     <source src="assets/videos/small.mp4" type="video/mp4">
     <p>
@@ -9,7 +10,8 @@
       <a href="assets/videos/small.mp4">Download</a> the video instead.
     </p>
   </video>
-  <!-- Video Controls -->
+
+
   <div id="video-controls">
     <button type="button" id="play-pause">Play</button>
     <input type="range" id="seek-bar" value="0">
@@ -17,4 +19,168 @@
     <input type="range" id="volume-bar" min="0" max="1" step="0.1" value="1">
     <button type="button" id="full-screen">Full-Screen</button>
   </div>
+</div> -->
+
+<% include ../partials/header %>
+<div class="jumbotron">
+  <video width="100%" id="videoPlayer">
+    <source src="/assets/videos/test.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+  </video>
+  <div class="videoControls">
+      <div class="videoSeekBar">
+        <input type="range" class="seek-bar" value="0">
+      </div>
+      <div class="videoTime">
+        <span class="current">0:00</span>/<span class="duration"></span>
+      </div>
+      <div class="videoPlay">
+        <a href="#" class="btnPlay"><span class="glyphicon glyphicon-play"></span></a>
+      </div>
+      <div class="videoBack">
+        <a href="#" class="btnBack"><span class="glyphicon glyphicon-step-backward"></span></a>
+      </div>
+      <div class="videoSpeed dropup">
+        <a href="#" class="btnSpeed" class="btnOptions dropdown-toggle" id="videoSpeed" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-menu-up"></span></a>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+          <li><a href="#" class="super-fast">2.0x</a></li>
+          <li><a href="#" class="fast">1.5x</a></li>
+          <li><a href="#" class="slightly-fast">1.25x</a></li>
+          <li><a href="#" class="normal">1.0x</a></li>
+          <li><a href="#" class="slow">0.75x</a></li>
+          <li><a href="#" class="super-slow">0.5x</a></li>
+        </ul>
+      </div>
+      <div class="videoForward">
+        <a href="#" class="btnForward"><span class="glyphicon glyphicon-step-forward"></span></a>
+      </div>
+      <div class="videoMute">
+        <a href="#" class="btnMute"><span class="glyphicon glyphicon-volume-up"></span></a>
+      </div>
+      <div class="videoVolumeBar">
+        <input type="range" class="volume-bar" min="0" max="1" step="0.1" value="1">
+      </div>
+      <div class="videoOptions dropup">
+        <a href="#" class="btnOptions dropdown-toggle" id="videoOptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span></a>
+        <ul class="dropdown-menu" aria-labelledby="videoOptions">
+          <li><a href="#" class="high-quality">720p</a></li>
+          <li><a href="#" class="medium-quality">480p</a></li>
+          <li><a href="#">360p</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#">Download Lecture</a></li>
+        </ul>
+      </div>
+      <div class="videoFullscreen">
+        <a href="#" class="btnFullscreen"><span class="glyphicon glyphicon-fullscreen"></span></a>
+      </div>
+  </div>
+  <!-- <div class="container">
+    <div class="row">
+      <div class="col-sm-6 col-xs-12">
+        <h2>Left Col</h2>
+      </div>
+      <div class="col-sm-6 col-xs-12">
+        <h2>Right Col</h2>
+      </div>
+    </div>
+  </div> -->
 </div>
+<script>
+  $(document).ready(function() {
+    var videoPlayer = $('#videoPlayer');
+    $(".btnPlay").click(function() {
+      if (videoPlayer[0].paused) {
+        videoPlayer[0].play();
+        $(".glyphicon-play").attr("class", "glyphicon glyphicon-pause");
+      } else {
+        videoPlayer[0].pause();
+        $(".glyphicon-pause").attr("class", "glyphicon glyphicon-play");
+      }
+      return false;
+    });
+    videoPlayer.on("timeupdate", function() {
+      $(".current").text(toClockTime(Math.round(videoPlayer[0].currentTime)));
+    });
+    videoPlayer.on("loadedmetadata", function() {
+      $(".duration").text(toClockTime(Math.round(videoPlayer[0].duration)));
+    });
+    $(".btnMute").click(function() {
+      if (!videoPlayer[0].muted) {
+        videoPlayer[0].muted = true;
+        $(".glyphicon-volume-up").attr("class", "glyphicon glyphicon-volume-off");
+      } else {
+        videoPlayer[0].muted = false;
+        $(".glyphicon-volume-off").attr("class", "glyphicon glyphicon-volume-up");
+      }
+    });
+    $(".btnFullscreen").on("click", function() {
+      videoPlayer[0].webkitEnterFullscreen();
+      videoPlayer[0].mozRequestFullScreen();
+      return false;
+    });
+    $(".seek-bar").on("change", function() {
+      var time = videoPlayer[0].duration * ($(this).val() / 100);
+      videoPlayer[0].currentTime = time;
+    });
+    videoPlayer.on("timeupdate", function() {
+      var value = (100/videoPlayer[0].duration) * videoPlayer[0].currentTime;
+      $(".seek-bar").val(value);
+    });
+    $(".volume-bar").on("change", function() {
+      videoPlayer[0].volume = $(this).val();
+    });
+    $(".medium-quality").click(function() {
+      var time = videoPlayer[0].currentTime;
+      var videoFile = "/assets/videos/small.mp4"
+      $('#videoPlayer source').attr("src", videoFile);
+      videoPlayer[0].load();
+      videoPlayer[0].currentTime = time;
+      videoPlayer[0].play();
+    });
+    $(".high-quality").click(function() {
+      var time = videoPlayer[0].currentTime;
+      var videoFile = "/assets/videos/test.mp4"
+      $('#videoPlayer source').attr("src", videoFile);
+      videoPlayer[0].load();
+      videoPlayer[0].currentTime = time;
+      videoPlayer[0].play();
+    });
+    $(".btnBack").click(function() {
+      var time = videoPlayer[0].currentTime - 15;
+      if (time < 0) time = 0;
+      videoPlayer[0].currentTime = time;
+    });
+    $(".btnForward").click(function() {
+      var time = videoPlayer[0].currentTime + 15;
+      if (time > videoPlayer[0].duration) time = videoPlayer[0].duration;
+      videoPlayer[0].currentTime = time;
+    });
+    $(".super-fast").click(function() {
+      videoPlayer[0].playbackRate = 2.0;
+    });
+    $(".fast").click(function() {
+      videoPlayer[0].playbackRate = 1.5;
+    });
+    $(".slightly-fast").click(function() {
+      videoPlayer[0].playbackRate = 1.25;
+    });
+    $(".normal").click(function() {
+      videoPlayer[0].playbackRate = 1.0;
+    });
+    $(".slow").click(function() {
+      videoPlayer[0].playbackRate = 0.75;
+    });
+    $(".super-slow").click(function() {
+      videoPlayer[0].playbackRate = 0.50;
+    });
+    function toClockTime(timeInSec) {
+        var min = Math.floor(timeInSec/60);
+        var sec = Math.floor(timeInSec % 60);
+        if (sec < 10) sec = "0" + sec;
+        var time = "";
+        time = time + min + ":" + sec;
+        return time;
+    }
+  });
+</script>
+<% include ../partials/footer %>

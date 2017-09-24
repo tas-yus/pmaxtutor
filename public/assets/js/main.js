@@ -13,3 +13,7 @@ $(".list-group-item").click(function() {
 		$(".list-group-item.active").not(this).toggleClass("active");
 	}
 });
+
+$( function() {
+  $( "#draggable" ).draggable();
+} );
