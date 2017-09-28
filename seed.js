@@ -12,7 +12,7 @@ var data = [
         title: "Chem Olympic 1",
         code: "chem-olympic-1",
         image: "chem1.jpg",
-        description: "คอร์สแรกสุดสำหรับน้องๆที่ต้องการสอบ สอวน.เคมี น้องๆจะได้เรียนทบทวนเนื้อหาเคมี ม.4 ที่จำเป็น เช่น โครงสร้างอะตอม (Atomic Structure) แนวโน้มตารางธาตุ (Periodic Trend) และพันธะเคมี (Chemical Boding) นอกจากนี้ยังได้เรียนเนื้อหาขั้นสูงขี้นไปทั้งเรื่องฟังก์ชันคลื่น Schrodinger และ ทฤษฎีพันธะ Hybridization และ Molecular Theory",
+        description: "โครงสร้างอะตอม (Atomic Structure) แนวโน้มตารางธาตุ (Periodic Trend) พันธะเคมี (Chemical Boding) และเนื้อหาขั้นสูงเช่น ฟังก์ชันคลื่น Schrodinger ทฤษฎีพันธะ Hybridization และ Molecular Theory",
         video: "https://www.youtube.com/embed/wQPaykRPI5Q",
         price: 2000,
         order: 1
@@ -21,7 +21,7 @@ var data = [
         title: "Chem Olympic 2",
         code: "chem-olympic-2",
         image: "chem2.jpg",
-        description: "คอร์สแรกสุดสำหรับน้องๆที่ต้องการสอบ สอวน.เคมี น้องๆจะได้เรียนทบทวนเนื้อหาเคมี ม.4 ที่จำเป็น เช่น โครงสร้างอะตอม (Atomic Structure) แนวโน้มตารางธาตุ (Periodic Trend) และพันธะเคมี (Chemical Boding) นอกจากนี้ยังได้เรียนเนื้อหาขั้นสูงขี้นไปทั้งเรื่องฟังก์ชันคลื่น Schrodinger และ ทฤษฎีพันธะ Hybridization และ Molecular Theory",
+        description: "พาร์ทคำนวณ เช่น ปริมาณสารสัมพันธ์ (Stoichiometry) สารละลายและความเข้มข้น (Concentration) ของแข็ง ของเหลว แก็ส (Solid, Liquid, Gas)",
         video: "https://www.youtube.com/embed/OOB6_qmwKMI",
         price: 1800,
         order: 2
@@ -30,10 +30,37 @@ var data = [
         title: "Chem Olympic 3",
         code: "chem-olympic-3",
         image: "chem3.jpg",
-        description: "คอร์สแรกสุดสำหรับน้องๆที่ต้องการสอบ สอวน.เคมี น้องๆจะได้เรียนทบทวนเนื้อหาเคมี ม.4 ที่จำเป็น เช่น โครงสร้างอะตอม (Atomic Structure) แนวโน้มตารางธาตุ (Periodic Trend) และพันธะเคมี (Chemical Boding) นอกจากนี้ยังได้เรียนเนื้อหาขั้นสูงขี้นไปทั้งเรื่องฟังก์ชันคลื่น Schrodinger และ ทฤษฎีพันธะ Hybridization และ Molecular Theory",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
         video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
         price: 1900,
         order: 3
+    },
+    {
+        title: "Chem Olympic 4",
+        code: "chem-olympic-4",
+        image: "chem4.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 4
+    },
+    {
+        title: "Chem Olympic 5",
+        code: "chem-olympic-5",
+        image: "chem5.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 5
+    },
+    {
+        title: "Chem Olympic 6",
+        code: "chem-olympic-6",
+        image: "chem6.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 6
     }
 ];
 

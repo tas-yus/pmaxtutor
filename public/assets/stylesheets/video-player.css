@@ -1,6 +1,6 @@
 .videoControls {
   width: 100%;
-  font-size: 2.0vw;
+  font-size: 20px;
 }
 .videoControls span, .videoControls div {
   display: inline-block;
@@ -13,13 +13,13 @@
 
 .videoFullscreen, .videoPlay, .videoMute, .videoOptions {
   text-align: center;
-  width: 3%;
+  width: 5%;
 }
 
 .videoTime {
   text-align: center;
   width: 9%;
-  font-size: 1.5vw;
+  font-size: 15px;
 }
 
 .videoSeekBar {
@@ -35,7 +35,15 @@ glyphicon:hover {
   color: #555;
 }
 
-input[type=range] {
+.videoControls {
+    position:absolute;
+    float:left;
+    width:100%;
+    min-height:50px;
+    background-color:#000;
+    z-index:300000;
+}
+/*input[type=range] {
   -webkit-appearance: none;
   margin: 18px 0;
   width: 100%;
@@ -122,4 +130,4 @@ input[type=range]:focus::-ms-fill-lower {
 }
 input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
-}
+}*/

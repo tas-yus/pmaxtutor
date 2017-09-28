@@ -1,116 +1,222 @@
-            body {
-                padding-top: 50px;
-                font-family: 'Roboto', sans-serif;
-            }
-            .thumbnail>img {
-                width: 100%;
-                border-radius: 5px 5px 0 0;
-            }
-            .thumbnail {
-                padding: 0;
-                border: none;
-            }
-            .row {
-                padding-top: 20px;
-                display: flex;
-                flex-wrap: wrap;
-            }
-            div.col-sm-4 {
-                padding: 20px;
-            }
-            div.col-sm-4>img {
-                width: 100%;
-            }
-            #regular-form {
-                width: 50%;
-                margin: 0 auto;
-            }
-            #regular-form textarea {
-                height: 10em;
-            }
-            #form-header {
-                text-align: center;
-            }
-            .modal-content {
-                width: 80%;
-                margin: 0 auto;
-            }
-            #show-courses {
-                padding-top: 30px;
-                padding-bottom: 30px;
-            }
-            #aside-show-courses .btn {
-                width: 75%;
-                margin-left: 12.5%;
-                margin-right: 12.5%;
-                margin-top: 2%;
-                margin-bottom: 2%;
-                height: 3em;
-                font-size: 1.5rem;
-            }
-            #aside-show-courses h2 {
-                padding: 0 0 10px 10px;
-                text-align: center;
-                color: black;
-                font-weight: 700;
-            }
-            #aside-show-courses .container {
-                position: absolute;
-                right: 2px;
-                top: 5px;
-                width: 90%;
-                background-color: white;
-                padding: 3px;
-                border-radius: 5px;
-                border: 1px solid #ababab;
-            }
-            #aside-show-courses .col-sm-4 {
-                margin: 0 auto;
-            }
-            #aside-show-courses .inner p {
-                color: black;
-                font-size: 1em;
-                margin: 0;
-                padding: 0;
-                padding-left: 20px;
-            }
-            #aside-show-courses h5 {
-                color: black;
-            }
-            .jumbotron {
-           background: #232526;  /* fallback for old browsers */
-background: -webkit-linear-gradient(to right, #414345, #232526);  /* Chrome 10-25, Safari 5.1-6 */
-background: linear-gradient(to right, #414345, #232526); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-            color: antiquewhite;
-            }
-            .jumbotron p {
-                line-height: 2em;
-            }
-            #show-courses p {
-                padding-left: 30px;
-                padding-top: 15px;
-                font-size: 1.9rem;
-                font-weight: 300;
-                color:white;
-            }
-            #show-courses h1 {
-                font-size: 5rem;
-                letter-spacing: 1px;
-                text-transform: uppercase;
-                text-shadow: 2px 2px 2px #929292;
-            }
-            .list-group.affix {
-                top: 100px;
-                width: 15%;
-            }
-            .inner.affix {
-                top: 100px;
-                background-color: white;
-                padding: 3px;
-                border-radius: 5px;
-                border: 1px solid #ababab;
-                width: 26%;
-            }
-            .hidden {
-                display:none;
-            }
+body {
+    padding-top: 50px;
+    font-family: 'Roboto', sans-serif;
+}
+.thumbnail>img {
+    width: 100%;
+    border-radius: 5px 5px 0 0;
+}
+.thumbnail {
+    padding: 0;
+    border: none;
+    box-shadow: 1px 1px 15px #cccccc;
+}
+.row {
+    padding-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+}
+div.col-sm-4 {
+    padding: 20px;
+}
+div.col-sm-4>img {
+    width: 100%;
+}
+#regular-form {
+    width: 50%;
+    margin: 0 auto;
+}
+#regular-form textarea {
+    height: 10em;
+}
+#form-header {
+    text-align: center;
+}
+.modal-content {
+    width: 80%;
+    margin: 0 auto;
+}
+#show-courses {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+#aside-show-courses .btn {
+    width: 75%;
+    margin-left: 12.5%;
+    margin-right: 12.5%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    height: 3em;
+    font-size: 1.5rem;
+}
+#aside-show-courses h2 {
+    padding: 0 0 10px 10px;
+    text-align: center;
+    color: black;
+    font-weight: 700;
+}
+#aside-show-courses .container {
+    position: absolute;
+    right: 2px;
+    top: 5px;
+    width: 90%;
+    background-color: white;
+    padding: 3px;
+    border-radius: 5px;
+    border: 1px solid #ababab;
+}
+#aside-show-courses .col-sm-4 {
+    margin: 0 auto;
+}
+#aside-show-courses .inner p {
+    color: black;
+    font-size: 1em;
+    margin: 0;
+    padding: 0;
+    padding-left: 20px;
+}
+#aside-show-courses h5 {
+    color: black;
+}
+.jumbotron {
+    background: #232526;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #414345, #232526);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #414345, #232526); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    color: antiquewhite;
+}
+.jumbotron p {
+    line-height: 2em;
+}
+#show-courses p {
+    padding-left: 30px;
+    padding-top: 15px;
+    font-size: 1.9rem;
+    font-weight: 300;
+    color:white;
+}
+#show-courses h1 {
+    font-size: 5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 2px #929292;
+}
+.list-group.affix {
+    top: 100px;
+    width: 15%;
+}
+.inner.affix {
+    top: 100px;
+    background-color: white;
+    padding: 3px;
+    border-radius: 5px;
+    border: 1px solid #ababab;
+    width: 26%;
+}
+.hidden {
+    display:none;
+}
+
+a.thumbnail:hover {
+    box-shadow: 0px 0px 10px #999999;
+}
+
+a:visited {
+    text-decoration: none;
+}
+a:link {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: none;
+}
+.thumbnail p {
+   text-indent: 20px;
+   font-weight: 300;
+   font-family: 'Kanit'
+}
+#thai-description {
+  text-indent: 20px;
+  font-weight: 300;
+  font-family: 'Kanit'
+}
+p > span {
+  float: right;
+  text-indent: 0px;
+  font-weight: 400;
+  font-size: 1.25em;
+  color: #527fef;
+}
+
+#logo img {
+  width: 50px;
+  height: 50px;
+}
+
+.primary-header img {
+	width: 100%;
+}
+
+a.navbar-brand {
+  text-transform: uppercase;
+  letter-spacing: 2.2px;
+}
+
+.navbar-default .navbar-brand {
+  color: #2389CE;
+}
+
+.navbar-brand span {
+  font-weight: 700;
+}
+
+.primary-footer a {
+	padding: 3px;
+}
+
+.primary-footer a:hover {
+}
+
+.primary-footer {
+	font-size: 14px;
+	padding-top: 44px;
+	padding-bottom: 44px;
+}
+
+.primary-footer small {
+	float: left;
+	font-weight: 400;
+  padding-right: 20%;
+}
+
+.social p {
+	display: inline;
+	float: left;
+}
+
+.social img {
+	height: 40px;
+	display: inline;
+	float:left;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.social {
+  float:left;
+}
+
+.nav {
+	text-align: right;
+}
+.nav li {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.nav li:last-child {
+	margin-right: 0;
+}
+
+#course-list .col-md-4 {
+  padding-top: 40px
+}

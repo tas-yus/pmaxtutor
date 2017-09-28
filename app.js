@@ -75,7 +75,7 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // Checkout Cart ******
 // logging
 
-schedule.scheduleJob('0,30 * * * * *', function(){
+schedule.scheduleJob('0,30 5 5 * * *', function(){
     checkExpiry();
 });
 

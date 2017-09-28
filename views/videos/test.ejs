@@ -89,6 +89,7 @@
   $(document).ready(function() {
     var videoPlayer = $('#videoPlayer');
     $(".btnPlay").click(function() {
+      $(".videoControls").fadeOut();
       if (videoPlayer[0].paused) {
         videoPlayer[0].play();
         $(".glyphicon-play").attr("class", "glyphicon glyphicon-pause");
@@ -104,7 +105,7 @@
     videoPlayer.on("loadedmetadata", function() {
       $(".duration").text(toClockTime(Math.round(videoPlayer[0].duration)));
     });
-    $(".btnMute").click(function() {
+    $(".btnMute").click(function(e) {
       if (!videoPlayer[0].muted) {
         videoPlayer[0].muted = true;
         $(".glyphicon-volume-up").attr("class", "glyphicon glyphicon-volume-off");
@@ -112,8 +113,9 @@
         videoPlayer[0].muted = false;
         $(".glyphicon-volume-off").attr("class", "glyphicon glyphicon-volume-up");
       }
+      e.preventDefault();
     });
-    $(".btnFullscreen").on("click", function() {
+    $(".btnFullscreen").on("click", function(e) {
       videoPlayer[0].webkitEnterFullscreen();
       videoPlayer[0].mozRequestFullScreen();
       return false;
@@ -129,49 +131,59 @@
     $(".volume-bar").on("change", function() {
       videoPlayer[0].volume = $(this).val();
     });
-    $(".medium-quality").click(function() {
+    $(".medium-quality").click(function(e) {
       var time = videoPlayer[0].currentTime;
       var videoFile = "/assets/videos/small.mp4"
       $('#videoPlayer source').attr("src", videoFile);
       videoPlayer[0].load();
       videoPlayer[0].currentTime = time;
       videoPlayer[0].play();
+      e.preventDefault();
     });
-    $(".high-quality").click(function() {
+    $(".high-quality").click(function(e) {
       var time = videoPlayer[0].currentTime;
       var videoFile = "/assets/videos/test.mp4"
       $('#videoPlayer source').attr("src", videoFile);
       videoPlayer[0].load();
       videoPlayer[0].currentTime = time;
       videoPlayer[0].play();
+      e.preventDefault();
     });
-    $(".btnBack").click(function() {
+    $(".btnBack").click(function(e) {
       var time = videoPlayer[0].currentTime - 15;
       if (time < 0) time = 0;
       videoPlayer[0].currentTime = time;
+      e.preventDefault();
     });
-    $(".btnForward").click(function() {
+    $(".btnForward").click(function(e) {
       var time = videoPlayer[0].currentTime + 15;
       if (time > videoPlayer[0].duration) time = videoPlayer[0].duration;
       videoPlayer[0].currentTime = time;
+      e.preventDefault();
     });
-    $(".super-fast").click(function() {
+    $(".super-fast").click(function(e) {
       videoPlayer[0].playbackRate = 2.0;
+      e.preventDefault();
     });
-    $(".fast").click(function() {
+    $(".fast").click(function(e) {
       videoPlayer[0].playbackRate = 1.5;
+      e.preventDefault();
     });
-    $(".slightly-fast").click(function() {
+    $(".slightly-fast").click(function(e) {
       videoPlayer[0].playbackRate = 1.25;
+      e.preventDefault();
     });
-    $(".normal").click(function() {
+    $(".normal").click(function(e) {
       videoPlayer[0].playbackRate = 1.0;
+      e.preventDefault();
     });
-    $(".slow").click(function() {
+    $(".slow").click(function(e) {
       videoPlayer[0].playbackRate = 0.75;
+      e.preventDefault();
     });
-    $(".super-slow").click(function() {
+    $(".super-slow").click(function(e) {
       videoPlayer[0].playbackRate = 0.50;
+      e.preventDefault();
     });
     function toClockTime(timeInSec) {
         var min = Math.floor(timeInSec/60);
@@ -181,6 +193,12 @@
         time = time + min + ":" + sec;
         return time;
     }
+    videoPlayer.mouseenter(function(e) {
+      $(".videoControls").fadeIn();
+    });
+    videoPlayer.mouseleave(function(e) {
+      $(".videoControls").fadeOut();
+    });
   });
 </script>
 <% include ../partials/footer %>
