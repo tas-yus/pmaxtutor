@@ -14,13 +14,23 @@
                         </div>
                         <div class="inner" data-spy="affix">
                             <h2><%= course.price %> Bahts</h2>
-                            <% if (!user || !user.isAdmin && !user.courses.some(function(userCourse){ return userCourse.course.toString() === course._id.toString() })) { %>
+                            <% if (!user) { %>
+                              <form action="/courses/<%= course._id %>/cart" method="POST">
+                                  <button class="btn btn-default">Add To Cart</button>
+                              </form>
+                            <% } else if (!user.isAdmin) { %>
+                              <% if (checkCourseOwnership(user.courses, course._id.toString()) !== true && checkCourseOwnership(user.courses, course._id.toString()) !== "expired") { %>
                                 <form action="/courses/<%= course.code %>/buy" method="GET">
                                     <button class="btn btn-info">Buy Now</button>
                                 </form>
-                                <form action="/courses/<%= course._id %>/cart" method="POST">
-                                    <button class="btn btn-default">Add To Cart</button>
+                              <% } else if (checkCourseOwnership(user.courses, course._id.toString()) === "expired") { %>
+                                <form action="/courses/<%= course.code %>/extend" method="GET">
+                                    <button class="btn btn-info">Extend Now</button>
                                 </form>
+                              <% } %>
+                              <form action="/courses/<%= course._id %>/cart" method="POST">
+                                  <button class="btn btn-default">Add To Cart</button>
+                              </form>
                             <% } %>
                             <div class="container-fluid">
                                 <h5>Includes :</h5>

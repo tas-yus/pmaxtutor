@@ -35,14 +35,14 @@ glyphicon:hover {
   color: #555;
 }
 
-.videoControls {
+/*.videoControls {
     position:absolute;
     float:left;
     width:100%;
     min-height:50px;
     background-color:#000;
     z-index:300000;
-}
+}*/
 /*input[type=range] {
   -webkit-appearance: none;
   margin: 18px 0;

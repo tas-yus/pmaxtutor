@@ -41,7 +41,7 @@ router.get("/:courseCode", (req, res) => {
             });
             var averageHours = method.getAverageHours(array);
             var checkPartOwnership = method.checkPartOwnership;
-            var checkCourseOwnership = method.checkPartOwnership;
+            var checkCourseOwnership = method.checkCourseOwnership;
             res.render("courses/show", {course, parts, averageHours, checkPartOwnership, checkCourseOwnership});
         });
     }).catch((err) => {
@@ -129,11 +129,8 @@ router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLear
             parts = course.parts;
             res.render("courses/learn", {course, parts});
         } else {
-            User.findById(req.user._id.toString()).populate({path: "parts.part", select: "code title course"}).exec((err, user) => {
-                if (err) return console.log(err);
-                var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
-                res.render("courses/learn", {course, user, getPartInUserArrayByCourseTitle});
-            });
+            var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
+            res.render("courses/learn", {course, getPartInUserArrayByCourseTitle});
         }
     });
 });

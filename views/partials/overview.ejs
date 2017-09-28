@@ -1,13 +1,19 @@
 <h3>Course Overview</h3>
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+<div class="panel-group" role="tablist" aria-multiselectable="true">
   <% var ctr = 0; %>
     <% parts.forEach((part) => { %>
         <% ctr++; %>
         <div class="panel panel-default">
           <div class="panel-heading" role="tab" id="heading<%= ctr %>">
             <h4 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse<%= ctr %>" aria-expanded="false" aria-controls="collapse<%= ctr %>">
-                <%= part.title %>
+              <a role="button" data-toggle="collapse" href="#collapse<%= ctr %>" aria-expanded="false" aria-controls="collapse<%= ctr %>">
+                <i class="fa fa-plus"></i><span><%= part.title %></span>
+                <span id="part-duration">
+                  20:19
+                </span>
+                <span id="part-length">
+                  <%= part.videos.length %> Lectures
+                </span>
               </a>
             </h4>
           </div>

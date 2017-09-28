@@ -35,7 +35,19 @@
                     <li><a data-toggle="modal" data-target="#myModal">Login</a></li>
                     <li><a href="/register">Sign Up</a></li>
                 <% } else { %>
-                    <li><a href="/courses">Your Course</a></li>
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Your Courses <span class="badge"><%= user.courses.length %></span></a>
+                      <% if (user.courses.length !== 0) { %>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                        <% user.courses.forEach((courseBundle) => { %>
+                          <% if (courseBundle.expired) { %>
+                            <li><a href="/courses/<%= courseBundle.course.code %>/learn" class="striked"><%= courseBundle.course.title %></a></li>
+                          <% } else { %>
+                            <li><a href="/courses/<%= courseBundle.course.code %>/learn"><%= courseBundle.course.title %></a></li>
+                          <% } %>
+                        <% }); %>
+                      </ul>
+                      <% } %>
+                    </li>
                     <li><a href="#">Your Cart</a></li>
                     <li><a href="/dashboard">Signed In As <%= user.username %></a></li>
                     <li><a href="/logout">Logout</a></li>

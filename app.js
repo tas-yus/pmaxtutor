@@ -7,6 +7,7 @@ var localStrategy = require("passport-local");
 var app = express();
 var Course = require("./models/course");
 var User = require("./models/user");
+var Part = require("./models/part");
 var middleware = require("./middleware");
 var seedDB = require("./seed");
 var methodOverride = require("method-override");
@@ -48,10 +49,16 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use(function(req, res, next) {
-    res.locals.user = req.user;
-    res.locals.error = req.flash("error");
-    res.locals.success = req.flash("success");
-    next();
+    var user = req.user;
+    Course.populate(user, {path: "courses.course"}, (err, user) => {
+      if (err) return console.log(err);
+      Part.populate(user, {path: "parts.part"}, (err, user) => {
+        res.locals.user = user;
+        res.locals.error = req.flash("error");
+        res.locals.success = req.flash("success");
+        next();
+      });
+    });
 });
 
 // ======== ROUTES ========
@@ -74,8 +81,9 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // video player
 // Checkout Cart ******
 // logging
+// fix affix
 
-schedule.scheduleJob('0,30 5 5 * * *', function(){
+schedule.scheduleJob('0,30 * * * * *', function(){
     checkExpiry();
 });
 

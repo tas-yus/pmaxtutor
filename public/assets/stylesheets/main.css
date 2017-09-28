@@ -162,7 +162,7 @@ a.navbar-brand {
 }
 
 .navbar-default .navbar-brand {
-  color: #2389CE;
+  color: #1668BA;
 }
 
 .navbar-brand span {
@@ -219,4 +219,58 @@ a.navbar-brand {
 
 #course-list .col-md-4 {
   padding-top: 40px
+}
+
+.panel-default>.panel-heading {
+  background-color: #F9F9F9;
+}
+
+a[role="button"] span {
+  padding-left: 5px;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+a[role="button"] > i.fa-plus {
+  font-size: 10px;
+  color: #1376D7;
+}
+
+a[role="button"] > i.fa-minus {
+  font-size: 12px;
+  color: #1376D7;
+}
+
+#part-length {
+  font-size: 14px;
+  padding-left: 10%;
+  font-weight: 300;
+  float: right;
+}
+
+#part-duration {
+  font-size: 14px;
+  padding-left: 10%;
+  font-weight: 300;
+  float: right;
+}
+
+.panel-heading {
+  padding: 15px;
+  padding-left: 20px;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0; // remove the gap so it doesn't close
+ }
+
+ .dropup:hover .dropdown-menu {
+     display: block;
+     margin-top: 0; // remove the gap so it doesn't close
+  }
+
+.dropdown a.striked {
+  text-decoration: line-through;
+  color: #bbbbbb;
 }

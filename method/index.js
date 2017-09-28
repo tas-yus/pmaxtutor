@@ -73,7 +73,9 @@ methodObj.getAverageHours = function(timeArray) {
 };
 
 methodObj.checkCourseOwnership = function(courseArray, courseId) {
-    if(courseArray.length === 0) return false;
+    if(courseArray.length === 0) {
+      return false;
+    }
     for(var i = 0; i < courseArray.length; i++) {
         var userCourseBundle = courseArray[i];
         if (userCourseBundle.course._id) {
