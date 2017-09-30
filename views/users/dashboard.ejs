@@ -3,10 +3,10 @@
 <% if(!user.isAdmin) { %>
     <h1>Hello <%= user.username%></h1>
     <p>Your Courses</p>
-    <% userCourses.forEach((userCourseBundle) => { %>
+    <% user.courses.forEach((userCourseBundle) => { %>
         <li><a href="/courses/<%= userCourseBundle.course.code %>/learn"><%= userCourseBundle.course.title %></a>
             <ul>
-                <% var userCourseParts = getPartInUserArrayByCourseTitle(userParts, userCourseBundle.course.title) %>
+                <% var userCourseParts = getPartInUserArrayByCourseTitle(user.parts, userCourseBundle.course.title) %>
                 <% userCourseParts.forEach((partBundle) => { %>
                      <li><%= partBundle.part.title %></li>
                      <% if (partBundle.expired) { %>
@@ -72,10 +72,10 @@
 <% } %>
 
 <h5>Your Cart</h1>
-<% cartCourses.forEach((course) => { %>
+<% user.cartCourses.forEach((course) => { %>
     <li><%= course.title %></li>
 <% }); %>
-<% if(cartCourses.length !== 0) { %>
+<% if(user.cartCourses.length !== 0) { %>
     <a class="btn btn-primary" href="/courses/checkout">Checkout</a>
 <% } %>
 

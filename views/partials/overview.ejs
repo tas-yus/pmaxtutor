@@ -22,10 +22,14 @@
             <% part.videos.forEach((vid) => { %>
               <% count++ %>
               <div class="panel-body">
-                <p style="float: left"><%= count %>. <%= vid.title %> </p>
-                <p style="float: left"> - <%= vid.duration %> </p>
+                <p style="float: left"> <%= count %>. <%= vid.title %> </p>
+                <span id="part-duration">
+                  <%= vid.duration %>
+                </span>
                 <% if(vid.previewAllowed) { %>
-                  <a href="#" style="float: right">Preview</a>
+                  <span id="part-length">
+                    <a href="#" style="float: right">Preview</a>
+                  </span>
                 <% } %>
               </div>
             <% }); %>

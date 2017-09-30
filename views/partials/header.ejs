@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8">
         <title>P'Max Tutor</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link rel="stylesheet" href="/assets/stylesheets/main.css">
@@ -35,7 +36,7 @@
                     <li><a data-toggle="modal" data-target="#myModal">Login</a></li>
                     <li><a href="/register">Sign Up</a></li>
                 <% } else { %>
-                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Your Courses <span class="badge"><%= user.courses.length %></span></a>
+                    <li class="dropdown"><a href="#">Your Courses <span class="badge"><%= user.courses.length %></span></a>
                       <% if (user.courses.length !== 0) { %>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                         <% user.courses.forEach((courseBundle) => { %>
@@ -48,7 +49,11 @@
                       </ul>
                       <% } %>
                     </li>
-                    <li><a href="#">Your Cart</a></li>
+                    <% if (user.cartCourses.length === 0) { %>
+                      <li><a href="#">Your Cart <span class="badge"><%= user.cartCourses.length %></span></a></li>
+                    <% } else { %>
+                      <li><a href="/courses/checkout">Your Cart <span class="badge"><%= user.cartCourses.length %></span></a></li>
+                    <% } %>
                     <li><a href="/dashboard">Signed In As <%= user.username %></a></li>
                     <li><a href="/logout">Logout</a></li>
                 <% } %>

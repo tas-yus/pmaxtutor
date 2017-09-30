@@ -52,11 +52,15 @@ app.use(function(req, res, next) {
     var user = req.user;
     Course.populate(user, {path: "courses.course"}, (err, user) => {
       if (err) return console.log(err);
-      Part.populate(user, {path: "parts.part"}, (err, user) => {
-        res.locals.user = user;
-        res.locals.error = req.flash("error");
-        res.locals.success = req.flash("success");
-        next();
+      Course.populate(user, {path: "cartCourses"}, (err, user) => {
+        if (err) return console.log(err);
+        Part.populate(user, {path: "parts.part"}, (err, user) => {
+          if (err) return console.log(err);
+          res.locals.user = user;
+          res.locals.error = req.flash("error");
+          res.locals.success = req.flash("success");
+          next();
+        });
       });
     });
 });
@@ -79,91 +83,18 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // choose from old file? when upload
 // Notifications
 // video player
-// Checkout Cart ******
+// Checkout Cart (add user to parts)
 // logging
-// fix affix
+// fix affix onw SHOW PAGE
+// Style Learn and videos
+// Sign Up - includes other info + in the database
 
-schedule.scheduleJob('0,30 * * * * *', function(){
+schedule.scheduleJob('0,30 5 5 * * *', function(){
     checkExpiry();
 });
 
 app.get("/test", (req, res) => {
-  res.render("videos/test");
-});
-
-app.get("/courses/checkout", middleware.isLoggedIn, (req, res) => {
-    User.findById(req.user._id).populate("cartCourses").exec((err, user) => {
-        if (err) {
-            return console.log(err);
-        }
-        var cartCourses = user.cartCourses;
-        res.render("courses/checkout", {cartCourses});
-    });
-});
-
-// fix minor bugs ******
-app.post("/courses/checkout", middleware.isLoggedIn, (req, res) => {
-    User.findById(req.user._id, (err, user) => {
-        if (err) {
-            return console.log(err);
-        }
-        if (Array.isArray(req.body.buyCourses)) {
-            req.body.buyCourses.forEach((buyCourse) => {
-                user.courses.push(mongoose.Types.ObjectId(buyCourse));
-                Course.findByIdAndUpdate(buyCourse,
-                {
-                    $push: {user}
-                }, (err, course) => {
-                    if (err) {
-                        return console.log(err);
-                    }
-                });
-            });
-        } else {
-            user.courses.push(mongoose.Types.ObjectId(req.body.buyCourses));
-            Course.findByIdAndUpdate(req.body.buyCourses,
-            {
-                $push: {user}
-            }, (err, course) => {
-                if (err) {
-                    return console.log(err);
-                }
-            });
-        }
-        user.cartCourses = [];
-        user.save((err, data) => {
-            if (err) {
-                return console.log(err);
-            }
-
-        });
-        res.redirect("/dashboard");
-    });
-});
-
-// Add to cart ********
-
-app.post("/courses/:id/cart", middleware.isLoggedIn, (req, res) => {
-    Course.findById(req.params.id, (err, course) => {
-       if (err) {
-           return console.log(err);
-       }
-       User.findById(req.user._id, (err, user) => {
-          if (err) {
-              return console.log(err);
-          } else {
-              if(user.courses.indexOf(course._id) === -1 && user.cartCourses.indexOf(course._id) === -1) {
-                    user.cartCourses.push(course);
-                    user.save((err, data) => {
-                        if (err) {
-                             return console.log(err);
-                        }
-                    });
-              }
-              res.redirect("/dashboard");
-          }
-       });
-    });
+    res.render("videos/test");
 });
 
 app.listen(3000, () => {

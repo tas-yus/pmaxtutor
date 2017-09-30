@@ -100,7 +100,7 @@ var videos = [
         part: "Chemical Bonding",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "9:56"
+        duration: "09:56"
     },
     {
         title: "VSEPR",
@@ -121,14 +121,14 @@ var videos = [
         part: "Stoichiometry",
         course: "Chem Olympic 2",
         path: "small.mp4",
-        duration: "8:62"
+        duration: "08:62"
     },
     {
         title: "Percentage by weight",
         part: "Empirical Formula",
         course: "Chem Olympic 2",
         path: "small.mp4",
-        duration: "5:29"
+        duration: "05:29"
     },
     {
         title: "Molar ratio",
@@ -142,14 +142,14 @@ var videos = [
         part: "Equilibrium",
         course: "Chem Olympic 3",
         path: "small.mp4",
-        duration: "5:50"
+        duration: "05:50"
     },
     {
         title: "Equilibrium constant",
         part: "Equilibrium",
         course: "Chem Olympic 3",
         path: "small.mp4",
-        duration: "9:55"
+        duration: "09:55"
     }
 ]
 

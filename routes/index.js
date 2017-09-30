@@ -49,16 +49,12 @@ router.get("/logout", function(req, res){
 // DASHBOARD
 // more efficient population!!!!!
 router.get("/dashboard", middleware.isLoggedIn, (req, res) => {
-    var findUser = User.findById(req.user._id).populate({path: "courses.course", select: "code title"}).populate({path: "parts.part", select: "title course"}).populate("cartCourses").exec();
     var findCourses = Course.find({}).populate("users").populate("expiredUsers").populate("parts").exec();
     var findParts = Part.find({}).populate("users").populate("expiredUsers").exec();
-    return Promise.join(findUser, findCourses, findParts, (user, courses, parts) => {
-        var userCourses = user.courses;
-        var userParts = user.parts;
-        var cartCourses = user.cartCourses;
+    return Promise.join(findCourses, findParts, (courses, parts) => {
         var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
         var getPartInPartArrayByCourseTitle = method.getPartInPartArrayByCourseTitle;
-        res.render("users/dashboard", {userCourses, userParts, courses, parts, cartCourses, getPartInUserArrayByCourseTitle, getPartInPartArrayByCourseTitle});
+        res.render("users/dashboard", {courses, parts, getPartInUserArrayByCourseTitle, getPartInPartArrayByCourseTitle});
     }).catch((err) => {
         console.log(err);
     });

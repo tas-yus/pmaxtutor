@@ -9,6 +9,8 @@ var method = require("./../method");
 var Promise = require("bluebird");
 var checkExpiry = require("./../method/checkExpiry");
 var config = require("./../config");
+var mongoose = require("mongoose");
+
 
 // ALL COURSES
 router.get("/", (req, res) => {
@@ -26,32 +28,10 @@ router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     res.render("courses/new");
 });
 
-// SHOW COURSE
-router.get("/:courseCode", (req, res) => {
-    Course.findOne({code: req.params.courseCode}).then((course) => {
-        if (!course) {
-            return res.redirect("/courses");
-        }
-        var findParts = Part.find({course: course.title}).populate("videos").exec();
-        var findVideos = Video.find({course: course.title});
-        return Promise.join(findParts, findVideos, (parts, videos) => {
-            var array = [];
-            videos.forEach((vid) => {
-                array.push(vid.duration);
-            });
-            var averageHours = method.getAverageHours(array);
-            var checkPartOwnership = method.checkPartOwnership;
-            var checkCourseOwnership = method.checkCourseOwnership;
-            res.render("courses/show", {course, parts, averageHours, checkPartOwnership, checkCourseOwnership});
-        });
-    }).catch((err) => {
-        console.log(err);
-    });
-});
-
 // CREATE COURSE
 router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     if (!req.files.file) {
+        req.flash("error", "โปรด upload ไฟล์");
         return res.redirect("/courses/new");
     }
     let file = req.files.file;
@@ -77,6 +57,52 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     });
 });
 
+// CHECKOUT COURSE **push user on to part.users!!!!
+router.get("/checkout", middleware.isLoggedIn, (req, res) => {
+    res.render("courses/checkout");
+});
+
+router.post("/checkout", middleware.isLoggedIn, (req, res) => {
+  if (!req.body.checkedCourses) {
+    req.flash("error", "ไม่มีคอร์สในตะกร้าที่จะซื้อได้");
+    return res.redirect("/dashboard");
+  }
+  var checkedCourses = [];
+  var user = req.user;
+  if (Array.isArray(req.body.checkedCourses)) {
+      checkedCourses = req.body.checkedCourses;
+  } else {
+      checkedCourses.push(req.body.checkedCourses);
+  }
+  var ctr1 = 0;
+  checkedCourses.forEach((checkedCourse) => {
+      if (method.checkCourseOwnership(user.courses, checkedCourse.toString()) === false) {
+        user.courses.push({course: mongoose.Types.ObjectId(checkedCourse)});
+        Course.findById(checkedCourse.toString(), (err, course) => {
+          var ctr = 0;
+            course.users.push(user);
+            course.parts.forEach((part) => {
+            user.parts.push({part});
+            ctr++;
+            if (ctr === course.parts.length) {
+              user.cartCourses = [];
+              course.save((err) => {
+                if (err) return console.log(err);
+                ctr1++;
+                if (ctr1 === checkedCourses.length) {
+                  user.save((err) => {
+                    if (err) return console.log(err);
+                    res.redirect("/dashboard");
+                  });
+                }
+              });
+            }
+          });
+        });
+      }
+  });
+});
+
 // EDIT COURSE
 router.get("/:courseCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     Course.findOne({code: req.params.courseCode}, (err, course) => {
@@ -84,6 +110,30 @@ router.get("/:courseCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req,
             return console.log(err);
         }
         res.render("courses/edit", {course});
+    });
+});
+
+// SHOW COURSE
+router.get("/:courseCode", (req, res) => {
+    Course.findOne({code: req.params.courseCode}).then((course) => {
+        if (!course) {
+            return res.redirect("/courses");
+        }
+        var findParts = Part.find({course: course.title}).populate("videos").exec();
+        var findVideos = Video.find({course: course.title});
+        return Promise.join(findParts, findVideos, (parts, videos) => {
+            var array = [];
+            videos.forEach((vid) => {
+                array.push(vid.duration);
+            });
+            var averageHours = method.getAverageHours(array);
+            var checkPartOwnership = method.checkPartOwnership;
+            var checkCourseOwnership = method.checkCourseOwnership;
+            var checkCartCourseOwnership = method.checkCartCourseOwnership;
+            res.render("courses/show", {course, parts, averageHours, checkPartOwnership, checkCourseOwnership, checkCartCourseOwnership});
+        });
+    }).catch((err) => {
+        console.log(err);
     });
 });
 
@@ -120,18 +170,23 @@ router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, (req, res)
 
 // LEARN COURSE
 router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, (req, res) => {
-    Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "code title"}).exec((err, course) => {
+    Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "code title videos"}).exec((err, course) => {
         if (err) {
             return console.log(err);
         }
-        var parts;
-        if (req.user.isAdmin) {
-            parts = course.parts;
-            res.render("courses/learn", {course, parts});
-        } else {
-            var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
-            res.render("courses/learn", {course, getPartInUserArrayByCourseTitle});
-        }
+        Video.populate(course.parts, {path: "videos"}, (err, parts) => {
+          if (err) {
+              return console.log(err);
+          }
+          var parts;
+          var checkPartOwnership = method.checkPartOwnership;
+          if (req.user.isAdmin) {
+              res.render("courses/learn", {course, parts, checkPartOwnership});
+          } else {
+              var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
+              res.render("courses/learn", {course, getPartInUserArrayByCourseTitle, checkPartOwnership});
+          }
+        });
     });
 });
 
@@ -147,6 +202,10 @@ router.get("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, r
 });
 
 router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, res) => {
+    if (!req.body.selectedParts) {
+      req.flash("error", "โปรดเลือกคอร์สที่ต้องการจะซื้อ");
+      return res.redirect(`/courses/${req.params.courseCode}/buy`);
+    }
     Course.findOne({code: req.params.courseCode}, (err, course) => {
        if (err) {
            return console.log(err);
@@ -254,6 +313,27 @@ router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, 
                 }
             });
         });
+    });
+});
+
+// Add to cart ********
+router.post("/:courseCode/cart", middleware.isLoggedIn, middleware.canAdd, (req, res) => {
+  var user = req.user;
+    Course.findOne({code: req.params.courseCode}, (err, course) => {
+       if (err) {
+           return console.log(err);
+       }
+       if(method.checkCourseOwnership(user.courses, course._id.toString()) === false && method.checkCartCourseOwnership(user.cartCourses, course._id.toString()) === false) {
+         user.cartCourses.push(course);
+         user.save((err, data) => {
+             if (err) {
+                  return console.log(err);
+             }
+             res.redirect("/dashboard");
+         });
+       } else {
+         res.redirect("/courses");
+       }
     });
 });
 

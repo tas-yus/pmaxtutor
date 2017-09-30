@@ -18,7 +18,7 @@ methodObj.getCourseInArrayByTitle = function (courseArray, title) {
 };
 
 methodObj.getPartInUserArrayByCourseTitle = function (partArray, courseTitle) {
-    var result  = partArray.filter(function(partBundle){return partBundle.part.course === courseTitle;} );
+    var result  = partArray.filter(function(partBundle){return partBundle.part.course === courseTitle} );
     return result? result : null; // or undefined
 };
 
@@ -50,6 +50,7 @@ methodObj.toClockTime = function(timeInSec) {
     var min = Math.floor(timeInSec/60);
     var sec = Math.floor(timeInSec % 60);
     if (sec < 10) sec = "0" + sec;
+    if (min < 10) min = "0" + min;
     var time = "";
     time = time + min + ":" + sec;
     return time;
@@ -58,8 +59,10 @@ methodObj.toClockTime = function(timeInSec) {
 methodObj.toTime = function(str) {
 	var array = str.split(":");
 	var sec = array[array.length-1];
+  var min = array[0];
 	if(sec[0] === "0") sec = sec.substr(1);
-	var time = Number(array[0]) * 60 + Number(sec);
+  if(min[0] === "0") min = min.substr(1);
+	var time = Number(min) * 60 + Number(sec);
 	return time;
 };
 
@@ -100,6 +103,22 @@ methodObj.checkPartOwnership = function(partArray, partId) {
         }
         if (userPartBundle.expired) return "expired";
         else return true;
+    }
+    return false;
+};
+
+methodObj.checkCartCourseOwnership = function(cartCourseArray, courseId) {
+    if(cartCourseArray.length === 0) {
+      return false;
+    }
+    for(var i = 0; i < cartCourseArray.length; i++) {
+        var userCartCourseBundle = cartCourseArray[i];
+        if (userCartCourseBundle._id) {
+             if (userCartCourseBundle._id.toString() !== courseId) continue;
+        } else {
+             if (userCartCourseBundle.toString() !== courseId) continue;
+        }
+        return true;
     }
     return false;
 };

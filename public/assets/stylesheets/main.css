@@ -205,15 +205,15 @@ a.navbar-brand {
   float:left;
 }
 
-.nav {
+#footer-nav {
 	text-align: right;
 }
-.nav li {
+#footer-nav li {
 	display: inline-block;
 	vertical-align: top;
 }
 
-.nav li:last-child {
+#footer-nav li:last-child {
 	margin-right: 0;
 }
 
@@ -265,12 +265,39 @@ a[role="button"] > i.fa-minus {
     margin-top: 0; // remove the gap so it doesn't close
  }
 
- .dropup:hover .dropdown-menu {
+.dropup:hover .dropdown-menu {
      display: block;
-     margin-top: 0; // remove the gap so it doesn't close
-  }
+     margin-bottom: 0; // remove the gap so it doesn't close
+}
 
 .dropdown a.striked {
   text-decoration: line-through;
   color: #bbbbbb;
+}
+
+.intro-video {
+  width: 95%;
+}
+
+.intro-course a {
+  padding: 16px 18px;
+  margin: 20px 0;
+}
+
+.intro-course a.btn {
+  font-size: 16px;
+  border-radius: 3px;
+}
+
+.intro-course .progress-caption {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 20px 0 0 0;
+}
+
+.flexthis.container:before,
+.flexthis.container:after,
+.flexthis.row:before,
+.flexthis.row:after {
+   content: normal; // IE doesn't support `initial`
 }

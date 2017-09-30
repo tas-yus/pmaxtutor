@@ -61,6 +61,24 @@ middlewareObj.canBuy = function(req, res, next) {
     });
 };
 
+middlewareObj.canAdd = function(req, res, next) {
+    if (req.user.isAdmin) {
+        req.flash("error", "สำหรับสมาชิกทั่วไปเท่านั้น");
+        return res.redirect(`/${req.params.courseCode}/learn`);
+    }
+    Course.findOne({code: req.params.courseCode}).exec().then((course) => {
+        if (method.checkCartCourseOwnership(req.user.cartCourses, course._id.toString()) === true) {
+            req.flash("error", "คุณมีคอร์สนี้ในตะกร้าเรียบร้อยแล้ว");
+            res.redirect(`/courses/checkout`);
+        } else if (method.checkCourseOwnership(req.user.courses, course._id.toString())) {
+            req.flash("error", "คุณมีคอร์สนี้อยู่แล้ว หากต้องการซื้อแยกโปรดคลิก \"ซื้อ\" ");
+            res.redirect(`/courses/${req.params.courseCode}/learn`);
+        } else {
+            next();
+        }
+    });
+};
+
 middlewareObj.canExtend = function(req, res, next) {
     if (req.user.isAdmin) {
         req.flash("error", "สำหรับสมาชิกทั่วไปเท่านั้น");
