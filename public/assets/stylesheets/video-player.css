@@ -1,25 +1,43 @@
 .videoControls {
   width: 100%;
   font-size: 20px;
+  position: absolute;
+  z-index:999;
+  bottom: 0%;
+  background: -moz-linear-gradient(bottom, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(bottom, rgba(0,0,0,0.80) 0%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to top, rgba(0,0,0,0.80) 0%,rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  padding-bottom: 15px;
+  z-index: 2147483647;
 }
+
 .videoControls span, .videoControls div {
   display: inline-block;
-  color: #999;
 }
 
-.btnFullscreen, .btnMute, .btnPlay  {
-  color: #999;
+.btnFullscreen, .btnMute, .btnPlay, .btnForward, .btnBack, .btnSpeed, .btnOptions  {
+  color: rgba(256, 256, 256, 0.60);
+  font-size: 25px;
 }
 
-.videoFullscreen, .videoPlay, .videoMute, .videoOptions {
+.videoPlay, .videoMute, .videoOptions, .videoBack, .videoSpeed, .videoForward {
   text-align: center;
-  width: 5%;
+  padding: 5px;
+}
+
+.videoOptions, .videoFullscreen {
+  float: right;
+  text-align: right;
+  padding: 8px;
 }
 
 .videoTime {
-  text-align: center;
+  text-align: right;
   width: 9%;
-  font-size: 15px;
+  font-size: 17px;
+  text-shadow: 2px 2px 10px #222;
+  text-shadow: 1px 1px 2px #111;
+  color: rgba(256, 256, 256, 1);
 }
 
 .videoSeekBar {
@@ -30,13 +48,236 @@
   width: 10%;
 }
 
-glyphicon:hover {
-  color: #555;
-}
-
-.videoControls {
+.videoLabels {
+  width: 100%;
   position: absolute;
   background:#000;
-  z-index:999;
-  bottom: 0%;
+  z-index: 2147483647;
+  top: 0%;
+  background: -moz-linear-gradient(top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(0,0,0,0.80) 0%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(0,0,0,0.80) 0%,rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+}
+
+.glyphicon:hover {
+  color: #fff;
+}
+
+
+@media screen and (max-width: 1024px) {
+  .videoTime {
+    font-size: 15px;
+    width: 9%;
+  }
+  .videoSeekBar {
+    width: 89%;
+  }
+  .QA button.btn.btn-lg, .QA a.btn.btn-lg {
+    font-size: 16px;
+  }
+  .videoName h2 {
+    font-size: 23px;
+  }
+  .videoName p {
+    font-size: 14px;
+  }
+  .btnFullscreen, .btnMute, .btnPlay, .btnForward, .btnBack, .btnSpeed, .btnOptions  {
+    font-size: 25px;
+  }
+}
+
+@media screen and (max-width: 950px) {
+  .videoTime {
+    font-size: 15px;
+    width: 12%;
+  }
+  .videoSeekBar {
+    width: 86%;
+  }
+  .QA button.btn.btn-lg, .QA a.btn.btn-lg {
+    font-size: 14px;
+  }
+  .videoName h2 {
+    font-size: 21px;
+  }
+  .videoName p {
+    font-size: 12px;
+  }
+  .btnFullscreen, .btnMute, .btnPlay, .btnForward, .btnBack, .btnSpeed, .btnOptions  {
+    font-size: 23px;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .videoTime {
+    font-size: 13px;
+    width: 15%;
+  }
+  .videoSeekBar {
+    width: 83%;
+  }
+  .QA button.btn.btn-lg, .QA a.btn.btn-lg {
+    font-size: 12px;
+  }
+  .videoName h2 {
+    font-size: 19px;
+  }
+  .videoName p {
+    font-size: 10px;
+  }
+  .btnFullscreen, .btnMute, .btnPlay, .btnForward, .btnBack, .btnSpeed, .btnOptions  {
+    font-size: 21px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .videoTime {
+    font-size: 12px;
+    width: 18%;
+  }
+  .videoSeekBar {
+    width: 80%;
+  }
+  .QA button.btn.btn-lg, .QA a.btn.btn-lg {
+    font-size: 10px;
+  }
+  .videoName h2 {
+    font-size: 17px;
+  }
+  h2 {
+    display: none;
+  }
+  .videoName p {
+    display: none;
+  }
+  .btnFullscreen, .btnMute, .btnPlay, .btnForward, .btnBack, .btnSpeed, .btnOptions  {
+    font-size: 19px;
+  }
+}
+
+.modal-backdrop {
+  z-index: -1;
+}
+
+.modal {
+  height: 90%;
+  z-index: 2147483647;
+}
+
+.videoName {
+  float: left;
+  width: 40%;
+  white-space: nowrap;
+  font-weight: 400;
+  color: rgba(256, 256, 256, 0.60);
+  -webkit-transition: color 1s;
+  transition: color 1s;
+  margin: 0;
+}
+
+.videoName h2 {
+  margin-bottom: 0;
+}
+
+.videoName p {
+  padding-left: 2em;
+  line-height: 0;
+}
+
+.QA {
+  float: right;
+  margin: 1%;
+}
+
+h2 {
+  font-size: 27px;
+}
+
+.QA button.btn, .QA a.btn {
+  border-radius: 0px;
+  border: none;
+  background-color: rgba(20, 20, 20, 0.3);
+  font-size: 16px;
+  color: rgba(256, 256, 256, 0.60);
+  -webkit-transition: color 1s;
+  transition: color 1s;
+}
+
+.videoName:hover, .QA button.btn:hover, .QA a.btn:hover {
+  color: rgba(256, 256, 256, 1.0);
+  -webkit-transition: color 1s;
+  transition: color 1s;
+}
+
+.btn:focus {
+  outline: none;
+}
+
+.videoLabels {
+  padding-bottom: 3%;
+  text-shadow: 2px 2px 10px #222;
+  text-shadow: 1px 1px 2px #111;
+}
+
+a:focus {
+  color: rgba(256, 256, 256, 0.60);
+}
+
+#progress-bar, #volume-bar {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+}
+
+#progress-bar::-webkit-progress-bar {
+  background-color: rgba(255,255,255, 0.25);
+  border-radius: 4px;
+}
+
+#progress-bar[value]::-webkit-progress-value {
+  background-image:
+  -webkit-linear-gradient(-45deg,
+                          transparent 33%, rgba(0, 0, 0, .1) 33%,
+                          rgba(0,0, 0, .1) 66%, transparent 66%),
+  -webkit-linear-gradient(top,
+                          rgba(255, 255, 255, .25),
+                          rgba(0, 0, 0, .25)),
+  -webkit-linear-gradient(left, #09c, #429bf4);
+
+ border-radius: 4px;
+ background-size: 35px 20px, 100% 100%, 100% 100%;
+ box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+
+#volume-bar {
+  height: 14px;
+  margin-bottom: 3px;
+}
+
+#volume-bar::-webkit-progress-bar {
+  background-color: rgba(255,255,255, 0.25);
+  border-radius: 4px;
+}
+
+#volume-bar[value]::-webkit-progress-value {
+  background-image:
+  -webkit-linear-gradient(-45deg,
+                          transparent 33%, rgba(0, 0, 0, .1) 33%,
+                          rgba(0,0, 0, .1) 66%, transparent 66%),
+  -webkit-linear-gradient(top,
+                          rgba(255, 255, 255, .25),
+                          rgba(0, 0, 0, .25)),
+  -webkit-linear-gradient(left, #09c, #429bf4);
+
+ border-radius: 4px;
+ background-size: 35px 20px, 100% 100%, 100% 100%;
+ box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+
+video::-webkit-media-controls-enclosure {
+  display:none !important;
+}
+
+video::-moz-media-controls-enclosure {
+  display:none !important;
 }

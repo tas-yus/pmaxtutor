@@ -1,6 +1,6 @@
 body {
     padding-top: 50px;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Lato', sans-serif;
 }
 .thumbnail>img {
     width: 100%;
@@ -244,14 +244,14 @@ a[role="button"] > i.fa-minus {
 #part-length {
   font-size: 14px;
   padding-left: 10%;
-  font-weight: 300;
+  font-weight: 400;
   float: right;
 }
 
 #part-duration {
   font-size: 14px;
   padding-left: 10%;
-  font-weight: 300;
+  font-weight: 400;
   float: right;
 }
 
@@ -300,4 +300,33 @@ a[role="button"] > i.fa-minus {
 .flexthis.row:before,
 .flexthis.row:after {
    content: normal; // IE doesn't support `initial`
+}
+
+.highlight {
+  color: #fff;
+}
+
+.highlight div {
+  background-color: #377bb5;
+}
+
+div.panel-heading:hover {
+  background-color: #ebebeb;
+  -webkit-transition: background-color 0.5s;
+  transition: background-color 0.5s;
+}
+
+div.panel-body:hover {
+  background-color: #f9f9f9;
+  -webkit-transition: background-color 0.5s;
+  transition: background-color 0.5s;
+}
+
+.highlight div.panel-body:hover {
+  background-color: #377cc5;
+  color: #fff;
+}
+
+.panel p {
+  margin: 0;
 }

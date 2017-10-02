@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router({mergeParams: true});
 var Part = require("./../models/part");
+var Course = require("./../models/course");
 var Video = require("./../models/video");
 var User = require("./../models/user");
 var Answer = require("./../models/answer");
@@ -13,18 +14,25 @@ var config = require("./../config");
 router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, middleware.canLearn, (req, res) => {
     var courseCode = req.params.courseCode;
     var partCode = req.params.partCode;
-    Video.findOne({code: req.params.vidCode}).populate("questions").populate("resources").exec((err, vid) => {
+    var checkPartOwnership = method.checkPartOwnership;
+    Course.findOne({code: courseCode}).populate("parts").exec((err, course) => {
+      if (err) return console.log(err);
+      Video.populate(course.parts, {path: "videos"}, (err, parts) => {
         if (err) return console.log(err);
-        User.populate(vid.questions, {path: "author", select: "username"}, (err, questions) => {
+        Video.findOne({code: req.params.vidCode}).populate("questions").populate("resources").exec((err, vid) => {
             if (err) return console.log(err);
-            Answer.populate(questions, {path: "answers", select: "author body"}, (err, questions) => {
+            User.populate(vid.questions, {path: "author", select: "username"}, (err, questions) => {
                 if (err) return console.log(err);
-                User.populate(questions, {path: "answers.author", select: "username", model: User}, (err, questions) => {
+                Answer.populate(questions, {path: "answers", select: "author body"}, (err, questions) => {
                     if (err) return console.log(err);
-                     res.render("videos/index", {vid, courseCode, partCode, questions});
+                    User.populate(questions, {path: "answers.author", select: "username", model: User}, (err, questions) => {
+                        if (err) return console.log(err);
+                         res.render("videos/index", {vid, course, courseCode, partCode, questions, checkPartOwnership});
+                    });
                 });
             });
         });
+      });
     });
 });
 

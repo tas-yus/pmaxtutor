@@ -9,7 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Kanit:300,400" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="/assets/js/main.js"></script>
@@ -19,7 +19,35 @@
       <source src="/assets/videos/test.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
-    <div class="videoControls">
+    <div class="videoLabels container">
+      <div class="videoName">
+        <h2>Test</h2>
+      </div>
+      <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+    <div class="videoControls container">
         <div class="videoSeekBar">
           <input type="range" class="seek-bar" value="0">
         </div>
@@ -71,6 +99,7 @@
         var fadeout = null;
         $("html").mousemove(function() {
           $(".videoControls").fadeIn("medium");
+          $(".videoLabels").fadeIn("medium");
           if (fadeout != null) {
             clearTimeout(fadeout);
           }
@@ -78,6 +107,7 @@
         });
         function hide_playlist() {
           $(".videoControls").stop().fadeOut("medium");
+          $(".videoLabels").stop().fadeOut("medium");
         }
         var videoPlayer = $('#videoPlayer');
         $(".btnPlay").click(function() {
@@ -198,6 +228,16 @@
                 'marginLeft' : marginLeftAdjust
             });
         }).resize();
+
+        activeItem = $("#accordion li:first");
+        $(activeItem).addClass('active');
+
+        $("#accordion li").hover(function(){
+            $(activeItem).animate({width: "50px"}, {duration:300, queue:false});
+            $(this).animate({width: "450px"}, {duration:300, queue:false});
+            activeItem = this;
+        });
+
       });
     </script>
   </body>

@@ -30,7 +30,11 @@
                     <span id="part-duration">
                       <%= vid.duration %>
                     </span>
-                    <% if (ownershipStatus !== true && ownershipStatus !== "expired") { %>
+                    <% if (user.isAdmin) { %>
+                      <span id="part-duration">
+                        View
+                      </span>
+                    <% } else if (ownershipStatus !== true && ownershipStatus !== "expired") { %>
                       <span id="part-duration">
                         Buy
                       </span>

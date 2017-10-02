@@ -3,21 +3,21 @@
     <img src="/assets/images/banner.jpg">
 </div>
 <div class="container" id="course-list">
-    <div class="row flexthis">
-    <% courses.forEach((course) => { %>
-        <div class="col-md-4 col-sm-6">
-          <a href="/courses/<%= course.code %>" class="thumbnail">
-            <img src="/assets/images/<%= course.image%>">
-            <div class="caption">
-              <div class="container-fluid">
-                <h3><%= course.title %></h3>
-                <p><%= course.description %></p>
-                <p><span><%= course.price %> บาท</span></p>
-              </div>
+  <div class="row flexthis">
+  <% courses.forEach((course) => { %>
+      <div class="col-md-4 col-sm-6">
+        <a href="/courses/<%= course.code %>" class="thumbnail">
+          <img src="/assets/images/<%= course.image%>">
+          <div class="caption">
+            <div class="container-fluid">
+              <h3><%= course.title %></h3>
+              <p><%= course.description %></p>
+              <p><span><%= course.price %> บาท</span></p>
             </div>
-          </a>
-        </div>
-    <% }); %>
-    </div>
+          </div>
+        </a>
+      </div>
+  <% }); %>
+  </div>
 </div>
 <% include ../partials/footer %>

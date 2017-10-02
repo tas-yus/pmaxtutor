@@ -15,5 +15,5 @@ $(".list-group-item").click(function() {
 });
 
 $( function() {
-  $( "#draggable" ).draggable();
+  $( ".draggable" ).draggable();
 } );
