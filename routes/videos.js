@@ -102,4 +102,23 @@ router.delete("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, (req, res)
     });
 });
 
+// DONE VID
+router.post("/:vidCode/done", (req, res) => {
+  Video.findOne({code: req.params.vidCode}, (err, video) => {
+    if (err) return console.log(err);
+    var user = req.user;
+    var targetedVideo = method.getVideoInArrayById(user.videos, video._id.toString());
+    if (!targetedVideo.finished) {
+      targetedVideo.finished = true;
+      user.numFinishedVideos++;
+      user.save((err) => {
+        if (err) return console.log(err);
+        res.redirect(`/courses/${req.params.courseCode}/learn`);
+      });
+    } else {
+      res.redirect(`/courses/${req.params.courseCode}/learn`);
+    }
+  });
+});
+
 module.exports = router;

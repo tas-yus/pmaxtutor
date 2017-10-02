@@ -47,6 +47,10 @@ var CourseSchema = new mongoose.Schema({
 
     ],
     order: "Number",
+    numVideos: {
+      type: Number,
+      default: 0
+    }
 }, { emitIndexErrors: true });
 
 module.exports = mongoose.model("Course", CourseSchema);

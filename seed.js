@@ -6,6 +6,7 @@ var Video = require("./models/video");
 var Resource = require("./models/resource");
 var Question = require("./models/question");
 var Answer = require("./models/answer");
+var forEach = require('async-foreach').forEach;
 
 var data = [
     {
@@ -82,8 +83,43 @@ var videos = [
         previewAllowed: true
     },
     {
-        title: "Flame Test",
-        part: "Spectra",
+        title: "spdf",
+        part: "Atom",
+        course: "Chem Olympic 1",
+        path: "small.mp4",
+        duration: "20:12"
+    },
+    {
+        title: "2882 Config",
+        part: "Atom",
+        course: "Chem Olympic 1",
+        path: "small.mp4",
+        duration: "20:12"
+    },
+    {
+        title: "[Ar] using Noble gas",
+        part: "Atom",
+        course: "Chem Olympic 1",
+        path: "small.mp4",
+        duration: "20:12"
+    },
+    {
+        title: "Electron Diagram",
+        part: "Atom",
+        course: "Chem Olympic 1",
+        path: "small.mp4",
+        duration: "20:12"
+    },
+    {
+        title: "Quantum Number",
+        part: "Atom",
+        course: "Chem Olympic 1",
+        path: "small.mp4",
+        duration: "20:12"
+    },
+    {
+        title: "Heisenberg",
+        part: "Atom",
         course: "Chem Olympic 1",
         path: "small.mp4",
         duration: "20:12"
@@ -212,51 +248,51 @@ var user = [
     {
         username: "audy"
     },
-    {
-        username: "alex",
-    },
-    {
-        username: "andre"
-    },
-    {
-        username: "sarah"
-    },
-    {
-        username: "edric"
-    },
-    {
-        username: "vincent"
-    },
-    {
-        username: "maria"
-    },
-    {
-        username: "charlie"
-    },
-    {
-        username: "willie"
-    },
-    {
-        username: "MAX"
-    },
-    {
-        username: "tas31745"
-    },
+    // {
+    //     username: "alex",
+    // },
+    // {
+    //     username: "andre"
+    // },
+    // {
+    //     username: "sarah"
+    // },
+    // {
+    //     username: "edric"
+    // },
+    // {
+    //     username: "vincent"
+    // },
+    // {
+    //     username: "maria"
+    // },
+    // {
+    //     username: "charlie"
+    // },
+    // {
+    //     username: "willie"
+    // },
+    // {
+    //     username: "MAX"
+    // },
+    // {
+    //     username: "tas31745"
+    // },
     {
         username: "big"
     },
-    {
-        username: "binSu"
-    },
-    {
-        username: "eminem"
-    },
-    {
-        username: "Kinu"
-    },
-    {
-        username: "Keane123"
-    }
+    // {
+    //     username: "binSu"
+    // },
+    // {
+    //     username: "eminem"
+    // },
+    // {
+    //     username: "Kinu"
+    // },
+    // {
+    //     username: "Keane123"
+    // }
 ];
 
 var questions = [{
@@ -385,25 +421,30 @@ function seedDB() {
    }
 
    function linkParts() {
-       Course.find({}, (err, courses) => {
-          if (err) return console.log(err);
-          courses.forEach((course) => {
-              var ctr = 0;
-              Part.find({course: course.title}, (err, foundParts) => {
+      Course.find({}, (err, courses) => {
+        if (err) return console.log(err);
+        forEach(courses, function(course){
+          var ctr = 0;
+          var numVideos = course.numVideos;
+          var done = this.async();
+          Part.find({course: course.title}, (err, foundParts) => {
+            if (err) return console.log(err);
+            foundParts.forEach((part) => {
+              numVideos += part.videos.length;
+              course.parts.push(part);
+              ctr++;
+              if (ctr === foundParts.length) {
+                course.numVideos = numVideos;
+                course.save((err) => {
                   if (err) return console.log(err);
-                  foundParts.forEach((part) => {
-                     course.parts.push(part);
-                     ctr++;
-                     if (ctr === foundParts.length) {
-                          course.save((err) => {
-                                if (err) return console.log(err);
-                                console.log("Parts Linked With Courses: " + course.title);
-                          });
-                      }
-                  });
-              });
+                  done();
+                  console.log("Parts Linked With Courses: " + course.title);
+                });
+              }
+            });
           });
-       });
+        });
+      });
    }
 
    function linkQuestionsWithUsers() {

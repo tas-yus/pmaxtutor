@@ -213,4 +213,7 @@ $(document).ready(function() {
           'marginLeft' : marginLeftAdjust
       });
   }).resize();
+  videoPlayer.on("ended", () => {
+    $("#done").trigger('click');
+  })
 });

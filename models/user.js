@@ -30,6 +30,17 @@ var UserSchema = new mongoose.Schema({
         },
         _id: false
     }],
+    videos: [{
+        video: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Video"
+        },
+        finished: {
+            type: Boolean,
+            default: false
+        },
+        _id: false
+    }],
     cartCourses: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -54,6 +65,10 @@ var UserSchema = new mongoose.Schema({
     isAdmin: {
         type: Boolean,
         default: false
+    },
+    numFinishedVideos: {
+        type: Number,
+        default: 0
     }
 });
 

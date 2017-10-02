@@ -84,6 +84,10 @@
             <li><a href="#">Download Lecture</a></li>
           </ul>
         </div>
+        <form class="invisible" action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/done" method="POST">
+            <input type="hidden" name="done" value="done">
+            <button id="done"></button>
+        </form>
     </div>
 
     <!-- Modal -->

@@ -180,11 +180,12 @@ router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLear
           }
           var parts;
           var checkPartOwnership = method.checkPartOwnership;
+          var isFinished = method.isFinished;
           if (req.user.isAdmin) {
-              res.render("courses/learn", {course, parts, checkPartOwnership});
+              res.render("courses/learn", {course, parts, checkPartOwnership, isFinished});
           } else {
               var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
-              res.render("courses/learn", {course, getPartInUserArrayByCourseTitle, checkPartOwnership});
+              res.render("courses/learn", {course, getPartInUserArrayByCourseTitle, checkPartOwnership, isFinished});
           }
         });
     });
@@ -217,42 +218,46 @@ router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, 
        } else {
            insertedParts.push(selectedParts);
        }
-            User.findById(req.user._id, (err, user) => {
-                if (err) {
-                    return console.log(err);
-                }
-                var ctr = 0;
-                if (!method.checkCourseOwnership(user.courses, course._id.toString())) {
-                    user.courses.push({course});
-                }
-                insertedParts.forEach((part) => {
-                  Part.findById(part.toString(), (err, part) => {
-                    if (err) return console.log(err);
-                    part.users.push(user);
-                    part.save((err) => {
-                      if (err) return console.log(err);
-                    });
-                  });
-                   user.parts.push({part});
-                   ctr++;
-                   if (ctr === insertedParts.length) {
-                        user.save((err, data) => {
-                            if(err) {
-                                return console.log(err);
-                            }
-                        });
-                   }
-                });
-                course.users.push(user);
-                user.cartCourses = user.cartCourses.filter(function(cartCourse){return cartCourse.toString() !== course._id.toString()});
-                course.save((err, data) => {
-                    if (err) {
-                        return console.log(err);
-                    }
-                });
-                console.log(`${user.username} just bought ${course.title} for ${course.price} Baht`, new Date().toDateString());
-                res.redirect("/dashboard");
-            });
+       var user = req.user;
+       var ctr = 0;
+       if (!method.checkCourseOwnership(user.courses, course._id.toString())) {
+           user.courses.push({course});
+       }
+       insertedParts.forEach((part) => {
+         Part.findById(part.toString(), (err, part) => {
+           if (err) return console.log(err);
+           part.users.push(user);
+           part.save((err) => {
+             if (err) return console.log(err);
+             user.parts.push({part});
+             var videos = part.videos;
+             ctr2 = 0;
+             videos.forEach((video) => {
+               user.videos.push({video});
+               ctr2++;
+               if (ctr2 === videos.length) {
+                 ctr++;
+                 if (ctr === insertedParts.length) {
+                   user.save((err, data) => {
+                       if(err) {
+                           return console.log(err);
+                       }
+                       course.users.push(user);
+                       user.cartCourses = user.cartCourses.filter(function(cartCourse){return cartCourse.toString() !== course._id.toString()});
+                       course.save((err, data) => {
+                           if (err) {
+                               return console.log(err);
+                           }
+                       });
+                       console.log(`${user.username} just bought ${course.title} for ${course.price} Baht`, new Date().toDateString());
+                       res.redirect("/dashboard");
+                   });
+                 }
+               }
+             });
+           });
+         });
+       });
     });
 });
 

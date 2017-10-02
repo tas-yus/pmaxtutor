@@ -27,6 +27,21 @@ methodObj.getPartInPartArrayByCourseTitle = function (partArray, courseTitle) {
     return result? result : null; // or undefined
 };
 
+methodObj.getVideoInArrayById = function (arr, id) {
+    var result  = arr.filter(function(o){
+        if (o.video._id) {
+            return o.video._id.toString() === id;
+        } else {
+            return o.video.toString() === id;
+        }
+    });
+    return result? result[0] : null; // or undefined
+};
+
+methodObj.isFinished = function (arr, id) {
+  return methodObj.getVideoInArrayById(arr, id).finished;
+};
+
 methodObj.getCourseInArrayById = function(arr, id) {
     var result  = arr.filter(function(o){
         if (o.course._id) {

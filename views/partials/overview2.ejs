@@ -29,6 +29,11 @@
                     <i style="padding-left: 20px; font-size: 20px"  class="fa fa-play-circle" aria-hidden="true"></i>
                     <span id="part-duration">
                       <%= vid.duration %>
+                      <% if (user.isAdmin || isFinished(user.videos, vid._id.toString())) { %>
+                        <i class="fa fa-check-circle-o" aria-hidden="true"></i>
+                      <% } else { %>
+                        <i class="fa fa-circle-o" aria-hidden="true"></i>
+                      <% } %>
                     </span>
                     <% if (user.isAdmin) { %>
                       <span id="part-duration">
