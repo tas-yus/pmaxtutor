@@ -2,6 +2,7 @@ var User = require("./../models/user");
 var Course = require("./../models/course");
 var method = require("./../method");
 var Part = require("./../models/part");
+var Order = require("./../models/order");
 var forEach = require('async-foreach').forEach;
 
 var checkExpiry = function() {
@@ -20,40 +21,50 @@ var checkExpiry = function() {
                     console.log(user.username + "\'s " + partBundle.part.title + " has expired!");
                     Part.findById(partBundle.part._id.toString(), (err, part) => {
                       if (err) return console.log(err);
-                      part.users = part.users.filter(function(partUser) {return partUser.toString() !== user._id.toString() } );
-                      if (!method.checkIfPartContainsUserOfId(part.expiredUsers, user._id.toString())) part.expiredUsers.push(user);
-                      part.save((err) => {
+                      Course.findOne({title: part.course}, (err, course) => {
                         if (err) return console.log(err);
-                        console.log(user.username + "\'s " + partBundle.part.title + " has expired!")
-                      });
-                    });
-                }
-                ctr++;
-                // done1();
-                if (ctr === user.parts.length) {
-                  user.save((err) => {
-                     if (err) return console.log(err);
-                  });
-                  var ctr1 = 0;
-                  forEach(user.courses, function (courseBundle) {
-                    if (method.checkIfCourseShouldExpired(courseBundle, user.parts)) {
-                        courseBundle.expired = true;
-                        Course.findById(courseBundle.course._id.toString(), (err, course) => {
+                        var newOrder = {
+                          course, part, user, type: "expired"
+                        };
+                        Order.create(newOrder, (err, order) => {
                           if (err) return console.log(err);
-                          course.users = course.users.filter(function(courseUser) {return courseUser.toString() !== user._id.toString() } );
-                          if (!method.checkIfCourseContainsUserOfId(course.expiredUsers, user._id.toString())) course.expiredUsers.push(user);
-                          course.save((err) => {
+                          user.orders.push(order);
+                          part.users = part.users.filter(function(partUser) {return partUser.toString() !== user._id.toString() } );
+                          if (!method.checkIfPartContainsUserOfId(part.expiredUsers, user._id.toString())) part.expiredUsers.push(user);
+                          part.save((err) => {
                             if (err) return console.log(err);
-                            console.log(user.username + "\'s " + courseBundle.course.title + " has expired!")
-                            ctr1++;
-                            if (ctr1 === user.courses.length) done();
+                            console.log(user.username + "\'s " + partBundle.part.title + " has expired!")
+                            ctr++;
+                            // done1();
+                            if (ctr === user.parts.length) {
+                              user.save((err) => {
+                                 if (err) return console.log(err);
+                              });
+                              var ctr1 = 0;
+                              forEach(user.courses, function (courseBundle) {
+                                if (method.checkIfCourseShouldExpired(courseBundle, user.parts)) {
+                                    courseBundle.expired = true;
+                                    Course.findById(courseBundle.course._id.toString(), (err, course) => {
+                                      if (err) return console.log(err);
+                                      course.users = course.users.filter(function(courseUser) {return courseUser.toString() !== user._id.toString() } );
+                                      if (!method.checkIfCourseContainsUserOfId(course.expiredUsers, user._id.toString())) course.expiredUsers.push(user);
+                                      course.save((err) => {
+                                        if (err) return console.log(err);
+                                        console.log(user.username + "\'s " + courseBundle.course.title + " has expired!")
+                                        ctr1++;
+                                        if (ctr1 === user.courses.length) done();
+                                      });
+                                    });
+                                } else {
+                                  ctr1++;
+                                  if (ctr1 === user.courses.length) done();
+                                }
+                              });
+                            }
                           });
                         });
-                    } else {
-                      ctr1++;
-                      if (ctr1 === user.courses.length) done();
-                    }
-                  });
+                      });
+                    });
                 }
             });
         });

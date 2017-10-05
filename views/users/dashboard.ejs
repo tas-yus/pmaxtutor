@@ -8,7 +8,7 @@
             <ul>
                 <% var userCourseParts = getPartInUserArrayByCourseTitle(user.parts, userCourseBundle.course.title) %>
                 <% userCourseParts.forEach((partBundle) => { %>
-                     <li><%= partBundle.part.title %></li>
+                     <li><%= partBundle.part.title %> - Expired At <%= partBundle.expiredAt.toLocaleString() %></li>
                      <% if (partBundle.expired) { %>
                          <p>Expired!!!!</p>
                      <% } %>

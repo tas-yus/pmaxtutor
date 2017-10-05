@@ -6,6 +6,7 @@ var Video = require("./models/video");
 var Resource = require("./models/resource");
 var Question = require("./models/question");
 var Answer = require("./models/answer");
+var Order = require("./models/order");
 var forEach = require('async-foreach').forEach;
 
 var data = [
@@ -72,7 +73,8 @@ var videos = [
         course: "Chem Olympic 1",
         path: "small.mp4",
         duration: "15:50",
-        previewAllowed: true
+        previewAllowed: true,
+        order: 1
     },
     {
         title: "Atomic Model",
@@ -80,112 +82,128 @@ var videos = [
         course: "Chem Olympic 1",
         path: "small.mp4",
         duration: "12:49",
-        previewAllowed: true
+        previewAllowed: true,
+        order: 2
     },
     {
         title: "spdf",
         part: "Atom",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "20:12"
+        duration: "20:12",
+        order: 3
     },
     {
         title: "2882 Config",
         part: "Atom",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "20:12"
+        duration: "20:12",
+        order: 4
     },
     {
         title: "[Ar] using Noble gas",
         part: "Atom",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "20:12"
+        duration: "20:12",
+        order: 5
     },
     {
         title: "Electron Diagram",
         part: "Atom",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "20:12"
+        duration: "20:12",
+        order: 6
     },
     {
         title: "Quantum Number",
         part: "Atom",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "20:12"
+        duration: "20:12",
+        order: 7
     },
     {
         title: "Heisenberg",
         part: "Atom",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "20:12"
+        duration: "20:12",
+        order: 8
     },
     {
         title: "Excited State",
         part: "Spectra",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "12:41"
+        duration: "12:41",
+        order: 9
     },
     {
         title: "Covalent Bond",
         part: "Chemical Bonding",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "09:56"
+        duration: "09:56",
+        order: 10
     },
     {
         title: "VSEPR",
         part: "Chemical Bonding",
         course: "Chem Olympic 1",
         path: "small.mp4",
-        duration: "11:72"
+        duration: "11:72",
+        order: 11
     },
     {
         title: "What is mol?",
         part: "Stoichiometry",
         course: "Chem Olympic 2",
         path: "small.mp4",
-        duration: "12:44"
+        duration: "12:44",
+        order: 1
     },
     {
         title: "Unit Conversion Factor",
         part: "Stoichiometry",
         course: "Chem Olympic 2",
         path: "small.mp4",
-        duration: "08:62"
+        duration: "08:62",
+        order: 2
     },
     {
         title: "Percentage by weight",
         part: "Empirical Formula",
         course: "Chem Olympic 2",
         path: "small.mp4",
-        duration: "05:29"
+        duration: "05:29",
+        order: 3
     },
     {
         title: "Molar ratio",
         part: "Empirical Formula",
         course: "Chem Olympic 2",
         path: "small.mp4",
-        duration: "10:41"
+        duration: "10:41",
+        order: 4
     },
     {
         title: "What is Equilibrium?",
         part: "Equilibrium",
         course: "Chem Olympic 3",
         path: "small.mp4",
-        duration: "05:50"
+        duration: "05:50",
+        order: 1
     },
     {
         title: "Equilibrium constant",
         part: "Equilibrium",
         course: "Chem Olympic 3",
         path: "small.mp4",
-        duration: "09:55"
+        duration: "09:55",
+        order: 2
     }
 ]
 
@@ -392,6 +410,10 @@ function seedDB() {
             console.log("Answers Added");
           });
        });
+    });
+    Order.remove({}, (err) => {
+       if (err) return console.log(err);
+       console.log("Orders Removed");
     });
 
     setTimeout(linkVideos, 2000);

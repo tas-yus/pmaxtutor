@@ -39,10 +39,10 @@
                       <% if (user.courses.length !== 0) { %>
                       <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                         <% user.courses.forEach((courseBundle) => { %>
-                          <% if (courseBundle.expired) { %>
-                            <li><a href="/courses/<%= courseBundle.course.code %>/learn" class="striked"><%= courseBundle.course.title %></a></li>
-                          <% } else { %>
+                          <% if (user.isAdmind || !courseBundle.expired) { %>
                             <li><a href="/courses/<%= courseBundle.course.code %>/learn"><%= courseBundle.course.title %></a></li>
+                          <% } else { %>
+                            <li><a href="/courses/<%= courseBundle.course.code %>/learn" class="striked"><%= courseBundle.course.title %></a></li>
                           <% } %>
                         <% }); %>
                       </ul>

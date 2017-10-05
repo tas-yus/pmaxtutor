@@ -18,10 +18,14 @@ var QuestionSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Answer",
         default: []
-    }]
+    }],
+    createdAt: {
+        type: Number,
+        default: new Date().getTime()
+    }
 });
 
-QuestionSchema.plugin(autoIncrement.plugin,  
+QuestionSchema.plugin(autoIncrement.plugin,
     {
         model: 'Question',
         field: 'code',

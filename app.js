@@ -59,10 +59,12 @@ app.use(function(req, res, next) {
           if (err) return console.log(err);
           Video.populate(user, {path: "videos.video"}, (err, user) => {
             if (err) return console.log(err);
-            res.locals.user = user;
-            res.locals.error = req.flash("error");
-            res.locals.success = req.flash("success");
-            next();
+            Video.populate(user, {path: "mostRecentVideo", select: "code part title"}, (err, user) => {
+              res.locals.user = user;
+              res.locals.error = req.flash("error");
+              res.locals.success = req.flash("success");
+              next();
+            });
           });
         });
       });
@@ -92,8 +94,9 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // fix affix onw SHOW PAGE
 // Sign Up - includes other info + in the database
 // Add video model to course
+// When a new video is added, all user enrolled should own those videos as well + numVids should increase;
 
-schedule.scheduleJob('0,30 5 5 * * *', function(){
+schedule.scheduleJob('0 * * * * *', function(){
     checkExpiry();
 });
 

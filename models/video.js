@@ -26,10 +26,11 @@ var VideoSchema = new mongoose.Schema({
     previewAllowed: {
         type: Boolean,
         default: false
-    }
+    },
+    order: Number
 });
 
-VideoSchema.plugin(autoIncrement.plugin,  
+VideoSchema.plugin(autoIncrement.plugin,
     {
         model: 'Video',
         field: 'code',

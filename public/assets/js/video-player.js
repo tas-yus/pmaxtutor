@@ -216,4 +216,9 @@ $(document).ready(function() {
   videoPlayer.on("ended", () => {
     $("#done").trigger('click');
   })
+
+  var myTag = $("script").last();
+  var src = myTag[myTag.length-1].src;
+  var link = src.split("?")[1];
+  $(".nextVideo a").attr("href", link);
 });

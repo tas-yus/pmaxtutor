@@ -1,5 +1,6 @@
 var methodObj = {};
 var User = require("./../models/user");
+const expiryPeriod = 10000;
 
 methodObj.getPartInArrayById = function (arr, id) {
     var result  = arr.filter(function(o){
@@ -39,7 +40,8 @@ methodObj.getVideoInArrayById = function (arr, id) {
 };
 
 methodObj.isFinished = function (arr, id) {
-  return methodObj.getVideoInArrayById(arr, id).finished;
+  if (!methodObj.getVideoInArrayById(arr, id)) return false;
+  else return methodObj.getVideoInArrayById(arr, id).finished;
 };
 
 methodObj.getCourseInArrayById = function(arr, id) {
@@ -200,6 +202,10 @@ methodObj.searchUsersByUsername = function (str) {
     if (err) return console.log(err);
     return users;
   });
+}
+
+methodObj.getExpiredDate = function() {
+  return new Date().getTime() + expiryPeriod;
 }
 
 module.exports = methodObj;

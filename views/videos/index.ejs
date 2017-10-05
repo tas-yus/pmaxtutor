@@ -43,7 +43,7 @@
           <!-- <input type="range" class="seek-bar" value="0"> -->
         </div>
         <div class="videoTime">
-          <span class="current">0:00</span>/<span class="duration"></span>
+          <span class="current">0:00</span>/<span class="duration">0:00</span>
         </div>
         <div class="videoPlay">
           <a href="#" class="btnPlay"><span class="glyphicon glyphicon-play"></span></a>
@@ -84,10 +84,11 @@
             <li><a href="#">Download Lecture</a></li>
           </ul>
         </div>
-        <form class="invisible" action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/done" method="POST">
-            <input type="hidden" name="done" value="done">
-            <button id="done"></button>
-        </form>
+        <div class="nextVideo">
+          <a class="btn btn-primary btn-lg" href="#">
+            Continue <i class="fa fa-chevron-right" aria-hidden="true"></i>
+          </a>
+        </div>
     </div>
 
     <!-- Modal -->
@@ -166,7 +167,7 @@
         </div>
       </div>
     </div>
-
+    <% var nextVidCode; %>
     <!-- Modal -->
     <div class="modal fade draggable" id="myModal2" tabindex="0" role="dialog" aria-labelledby="myModalLabel2">
       <div class="modal-dialog" role="document">
@@ -202,10 +203,16 @@
                       <div id="collapse<%= ctr %>" class="<%= attr %>" role="tabpanel" aria-labelledby="heading<%= ctr %>">
                         <% var count = 0; %>
                         <% var ownershipStatus = checkPartOwnership(user.parts, part._id.toString()); %>
+                        <% var selected = 0; %>
                         <% part.videos.forEach((partVid) => { %>
                           <% count++; %>
                           <% var attr2 = "" %>
+                          <% if (selected === 1) { %>
+                            <% nextVidCode = partVid.code %>
+                            <% selected = 0 %>
+                          <% } %>
                           <% if (partVid.title === vid.title) { %>
+                            <% selected++; %>
                             <% attr2 += "highlight" %>
                           <% } %>
                           <a href="/courses/<%= course.code %>/parts/<%= part.code %>/videos/<%= partVid.code %>/learn" class="<%= attr2 %>">
@@ -215,7 +222,11 @@
                               <span id="part-duration">
                                 <%= partVid.duration %>
                               </span>
-                              <% if (ownershipStatus !== true && ownershipStatus !== "expired") { %>
+                              <% if (user.isAdmin) { %>
+                                <span id="part-duration">
+                                  View
+                                </span>
+                              <% } else if (ownershipStatus !== true && ownershipStatus !== "expired") { %>
                                 <span id="part-duration">
                                   Buy
                                 </span>
@@ -234,6 +245,10 @@
                       </div>
                     </div>
                 <% }); %>
+                <form class="invisible" action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/done" method="POST">
+                    <input type="hidden" name="next" value="<%= nextVidCode %>">
+                    <button id="done"></button>
+                </form>
             </div>
           </div>
           <div class="modal-footer">
@@ -244,8 +259,7 @@
       </div>
     </div>
 
-
-    <script src="/assets/js/video-player.js"></script>
     <script src="/assets/js/accordion.js"></script>
+    <script src="/assets/js/video-player.js?/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= nextVidCode %>/learn"></script>
   </body>
 </html>

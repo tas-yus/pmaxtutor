@@ -4,6 +4,7 @@ var Course = require("./../models/course");
 var Part = require("./../models/part");
 var Video = require("./../models/video");
 var User = require("./../models/user");
+var Order = require("./../models/order");
 var middleware = require("./../middleware");
 var method = require("./../method");
 var Promise = require("bluebird");
@@ -82,7 +83,10 @@ router.post("/checkout", middleware.isLoggedIn, (req, res) => {
           var ctr = 0;
             course.users.push(user);
             course.parts.forEach((part) => {
-            user.parts.push({part});
+            user.parts.push({
+              part: part._id,
+              expiredAt: method.getExpiredDate()
+            });
             ctr++;
             if (ctr === course.parts.length) {
               user.cartCourses = [];
@@ -181,11 +185,12 @@ router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLear
           var parts;
           var checkPartOwnership = method.checkPartOwnership;
           var isFinished = method.isFinished;
+          var createCode = method.createCode;
           if (req.user.isAdmin) {
-              res.render("courses/learn", {course, parts, checkPartOwnership, isFinished});
+              res.render("courses/learn", {course, parts, checkPartOwnership, isFinished, createCode});
           } else {
               var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
-              res.render("courses/learn", {course, getPartInUserArrayByCourseTitle, checkPartOwnership, isFinished});
+              res.render("courses/learn", {course, getPartInUserArrayByCourseTitle, checkPartOwnership, isFinished, createCode});
           }
         });
     });
@@ -226,34 +231,45 @@ router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, 
        insertedParts.forEach((part) => {
          Part.findById(part.toString(), (err, part) => {
            if (err) return console.log(err);
-           part.users.push(user);
-           part.save((err) => {
+           var newOrder = {
+             course, part, user
+           }
+           Order.create(newOrder, (err, order) => {
              if (err) return console.log(err);
-             user.parts.push({part});
-             var videos = part.videos;
-             ctr2 = 0;
-             videos.forEach((video) => {
-               user.videos.push({video});
-               ctr2++;
-               if (ctr2 === videos.length) {
-                 ctr++;
-                 if (ctr === insertedParts.length) {
-                   user.save((err, data) => {
-                       if(err) {
-                           return console.log(err);
-                       }
-                       course.users.push(user);
-                       user.cartCourses = user.cartCourses.filter(function(cartCourse){return cartCourse.toString() !== course._id.toString()});
-                       course.save((err, data) => {
-                           if (err) {
-                               return console.log(err);
-                           }
-                       });
-                       console.log(`${user.username} just bought ${course.title} for ${course.price} Baht`, new Date().toDateString());
-                       res.redirect("/dashboard");
-                   });
+             user.orders.push(order);
+             part.users.push(user);
+             part.save((err) => {
+               if (err) return console.log(err);
+               var newPart = {
+                 part: part._id,
+                 expiredAt: method.getExpiredDate()
+               };
+               user.parts.push(newPart);
+               var videos = part.videos;
+               ctr2 = 0;
+               videos.forEach((video) => {
+                 user.videos.push({video});
+                 ctr2++;
+                 if (ctr2 === videos.length) {
+                   ctr++;
+                   if (ctr === insertedParts.length) {
+                     user.save((err, data) => {
+                         if(err) {
+                             return console.log(err);
+                         }
+                         course.users.push(user);
+                         user.cartCourses = user.cartCourses.filter(function(cartCourse){return cartCourse.toString() !== course._id.toString()});
+                         course.save((err, data) => {
+                             if (err) {
+                                 return console.log(err);
+                             }
+                         });
+                         console.log(`${user.username} just bought ${course.title} for ${course.price} Baht`, new Date().toDateString());
+                         res.redirect("/dashboard");
+                     });
+                   }
                  }
-               }
+               });
              });
            });
          });
@@ -285,37 +301,44 @@ router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, 
             selectedParts.forEach((selectedPart) => {
                 var targetedPartBundle = method.getPartInArrayById(user.parts, selectedPart.toString());
                 targetedPartBundle.expired = false;
-                targetedPartBundle.expiredAt += 10000;
+                targetedPartBundle.expiredAt = method.getExpiredDate();
                 Part.findById(selectedPart.toString(), (err, part) => {
                   if (err) return console.log(err);
-                  part.expiredUsers = part.expiredUsers.filter(function(expiredUser) { return expiredUser.toString() !== user._id.toString()});
-                  part.users.push(user);
-                  part.save((err) => {
+                  var newOrder = {
+                    course, part, user, type: "extend"
+                  };
+                  Order.create(newOrder, (err, order) => {
                     if (err) return console.log(err);
+                    user.orders.push(order);
+                    part.expiredUsers = part.expiredUsers.filter(function(expiredUser) { return expiredUser.toString() !== user._id.toString()});
+                    part.users.push(user);
+                    part.save((err) => {
+                      if (err) return console.log(err);
+                      ctr++;
+                      if (ctr === selectedParts.length) {
+                      var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
+                          if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
+                              var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
+                              userCourse.expired = false;
+                              user.save((err) => {
+                                 if (err) return console.log(err);
+                              });
+                              course.expiredUsers = course.expiredUsers.filter(function(courseExpiredUser) {return courseExpiredUser.toString() !== user._id.toString()} );
+                              course.users.push(user);
+                              course.save((err) => {
+                                if (err) return console.log(err);
+                                res.redirect("/dashboard");
+                              });
+                          } else {
+                              user.save((err) => {
+                                 if (err) return console.log(err);
+                                 res.redirect("/dashboard");
+                              });
+                          }
+                      }
+                    });
                   });
                 });
-                ctr++;
-                if (ctr === selectedParts.length) {
-                var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
-                    if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
-                        var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
-                        userCourse.expired = false;
-                        user.save((err) => {
-                           if (err) return console.log(err);
-                        });
-                        course.expiredUsers = course.expiredUsers.filter(function(courseExpiredUser) {return courseExpiredUser.toString() !== user._id.toString()} );
-                        course.users.push(user);
-                        course.save((err) => {
-                          if (err) return console.log(err);
-                          res.redirect("/dashboard");
-                        });
-                    } else {
-                        user.save((err) => {
-                           if (err) return console.log(err);
-                           res.redirect("/dashboard");
-                        });
-                    }
-                }
             });
         });
     });

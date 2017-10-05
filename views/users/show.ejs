@@ -14,5 +14,15 @@
             </ul>
         </li>
     <% }); %>
+    <h2>User's History</h2>
+    <ul>
+      <% orders.forEach((order) => { %>
+        <% if (order.type === "expired") { %>
+          <li><%= order.part.title %> in <%= order.course.title %> <%= order.type %> on <%= new Date(order.createdAt).toLocaleString() %></li>
+        <% } else { %>
+            <li><%= order.type %> <%= order.part.title %> in <%= order.course.title %> on <%= new Date(order.createdAt).toLocaleString() %></li>
+        <% } %> 
+      <% }); %>
+    </ul>
     <a href="/users/<%= user._id %>/courses/edit" class="btn btn-info">edit</a>
 <% include ../partials/footer %>

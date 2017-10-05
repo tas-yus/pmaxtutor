@@ -3,6 +3,7 @@ var router = express.Router({mergeParams: true});
 var Course = require("./../models/course");
 var Part = require("./../models/part");
 var Video = require("./../models/video");
+var Order = require("./../models/order");
 var User = require("./../models/user");
 var middleware = require("./../middleware");
 var method = require("./../method");
@@ -161,27 +162,32 @@ router.post("/:partCode/extend", middleware.isLoggedIn, middleware.canExtend, (r
    var extendedPart = req.body.extendedPart;
    Course.findOne({code: req.params.courseCode}, (err, course) => {
      if (err) return console.log(err);
-     User.findById(req.user._id.toString()).populate("parts.part").populate("courses.course").exec((err, user) => {
+     var user = req.user;
+     var targetedPartBundle = method.getPartInArrayById(user.parts, extendedPart.toString());
+     targetedPartBundle.expired = false;
+     targetedPartBundle.expiredAt += 10000;
+     Part.findById(targetedPartBundle.part._id.toString(), (err, part) => {
        if (err) return console.log(err);
-       var targetedPartBundle = method.getPartInArrayById(user.parts, extendedPart.toString());
-       targetedPartBundle.expired = false;
-       targetedPartBundle.expiredAt += 10000;
-       Part.findById(targetedPartBundle.part._id.toString(), (err, part) => {
+       var newOrder = {
+         course, part, user, type: "extend"
+       };
+       Order.create(newOrder, (err, order) => {
          if (err) return console.log(err);
+         user.orders.push(order);
          part.expiredUsers = part.expiredUsers.filter(function(expiredUser) { return expiredUser.toString() !== user._id.toString()});
          part.users.push(user);
          part.save((err) => {
            if (err) return console.log(err);
+           var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
+           if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
+               var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
+               userCourse.expired = false;
+           }
+           user.save((err) => {
+             if (err) return console.log(err);
+             res.redirect("/dashboard");
+           });
          });
-       });
-       var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
-       if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
-           var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
-           userCourse.expired = false;
-       }
-       user.save((err) => {
-         if (err) return console.log(err);
-         res.redirect("/dashboard");
        });
      });
    });

@@ -21,8 +21,7 @@ var UserSchema = new mongoose.Schema({
             ref: "Part"
         },
         expiredAt: {
-            type: Number,
-            default: new Date().getTime() + 10000
+            type: Date,
         },
         expired: {
             type: Boolean,
@@ -62,6 +61,13 @@ var UserSchema = new mongoose.Schema({
             default: []
         }
     ],
+    orders: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Order",
+            default: []
+        }
+    ],
     isAdmin: {
         type: Boolean,
         default: false
@@ -69,7 +75,13 @@ var UserSchema = new mongoose.Schema({
     numFinishedVideos: {
         type: Number,
         default: 0
+    },
+    mostRecentVideo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Video"
     }
+}, {
+  timestamps: true
 });
 
 UserSchema.plugin(passportLocalMongoose);

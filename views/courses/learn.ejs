@@ -9,7 +9,17 @@
       <% if (user.isAdmin) { %>
         <a class="btn btn-primary" href="/courses/<%= course.code %>/edit">Edit Course</a>
       <% } else { %>
-        <a href="#" class="btn btn-lg btn-primary">เข้าดูคลิปที่ดูค้างไว้</a>
+        <% if (user.numFinishedVideos === course.numVideos) { %>
+          <a href="#" class="btn btn-lg btn-primary">
+            <%= course.title %> Completed!
+          </a>
+        <% } else if (user.mostRecentVideo) { %>
+          <a href="/courses/<%= course.code %>/parts/<%= createCode(user.mostRecentVideo.part) %>/videos/<%= user.mostRecentVideo.code %>/learn" class="btn btn-lg btn-primary">
+            ดู <%= user.mostRecentVideo.title %> ต่อ
+          </a>
+        <% } else { %>
+          <a href="#" class="btn btn-lg btn-primary">เริ่มดูม้วนแรก</a>
+        <% } %>
       <% } %>
       <p class="progress-caption"><%= user.numFinishedVideos %> of <%= course.numVideos%> items complete</p>
       <div class="progress">
