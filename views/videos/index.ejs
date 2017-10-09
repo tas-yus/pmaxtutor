@@ -187,10 +187,10 @@
                         <h4 class="panel-title">
                           <a role="button" data-toggle="collapse" href="#collapse<%= ctr %>" aria-expanded="false" aria-controls="collapse<%= ctr %>">
                             <i class="fa fa-plus"></i><span><%= part.title %></span>
-                            <span id="part-duration">
-                              20:19
+                            <span class="part-duration">
+                              <%= part.duration %>
                             </span>
-                            <span id="part-length">
+                            <span class="part-length">
                               <%= part.videos.length %> Lectures
                             </span>
                           </a>
@@ -219,23 +219,23 @@
                             <div class="panel-body">
                               <p style="float: left"> <%= count %>. <%= partVid.title %> </p>
                               <i style="padding-left: 20px; font-size: 20px"  class="fa fa-play-circle" aria-hidden="true"></i>
-                              <span id="part-duration">
+                              <span class="part-duration">
                                 <%= partVid.duration %>
                               </span>
                               <% if (user.isAdmin) { %>
-                                <span id="part-duration">
+                                <span class="part-duration">
                                   View
                                 </span>
                               <% } else if (ownershipStatus !== true && ownershipStatus !== "expired") { %>
-                                <span id="part-duration">
+                                <span class="part-duration">
                                   Buy
                                 </span>
                               <% } else if (ownershipStatus === "expired") { %>
-                                <span id="part-duration">
+                                <span class="part-duration">
                                   Extend
                                 </span>
                               <% } else { %>
-                                <span id="part-duration">
+                                <span class="part-duration">
                                   View
                                 </span>
                               <% } %>
@@ -258,8 +258,12 @@
         </div>
       </div>
     </div>
-
+    <% if (nextVidCode) { %>
+      <% link = `/courses/${courseCode}/parts/${partCode}/videos/${nextVidCode}/learn&${nextVidCode}` %>
+    <% } else { %>
+      <% link = `/courses/${courseCode}/learn&` %>
+    <% } %>
     <script src="/assets/js/accordion.js"></script>
-    <script src="/assets/js/video-player.js?/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= nextVidCode %>/learn"></script>
+    <script src="/assets/js/video-player.js?<%= link %>"></script>
   </body>
 </html>

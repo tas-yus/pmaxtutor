@@ -1,28 +1,49 @@
 <% include ../partials/header %>
-    <h1>Overview of <%= user.username %></h1>
-    <strong><p>Courses: </p></strong>
-    <% user.courses.forEach((userCourseBundle) => { %>
-        <li><%= userCourseBundle.course.title %>
-            <ul>
-                <% var userCourseParts = getPartInUserArrayByCourseTitle(user.parts, userCourseBundle.course.title) %>
-                <% userCourseParts.forEach((partBundle) => { %>
-                     <li><%= partBundle.part.title %></li>
-                     <% if (partBundle.expired) { %>
-                         <p>Expired!!!!</p>
-                     <% } %>
-                <% }); %>
-            </ul>
-        </li>
-    <% }); %>
-    <h2>User's History</h2>
-    <ul>
-      <% orders.forEach((order) => { %>
-        <% if (order.type === "expired") { %>
-          <li><%= order.part.title %> in <%= order.course.title %> <%= order.type %> on <%= new Date(order.createdAt).toLocaleString() %></li>
-        <% } else { %>
-            <li><%= order.type %> <%= order.part.title %> in <%= order.course.title %> on <%= new Date(order.createdAt).toLocaleString() %></li>
-        <% } %> 
-      <% }); %>
-    </ul>
-    <a href="/users/<%= user._id %>/courses/edit" class="btn btn-info">edit</a>
+<div class="container">
+  <h1>Overview of <%= user.username %></h1>
+  <strong><p>Courses: </p></strong>
+  <% user.courses.forEach((userCourseBundle) => { %>
+      <li><%= userCourseBundle.course.title %>
+          <ul>
+              <% var userCourseParts = getPartInUserArrayByCourseTitle(user.parts, userCourseBundle.course.title) %>
+              <% userCourseParts.forEach((partBundle) => { %>
+                   <li><%= partBundle.part.title %></li>
+                   <% if (partBundle.expired) { %>
+                       <p>Expired!!!!</p>
+                   <% } %>
+              <% }); %>
+          </ul>
+      </li>
+  <% }); %>
+  <h2>User's History</h2>
+  <% var count = 0 %>
+  <% if (orders.length === 0) { %>
+    <p>There's no history for this user</p>
+  <% } else { %>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Part</th>
+          <th>Course</th>
+          <th>Type of Activity</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% orders.forEach((order) => { %>
+          <% count++ %>
+          <tr>
+            <td><%= count %></td>
+            <td><%= order.part.title %></td>
+            <td><%= order.course.title %></td>
+            <td><%= order.type %></td>
+            <td><%= new Date(order.createdAt).toLocaleString() %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } %>
+  <a href="/users/<%= user._id %>/courses/edit" class="btn btn-info">edit</a>
+</div>
 <% include ../partials/footer %>

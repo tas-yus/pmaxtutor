@@ -8,6 +8,7 @@ var Question = require("./models/question");
 var Answer = require("./models/answer");
 var Order = require("./models/order");
 var forEach = require('async-foreach').forEach;
+var method = require("./method");
 
 var data = [
     {
@@ -431,6 +432,7 @@ function seedDB() {
                         return console.log(err);
                     }
                     part.videos = foundVideos;
+                    part.duration = method.getDuration(foundVideos);
                     part.save((err) => {
                        if (err) {
                            return console.log(err);

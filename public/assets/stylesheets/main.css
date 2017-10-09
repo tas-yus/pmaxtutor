@@ -245,14 +245,14 @@ a[role="button"] > i.fa-minus {
   color: #1376D7;
 }
 
-#part-length {
+.part-length {
   font-size: 14px;
   padding-left: 10%;
   font-weight: 400;
   float: right;
 }
 
-#part-duration {
+.part-duration {
   font-size: 14px;
   padding-left: 10%;
   font-weight: 400;
@@ -333,4 +333,17 @@ div.panel-body:hover {
 
 .panel p {
   margin: 0;
+}
+
+@media all and (max-width: 768px) {
+  #aside-show-courses .container {
+      position: relative;
+      margin: 0 auto;
+  }
+  .affix {
+      position: static;
+  }
+  div.inner.affix {
+      width: 100%;
+  }
 }

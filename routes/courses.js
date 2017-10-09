@@ -11,6 +11,7 @@ var Promise = require("bluebird");
 var checkExpiry = require("./../method/checkExpiry");
 var config = require("./../config");
 var mongoose = require("mongoose");
+var forEach = require('async-foreach').forEach;
 
 
 // ALL COURSES
@@ -58,7 +59,7 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     });
 });
 
-// CHECKOUT COURSE **push user on to part.users!!!!
+// CHECKOUT COURSE
 router.get("/checkout", middleware.isLoggedIn, (req, res) => {
     res.render("courses/checkout");
 });
@@ -79,28 +80,45 @@ router.post("/checkout", middleware.isLoggedIn, (req, res) => {
   checkedCourses.forEach((checkedCourse) => {
       if (method.checkCourseOwnership(user.courses, checkedCourse.toString()) === false) {
         user.courses.push({course: mongoose.Types.ObjectId(checkedCourse)});
-        Course.findById(checkedCourse.toString(), (err, course) => {
+        Course.findById(checkedCourse.toString()).populate("parts").exec((err, course) => {
+          if (err) return console.log(err);
           var ctr = 0;
-            course.users.push(user);
-            course.parts.forEach((part) => {
+          course.users.push(user);
+          course.parts.forEach((part) => {
             user.parts.push({
               part: part._id,
               expiredAt: method.getExpiredDate()
             });
-            ctr++;
-            if (ctr === course.parts.length) {
-              user.cartCourses = [];
-              course.save((err) => {
+            part.users.push(user);
+            part.save((err) => {
+              if (err) return console.log(err);
+              Video.find({part: part.title}, (err, videos) => {
                 if (err) return console.log(err);
-                ctr1++;
-                if (ctr1 === checkedCourses.length) {
-                  user.save((err) => {
-                    if (err) return console.log(err);
-                    res.redirect("/dashboard");
+                var ctr2 = 0;
+                videos.forEach((video) => {
+                  user.videos.push({
+                    video: video._id
                   });
-                }
+                  ctr2++;
+                  if (ctr2 === videos.length) {
+                    ctr++;
+                    if (ctr === course.parts.length) {
+                      user.cartCourses = [];
+                      course.save((err) => {
+                        if (err) return console.log(err);
+                        ctr1++;
+                        if (ctr1 === checkedCourses.length) {
+                          user.save((err) => {
+                            if (err) return console.log(err);
+                            res.redirect("/dashboard");
+                          });
+                        }
+                      });
+                    }
+                  }
+                });
               });
-            }
+            });
           });
         });
       }
@@ -301,6 +319,7 @@ router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, 
             selectedParts.forEach((selectedPart) => {
                 var targetedPartBundle = method.getPartInArrayById(user.parts, selectedPart.toString());
                 targetedPartBundle.expired = false;
+                targetedPartBundle.checked = false;
                 targetedPartBundle.expiredAt = method.getExpiredDate();
                 Part.findById(selectedPart.toString(), (err, part) => {
                   if (err) return console.log(err);

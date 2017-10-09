@@ -85,24 +85,24 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // AGENDA
 
 // when delete course all resources should be deleted and all parts and all vids associated with it should be dispatched!
-// Invoice model (confirmation) + Credit card validation
+// Invoice model (confirmation)
 // choose from old file? when upload
 // Notifications
-// video player
-// Checkout Cart (add user to parts)
 // logging
-// fix affix onw SHOW PAGE
+// fix affix on SHOW PAGE
 // Sign Up - includes other info + in the database
 // Add video model to course
 // When a new video is added, all user enrolled should own those videos as well + numVids should increase;
+// Credit card validation
+// Video length
 
-schedule.scheduleJob('0 * * * * *', function(){
+schedule.scheduleJob('0 * 5 * * *', function(){
     checkExpiry();
 });
 
-app.get("/test", (req, res) => {
-    res.render("videos/test");
-});
+// app.get("/test", (req, res) => {
+//     res.render("videos/test");
+// });
 
 app.listen(3000, () => {
    console.log("Server started");

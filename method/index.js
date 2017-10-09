@@ -208,4 +208,12 @@ methodObj.getExpiredDate = function() {
   return new Date().getTime() + expiryPeriod;
 }
 
+methodObj.getDuration = function(videoArray) {
+  var duration = 0;
+  videoArray.forEach((video) => {
+    duration += methodObj.toTime(video.duration);
+  });
+  return methodObj.toClockTime(duration);
+}
+
 module.exports = methodObj;

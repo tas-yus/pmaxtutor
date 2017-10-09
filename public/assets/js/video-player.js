@@ -219,6 +219,10 @@ $(document).ready(function() {
 
   var myTag = $("script").last();
   var src = myTag[myTag.length-1].src;
-  var link = src.split("?")[1];
+  var link = src.split("?")[1].split("&")[0];
+  var nextVidCode = src.split("?")[1].split("&")[1];
+  if (!nextVidCode) {
+    $(".nextVideo a").text("End Part");
+  }
   $(".nextVideo a").attr("href", link);
 });

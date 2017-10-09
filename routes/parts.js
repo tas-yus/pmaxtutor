@@ -165,7 +165,8 @@ router.post("/:partCode/extend", middleware.isLoggedIn, middleware.canExtend, (r
      var user = req.user;
      var targetedPartBundle = method.getPartInArrayById(user.parts, extendedPart.toString());
      targetedPartBundle.expired = false;
-     targetedPartBundle.expiredAt += 10000;
+     targetedPartBundle.checked = false;
+     targetedPartBundle.expiredAt = method.getExpiredDate();
      Part.findById(targetedPartBundle.part._id.toString(), (err, part) => {
        if (err) return console.log(err);
        var newOrder = {

@@ -6,6 +6,7 @@ var PartSchema = new mongoose.Schema({
     code: String,
     image: String,
     description: String,
+    duration: String,
     videos: [
         {
             type: mongoose.Schema.Types.ObjectId,
