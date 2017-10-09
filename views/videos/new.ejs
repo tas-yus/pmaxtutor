@@ -9,7 +9,15 @@
         <div class="form-group">
             <input type="file" name="file">
         </div>
-        <button>Add</button>
+        <div class="form-group">
+          <label>Choose From Old Videos</label>
+          <ul>
+            <% vidPaths.forEach((vid) => { %>
+              <li><%= vid %> <input type="radio" name="chosenVideo" value="<%= vid %>"></li>
+            <% }); %>
+          </ul>
+        </div>
+        <button class="btn btn-primary">Add</button>
     </form>
     <script src="/assets/js/main.js"></script>
 <% include ../partials/footer %>

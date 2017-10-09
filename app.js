@@ -86,7 +86,6 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 
 // when delete course all resources should be deleted and all parts and all vids associated with it should be dispatched!
 // Invoice model (confirmation)
-// choose from old file? when upload
 // Notifications
 // logging
 // fix affix on SHOW PAGE
