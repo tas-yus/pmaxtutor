@@ -1,8 +1,12 @@
 var express = require("express");
 var bodyParser = require("body-parser");
+var cookieParser = require("cookie-parser");
 var mongoose = require("mongoose");
 var flash = require("connect-flash");
 var passport = require("passport");
+var expressSession = require("express-session");
+var connectMongo = require("connect-mongo");
+var MongoStore = connectMongo(expressSession);
 var localStrategy = require("passport-local");
 var app = express();
 var Course = require("./models/course");
@@ -37,17 +41,29 @@ app.use(fileUpload());
 app.use(flash());
 seedDB();
 
-app.use(require("express-session")({
+app.use(expressSession(
+  {
     secret: "Hello World Hope You're Listening",
-    resave: false,
-    saveUninitialized: false
-}));
+    saveUninitialized: false,
+    resave: true,
+    rolling: true,
+    cookie: { maxAge: 30*3600*1000 },
+    store  : new MongoStore({
+        mongooseConnection : mongoose.connection
+    })
+  }
+));
 app.use(express.static(__dirname + "/public"));
 app.use(passport.initialize());
 app.use(passport.session());
+// make your own
+var passportOneSessionPerUser=require('passport-one-session-per-user');
+passport.use(new passportOneSessionPerUser());
+app.use(passport.authenticate('passport-one-session-per-user'));
 passport.use(new localStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
 
 app.use(function(req, res, next) {
     var user = req.user;
@@ -88,12 +104,12 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // Invoice model (confirmation)
 // Notifications
 // logging
-// fix affix on SHOW PAGE
 // Sign Up - includes other info + in the database
 // Add video model to course
 // When a new video is added, all user enrolled should own those videos as well + numVids should increase;
 // Credit card validation
-// Video length
+// Fix chem 4,5,6 it stinks!!!!
+
 
 schedule.scheduleJob('0 * 5 * * *', function(){
     checkExpiry();

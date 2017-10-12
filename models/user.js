@@ -83,7 +83,14 @@ var UserSchema = new mongoose.Schema({
     mostRecentVideo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Video"
-    }
+    },
+    phone: String,
+    email: String,
+    firstName: String,
+    lastName: String,
+    creditCard: Number,
+    school: String,
+    grade: Number
 }, {
   timestamps: true
 });

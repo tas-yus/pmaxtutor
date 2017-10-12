@@ -1,6 +1,7 @@
 var Course = require("./../models/course");
 var Part = require("./../models/part");
 var method = require("./../method");
+var config = require("./../config");
 
 var middlewareObj = {};
 
@@ -107,8 +108,14 @@ middlewareObj.noDuplicateLogin = function(req, res, next) {
     if (!req.user) {
         return next();
     }
-    req.flash("error", "โปรดลงทะเบียนออกก่อนลงชื่อใช้งานในอีก username");
     res.redirect("/dashboard");
+};
+
+middlewareObj.checkRememberMe = function(req, res, next) {
+    if(req.body.rememberMe) {
+      req.session.cookie.maxAge = config.cookieAge;
+    }
+    next();
 };
 
 module.exports = middlewareObj;

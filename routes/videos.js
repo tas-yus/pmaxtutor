@@ -155,7 +155,6 @@ router.post("/:vidCode/done", (req, res) => {
     var user = req.user;
     var targetedVideo = method.getVideoInArrayById(user.videos, video._id.toString());
     var nextVidCode = req.body.next;
-    console.log(nextVidCode);
     if (!user.isAdmin && !targetedVideo.finished) {
       targetedVideo.finished = true;
       user.numFinishedVideos++;

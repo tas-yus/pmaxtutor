@@ -32,10 +32,12 @@ router.get("/login", middleware.noDuplicateLogin, (req, res) => {
    res.render("login");
 });
 
-router.post("/login", middleware.noDuplicateLogin, passport.authenticate("local",
+router.post("/login", middleware.noDuplicateLogin, middleware.checkRememberMe, passport.authenticate("local",
     {
         successRedirect: "/dashboard",
-        failureRedirect: "/courses"
+        failureRedirect: "/courses",
+        failureFlash: "Invalid username or password",
+        successFlash: "เข้าสู้ระบบเรียบร้อยแล้ว"
     }),(req, res) => {
 });
 
@@ -43,7 +45,10 @@ router.post("/login", middleware.noDuplicateLogin, passport.authenticate("local"
 router.get("/logout", function(req, res){
   req.logout();
   req.flash("success", "ออกจากระบบการใช้งานเรียบร้อย!");
-  res.redirect("/courses");
+  req.session.destroy((err) => {
+    if (err) return console.log(err);
+    res.redirect("/courses");
+  });
 });
 
 // DASHBOARD
