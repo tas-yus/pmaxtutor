@@ -14,17 +14,17 @@ router.get("/register", (req, res) => {
 });
 
 router.post("/register", (req, res) => {
-    var newUser = new User({username: req.body.username});
-    User.register(newUser, req.body.password, (err, user) => {
-        if (err) {
-          req.flash("error", err.message);
-          return res.redirect("/register");
-        }
-        passport.authenticate("local")(req, res, () => {
-           req.flash("success", `คุณ ${user.username} ได้ทำการลงทะเบียนเรียบร้อยแล้ว`);
-           res.redirect("/dashboard");
-        });
-    });
+  var newUser = new User({username: req.body.username});
+  User.register(newUser, req.body.password, (err, user) => {
+      if (err) {
+        req.flash("error", err.message);
+        return res.redirect("/register");
+      }
+      passport.authenticate("local")(req, res, () => {
+         req.flash("success", `คุณ ${user.username} ได้ทำการลงทะเบียนเรียบร้อยแล้ว`);
+         res.redirect("/dashboard");
+      });
+  });
 });
 
 // LOGIN
@@ -53,16 +53,12 @@ router.get("/logout", function(req, res){
 
 // DASHBOARD
 // more efficient population!!!!!
-router.get("/dashboard", middleware.isLoggedIn, (req, res) => {
-    var findCourses = Course.find({}).populate("users").populate("expiredUsers").populate("parts").exec();
-    var findParts = Part.find({}).populate("users").populate("expiredUsers").exec();
-    return Promise.join(findCourses, findParts, (courses, parts) => {
-        var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
-        var getPartInPartArrayByCourseTitle = method.getPartInPartArrayByCourseTitle;
-        res.render("users/dashboard", {courses, parts, getPartInUserArrayByCourseTitle, getPartInPartArrayByCourseTitle});
-    }).catch((err) => {
-        console.log(err);
-    });
+router.get("/dashboard", middleware.isLoggedIn, async (req, res) => {
+  var courses = await Course.find({}).populate("users").populate("expiredUsers").populate("parts").exec();
+  var parts = await Part.find({}).populate("users").populate("expiredUsers").exec();
+  var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
+  var getPartInPartArrayByCourseTitle = method.getPartInPartArrayByCourseTitle;
+  res.render("users/dashboard", {courses, parts, getPartInUserArrayByCourseTitle, getPartInPartArrayByCourseTitle});
 });
 
 module.exports = router;

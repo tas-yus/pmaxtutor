@@ -12,7 +12,7 @@ var checkExpiry = require("./../method/checkExpiry");
 var config = require("./../config");
 var mongoose = require("mongoose");
 var forEach = require('async-foreach').forEach;
-
+var async = require('async');
 
 // ALL COURSES
 router.get("/", (req, res) => {
@@ -20,7 +20,6 @@ router.get("/", (req, res) => {
         if (err) {
            return console.log(err);
         }
-        console.log("/courses");
         res.render("courses/index", {courses});
     });
 });
@@ -77,51 +76,49 @@ router.post("/checkout", middleware.isLoggedIn, (req, res) => {
       checkedCourses.push(req.body.checkedCourses);
   }
   var ctr1 = 0;
-  checkedCourses.forEach((checkedCourse) => {
-      if (method.checkCourseOwnership(user.courses, checkedCourse.toString()) === false) {
-        user.courses.push({course: mongoose.Types.ObjectId(checkedCourse)});
-        Course.findById(checkedCourse.toString()).populate("parts").exec((err, course) => {
+  checkedCourses.forEach(async (checkedCourse) => {
+    if (method.checkCourseOwnership(user.courses, checkedCourse.toString()) === false) {
+      user.courses.push({course: mongoose.Types.ObjectId(checkedCourse)});
+      var course = await Course.findById(checkedCourse.toString()).populate("parts").exec();
+      var ctr = 0;
+      course.users.push(user);
+      course.parts.forEach((part) => {
+        user.parts.push({
+          part: part._id,
+          expiredAt: method.getExpiredDate()
+        });
+        part.users.push(user);
+        part.save((err) => {
           if (err) return console.log(err);
-          var ctr = 0;
-          course.users.push(user);
-          course.parts.forEach((part) => {
-            user.parts.push({
-              part: part._id,
-              expiredAt: method.getExpiredDate()
-            });
-            part.users.push(user);
-            part.save((err) => {
-              if (err) return console.log(err);
-              Video.find({part: part.title}, (err, videos) => {
-                if (err) return console.log(err);
-                var ctr2 = 0;
-                videos.forEach((video) => {
-                  user.videos.push({
-                    video: video._id
-                  });
-                  ctr2++;
-                  if (ctr2 === videos.length) {
-                    ctr++;
-                    if (ctr === course.parts.length) {
-                      user.cartCourses = [];
-                      course.save((err) => {
+          Video.find({part: part.title}, (err, videos) => {
+            if (err) return console.log(err);
+            var ctr2 = 0;
+            videos.forEach((video) => {
+              user.videos.push({
+                video: video._id
+              });
+              ctr2++;
+              if (ctr2 === videos.length) {
+                ctr++;
+                if (ctr === course.parts.length) {
+                  user.cartCourses = [];
+                  course.save((err) => {
+                    if (err) return console.log(err);
+                    ctr1++;
+                    if (ctr1 === checkedCourses.length) {
+                      user.save((err) => {
                         if (err) return console.log(err);
-                        ctr1++;
-                        if (ctr1 === checkedCourses.length) {
-                          user.save((err) => {
-                            if (err) return console.log(err);
-                            res.redirect("/dashboard");
-                          });
-                        }
+                        res.redirect("/dashboard");
                       });
                     }
-                  }
-                });
-              });
+                  });
+                }
+              }
             });
           });
         });
-      }
+      });
+    }
   });
 });
 
@@ -136,35 +133,25 @@ router.get("/:courseCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req,
 });
 
 // SHOW COURSE
-router.get("/:courseCode", (req, res) => {
-    Course.findOne({code: req.params.courseCode}).then((course) => {
-        if (!course) {
-            return res.redirect("/courses");
-        }
-        var findParts = Part.find({course: course.title}).populate("videos").exec();
-        var findVideos = Video.find({course: course.title});
-        return Promise.join(findParts, findVideos, (parts, videos) => {
-            var array = [];
-            videos.forEach((vid) => {
-                array.push(vid.duration);
-            });
-            var averageHours = method.getAverageHours(array);
-            var checkPartOwnership = method.checkPartOwnership;
-            var checkCourseOwnership = method.checkCourseOwnership;
-            var checkCartCourseOwnership = method.checkCartCourseOwnership;
-            res.render("courses/show", {course, parts, averageHours, checkPartOwnership, checkCourseOwnership, checkCartCourseOwnership});
-        });
-    }).catch((err) => {
-        console.log(err);
-    });
+router.get("/:courseCode", async (req, res) => {
+  var course = await Course.findOne({code: req.params.courseCode});
+  if (!course) {
+      return res.redirect("/courses");
+  }
+  var parts = await Part.find({course: course.title}).populate("videos").exec();
+  var videos = await Video.find({course: course.title});
+  var array = videos.map(function(vid){return vid.duration});
+  var averageHours = method.getAverageHours(array);
+  var checkPartOwnership = method.checkPartOwnership;
+  var checkCourseOwnership = method.checkCourseOwnership;
+  var checkCartCourseOwnership = method.checkCartCourseOwnership;
+  res.render("courses/show", {course, parts, averageHours, checkPartOwnership, checkCourseOwnership, checkCartCourseOwnership});
 });
 
 // UPDATE COURSE
 router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     Course.findOne({code: req.params.courseCode}, (err, course) => {
-        if (err) {
-            return console.log(err);
-        }
+        if (err) return console.log(err);
         course.title = req.body.title;
         course.code = method.createCode(req.body.title);
         course.price = req.body.price;
@@ -191,108 +178,106 @@ router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, (req, res)
 });
 
 // LEARN COURSE
-router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, (req, res) => {
-    Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "code title videos"}).exec((err, course) => {
-        if (err) {
-            return console.log(err);
-        }
-        Video.populate(course.parts, {path: "videos"}, (err, parts) => {
-          if (err) {
-              return console.log(err);
-          }
-          var parts;
-          var checkPartOwnership = method.checkPartOwnership;
-          var isFinished = method.isFinished;
-          var createCode = method.createCode;
-          if (req.user.isAdmin) {
-              res.render("courses/learn", {course, parts, checkPartOwnership, isFinished, createCode});
-          } else {
-              var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
-              res.render("courses/learn", {course, getPartInUserArrayByCourseTitle, checkPartOwnership, isFinished, createCode});
-          }
-        });
-    });
+router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, async (req, res) => {
+  var course = await Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "code title videos"}).exec();
+  var parts = await Video.populate(course.parts, {path: "videos"});
+  var checkPartOwnership = method.checkPartOwnership;
+  var isFinished = method.isFinished;
+  var createCode = method.createCode;
+  if (req.user.isAdmin) {
+      res.render("courses/learn", {course, parts, checkPartOwnership, isFinished, createCode});
+  } else {
+      var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
+      res.render("courses/learn", {course, getPartInUserArrayByCourseTitle, checkPartOwnership, isFinished, createCode});
+  }
 });
 
 //BUY
 router.get("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, res) => {
-    Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "title"}).exec((err, course) => {
-       if (err) {
-           return console.log(err);
-       }
-       var parts = method.getBuyableParts(course.parts, req.user.parts);
-       res.render("courses/buy", {course, parts});
-    });
+  Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "title"}).exec((err, course) => {
+     if (err) return console.log(err);
+     var parts = method.getBuyableParts(course.parts, req.user.parts);
+     res.render("courses/buy", {course, parts});
+  });
 });
 
-router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, res) => {
-    if (!req.body.selectedParts) {
-      req.flash("error", "โปรดเลือกคอร์สที่ต้องการจะซื้อ");
-      return res.redirect(`/courses/${req.params.courseCode}/buy`);
-    }
-    Course.findOne({code: req.params.courseCode}, (err, course) => {
-       if (err) {
-           return console.log(err);
-       }
-       var insertedParts = [];
-       var selectedParts = req.body.selectedParts;
-       if (Array.isArray(selectedParts)) {
-           insertedParts = selectedParts;
-       } else {
-           insertedParts.push(selectedParts);
-       }
-       var user = req.user;
-       var ctr = 0;
-       if (!method.checkCourseOwnership(user.courses, course._id.toString())) {
-           user.courses.push({course});
-       }
-       insertedParts.forEach((part) => {
-         Part.findById(part.toString(), (err, part) => {
-           if (err) return console.log(err);
-           var newOrder = {
-             course, part, user
-           }
-           Order.create(newOrder, (err, order) => {
-             if (err) return console.log(err);
-             user.orders.push(order);
-             part.users.push(user);
-             part.save((err) => {
-               if (err) return console.log(err);
-               var newPart = {
-                 part: part._id,
-                 expiredAt: method.getExpiredDate()
-               };
-               user.parts.push(newPart);
-               var videos = part.videos;
-               ctr2 = 0;
-               videos.forEach((video) => {
-                 user.videos.push({video});
-                 ctr2++;
-                 if (ctr2 === videos.length) {
-                   ctr++;
-                   if (ctr === insertedParts.length) {
-                     user.save((err, data) => {
-                         if(err) {
-                             return console.log(err);
-                         }
-                         course.users.push(user);
-                         user.cartCourses = user.cartCourses.filter(function(cartCourse){return cartCourse.toString() !== course._id.toString()});
-                         course.save((err, data) => {
-                             if (err) {
-                                 return console.log(err);
-                             }
-                         });
-                         console.log(`${user.username} just bought ${course.title} for ${course.price} Baht`, new Date().toDateString());
-                         res.redirect("/dashboard");
-                     });
-                   }
-                 }
-               });
-             });
-           });
-         });
-       });
+router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, async (req, res) => {
+  if (!req.body.selectedParts) {
+    req.flash("error", "โปรดเลือกคอร์สที่ต้องการจะซื้อ");
+    return res.redirect(`/courses/${req.params.courseCode}/buy`);
+  }
+  var insertedParts = [];
+  var selectedParts = req.body.selectedParts;
+  if (Array.isArray(selectedParts)) {
+      insertedParts = selectedParts;
+  } else {
+      insertedParts.push(selectedParts);
+  }
+  var course = await Course.findOne({code: req.params.courseCode});
+  var user = req.user;
+  var ctr = 0;
+  if (!method.checkCourseOwnership(user.courses, course._id.toString())) {
+      user.courses.push({course});
+  }
+  async.eachSeries(insertedParts, (insertedPart, cb1) => {
+    async.waterfall([
+      function(callback) {
+        Part.findById(insertedPart.toString(), (err, part) => {
+          if(err) return console.log(err);
+          callback(null, part);
+        });
+      },
+      function(part, callback) {
+        console.log(part);
+        var newOrder = {
+          course, part, user
+        }
+        Order.create(newOrder, (err, order) => {
+          if(err) return console.log(err);
+          user.orders.push(order);
+          part.users.push(user);
+          callback(null, part);
+        });
+      },
+      function(part, callback) {
+        part.save((err) => {
+          if(err) return console.log(err);
+          callback(null, part);
+        });
+      },
+      function(part, callback) {
+        var newPart = {
+          part: part._id,
+          expiredAt: method.getExpiredDate()
+        };
+        user.parts.push(newPart);
+        course.users.push(user);
+        user.cartCourses = user.cartCourses.filter(function(cartCourse){return cartCourse.toString() !== course._id.toString()});
+        callback(null, part);
+      },
+      function(part, callback) {
+        var videos = part.videos;
+        async.each(videos, (video, cb2) => {
+          user.videos.push({video});
+          cb2();
+        }, (err) => {
+          callback(err);
+        });
+      }
+    ], (err) => {
+      cb1(err);
     });
+  }, function(err) {
+    if(err) return console.log(err);
+    user.save((err, data) => {
+      if(err) return console.log(err);
+      course.save((err, data) => {
+          if (err) return console.log(err);
+      });
+      console.log(`${user.username} just bought ${course.title} for ${course.price} Baht`, new Date().toDateString());
+      res.redirect("/dashboard");
+    });
+  });
 });
 
 // EXTEND
@@ -313,53 +298,47 @@ router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, 
     }
     var ctr = 0;
     Course.findOne({code: req.params.courseCode}, (err, course) => {
-        if (err) return console.log(err);
-        User.findById(req.user._id.toString()).populate("parts.part").populate("courses.course").exec((err, user) => {
-            if (err) return console.log(err);
-            selectedParts.forEach((selectedPart) => {
-                var targetedPartBundle = method.getPartInArrayById(user.parts, selectedPart.toString());
-                targetedPartBundle.expired = false;
-                targetedPartBundle.checked = false;
-                targetedPartBundle.expiredAt = method.getExpiredDate();
-                Part.findById(selectedPart.toString(), (err, part) => {
-                  if (err) return console.log(err);
-                  var newOrder = {
-                    course, part, user, type: "extend"
-                  };
-                  Order.create(newOrder, (err, order) => {
-                    if (err) return console.log(err);
-                    user.orders.push(order);
-                    part.expiredUsers = part.expiredUsers.filter(function(expiredUser) { return expiredUser.toString() !== user._id.toString()});
-                    part.users.push(user);
-                    part.save((err) => {
-                      if (err) return console.log(err);
-                      ctr++;
-                      if (ctr === selectedParts.length) {
-                      var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
-                          if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
-                              var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
-                              userCourse.expired = false;
-                              user.save((err) => {
-                                 if (err) return console.log(err);
-                              });
-                              course.expiredUsers = course.expiredUsers.filter(function(courseExpiredUser) {return courseExpiredUser.toString() !== user._id.toString()} );
-                              course.users.push(user);
-                              course.save((err) => {
-                                if (err) return console.log(err);
-                                res.redirect("/dashboard");
-                              });
-                          } else {
-                              user.save((err) => {
-                                 if (err) return console.log(err);
-                                 res.redirect("/dashboard");
-                              });
-                          }
-                      }
-                    });
-                  });
+      if (err) return console.log(err);
+      var user = req.user;
+      selectedParts.forEach(async (selectedPart) => {
+        var targetedPartBundle = method.getPartInArrayById(user.parts, selectedPart.toString());
+        targetedPartBundle.expired = false;
+        targetedPartBundle.checked = false;
+        targetedPartBundle.expiredAt = method.getExpiredDate();
+        var part = await Part.findById(selectedPart.toString());
+        var newOrder = {
+          course, part, user, type: "extend"
+        };
+        var order = await Order.create(newOrder);
+        user.orders.push(order);
+        part.expiredUsers = part.expiredUsers.filter(function(expiredUser) { return expiredUser.toString() !== user._id.toString()});
+        part.users.push(user);
+        part.save((err) => {
+          if (err) return console.log(err);
+          ctr++;
+          if (ctr === selectedParts.length) {
+            var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
+            if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
+                var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
+                userCourse.expired = false;
+                user.save((err) => {
+                   if (err) return console.log(err);
                 });
-            });
+                course.expiredUsers = course.expiredUsers.filter(function(courseExpiredUser) {return courseExpiredUser.toString() !== user._id.toString()} );
+                course.users.push(user);
+                course.save((err) => {
+                  if (err) return console.log(err);
+                  res.redirect("/dashboard");
+                });
+            } else {
+                user.save((err) => {
+                   if (err) return console.log(err);
+                   res.redirect("/dashboard");
+                });
+            }
+          }
         });
+      });
     });
 });
 
@@ -367,15 +346,11 @@ router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, 
 router.post("/:courseCode/cart", middleware.isLoggedIn, middleware.canAdd, (req, res) => {
   var user = req.user;
     Course.findOne({code: req.params.courseCode}, (err, course) => {
-       if (err) {
-           return console.log(err);
-       }
+       if (err) return console.log(err);
        if(method.checkCourseOwnership(user.courses, course._id.toString()) === false && method.checkCartCourseOwnership(user.cartCourses, course._id.toString()) === false) {
          user.cartCourses.push(course);
          user.save((err, data) => {
-             if (err) {
-                  return console.log(err);
-             }
+             if (err) return console.log(err);
              res.redirect("/dashboard");
          });
        } else {

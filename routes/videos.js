@@ -12,34 +12,23 @@ var config = require("./../config");
 var fs = require("fs");
 
 // LEARN VID
-router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, middleware.canLearn, (req, res) => {
+router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, middleware.canLearn, async (req, res) => {
     var courseCode = req.params.courseCode;
     var partCode = req.params.partCode;
     var checkPartOwnership = method.checkPartOwnership;
-    Course.findOne({code: courseCode}).populate("parts").exec((err, course) => {
+    var course = await Course.findOne({code: courseCode}).populate("parts").exec();
+    var parts = await Video.populate(course.parts, {path: "videos"});
+    var video = await Video.findOne({code: req.params.vidCode}).sort({order:1}).populate("questions").populate("resources").exec();
+    var questions = await User.populate(video.questions, {path: "author", select: "username"});
+    questions = await Answer.populate(questions, {path: "answers", select: "author body"});
+    questions = await User.populate(questions, {path: "answers.author", select: "username", model: User});
+    var user = req.user;
+    user.mostRecentVideo = video;
+    console.log(video);
+    user.save((err) => {
       if (err) return console.log(err);
-      Video.populate(course.parts, {path: "videos"}, (err, parts) => {
-        if (err) return console.log(err);
-        Video.findOne({code: req.params.vidCode}).sort({order:1}).populate("questions").populate("resources").exec((err, vid) => {
-            if (err) return console.log(err);
-            User.populate(vid.questions, {path: "author", select: "username"}, (err, questions) => {
-                if (err) return console.log(err);
-                Answer.populate(questions, {path: "answers", select: "author body"}, (err, questions) => {
-                    if (err) return console.log(err);
-                    User.populate(questions, {path: "answers.author", select: "username", model: User}, (err, questions) => {
-                        if (err) return console.log(err);
-                        var user = req.user;
-                        user.mostRecentVideo = vid;
-                        user.save((err) => {
-                          if (err) return console.log(err);
-                          res.render("videos/index", {vid, course, courseCode, partCode, questions, checkPartOwnership});
-                        })
-                    });
-                });
-            });
-        });
-      });
-    });
+      res.render("videos/index", {vid: video, course, courseCode, partCode, questions, checkPartOwnership});
+    })
 });
 
 // NEW VIDS

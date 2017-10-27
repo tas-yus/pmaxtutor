@@ -10,22 +10,13 @@ var method = require("./../method");
 
 // LEARN PART
 router.get("/:partCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, middleware.canLearn, (req, res) => {
-    Course.findOne({code: req.params.courseCode}, (err, course) => {
-        if (err) {
-            return console.log(err);
-        }
-        Part.findOne({code: req.params.partCode}, (err, part) => {
-            if(err) {
-                return console.log(err);
-            }
-            Video.find({ part: part.title }).populate("resources").exec((err, videos) => {
-                if(err) {
-                    return console.log(err);
-                }
-                res.render("parts/index", {part, course, videos});
-            });
-        });
-    });
+  const render = async () => {
+    var course = await Course.findOne({code: req.params.courseCode});
+    var part = await Part.findOne({code: req.params.partCode});
+    var videos = await Video.find({ part: part.title }).populate("resources").exec();
+    res.render("parts/index", {part, course, videos});
+  }
+  render();
 });
 
 // NEW PART
@@ -36,115 +27,83 @@ router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
 
 // CREATE PART
 router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-    if (!req.files.file) {
-        return res.redirect(`/courses/${req.params.courseCode}/parts/new`);
-    }
-    let file = req.files.file;
-    var path = req.body.image + ".jpg";
-    file.mv(__dirname + '/../public/assets/images/' + path, (err) => {
-        if (err) {
-            return console.log(err);
-        }
+  if (!req.files.file) {
+      return res.redirect(`/courses/${req.params.courseCode}/parts/new`);
+  }
+  let file = req.files.file;
+  var path = req.body.image + ".jpg";
+  file.mv(__dirname + '/../public/assets/images/' + path).then( async () => {
+    var course = await Course.findOne({code: req.params.courseCode});
+    var newPart = {
+      title: req.body.title,
+      code: method.createCode(req.body.title),
+      description: req.body.description,
+      price: req.body.price,
+      image: path,
+      course: course.title
+    };
+    var part = await Part.create(newPart);
+    course.parts.push(part);
+    course.save((err) => {
+      if (err) return console.log(err);
+      res.redirect(`/courses/${course.code}/parts/${part.code}/videos/new`);
     });
-    Course.findOne({code: req.params.courseCode}, (err, course) => {
-        if (err) {
-            return console.log(err);
-        }
-        var newPart = {
-            title: req.body.title,
-            code: method.createCode(req.body.title),
-            description: req.body.description,
-            price: req.body.price,
-            image: path,
-            course: course.title
-        };
-        Part.create(newPart, (err, part) => {
-            if (err) {
-                return console.log(err);
-            }
-            course.parts.push(part);
-            course.save((err) => {
-                if (err) {
-                    return console.log(err);
-                }
-                res.redirect(`/courses/${course.code}/parts/${part.code}/videos/new`);
-            });
-        });
-    });
+  }).catch((err) => {
+    console.log(err);
+  });
 });
 
 // EDIT PART
 router.get("/:partCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-    Course.findOne({code: req.params.courseCode}, (err, course) => {
-        if (err) {
-            return console.log(err);
-        }
-        Part.findOne({code: req.params.partCode}, (err, part) => {
-           if (err) {
-               return console.log(err);
-           }
-           res.render("parts/edit", {part, course});
-        });
+  Course.findOne({code: req.params.courseCode}, (err, course) => {
+    if (err) return console.log(err);
+    Part.findOne({code: req.params.partCode}, (err, part) => {
+      if (err) return console.log(err);
+      res.render("parts/edit", {part, course});
     });
+  });
 });
 
 // UPDATE PART
-router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-    Part.findOne({code: req.params.partCode}, (err, part) => {
-        if (err) {
-            return console.log(err);
-        }
-        // change course parts to the new name
-        var oldPartId = part._id.toString();
-        var oldPart = part.title;
-        var changedTitle = Boolean(part.title !== req.body.title);
-        part.title = req.body.title;
-        part.code = method.createCode(req.body.title);
-        part.price = req.body.price;
-        part.description = req.body.description;
-        Course.findOne({code: req.params.courseCode}, (err, course) => {
-           if (err) {
-               return console.log(err);
-           }
-           course.parts = course.parts.filter(function(part) { return part.toString() !== oldPartId });
-           course.parts.push(part);
-           course.save((err) => {
-              if (err) {
-                  return console.log(err);
-              }
-           });
-           if(changedTitle) {
-               Video.find({part: oldPart}, (err, videos) => {
-                   if (err) {
-                       return console.log(err);
-                   }
-                   videos.forEach((vid) => {
-                      vid.part = req.body.title;
-                      vid.save((err) => {
-                          if (err) return console.log(err);
-                      });
-                   });
-               });
-           }
-        });
-        part.save((err) => {
-            if (err) {
-                return console.log(err);
-            }
-        });
-        let file = req.files.file;
-        if (file) {
-            var path = part.image;
-            file.mv(__dirname + '/../public/assets/images/' + path, (err) => {
-                if (err) {
-                    return console.log(err);
-                }
-                res.redirect("/dashboard");
-            });
-        } else {
-            res.redirect("/dashboard");
-        }
+router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
+  var part = await Part.findOne({code: req.params.partCode});
+  var oldPartId = part._id.toString();
+  var oldPart = part.title;
+  var changedTitle = Boolean(part.title !== req.body.title);
+  part.title = req.body.title;
+  part.code = method.createCode(req.body.title);
+  part.price = req.body.price;
+  part.description = req.body.description;
+  var course = await Course.findOne({code: req.params.courseCode});
+  course.parts = course.parts.filter(function(part) { return part.toString() !== oldPartId });
+  course.parts.push(part);
+  course.save((err) => {
+    if (err) {
+        return console.log(err);
+    }
+  });
+  if(changedTitle) {
+    var videos = await Video.find({part: oldPart});
+    videos.forEach((vid) => {
+      vid.part = req.body.title;
+      vid.save((err) => {
+          if (err) return console.log(err);
+      });
     });
+  }
+  part.save((err) => {
+    if (err) return console.log(err);
+  });
+  let file = req.files.file;
+  if (file) {
+    var path = part.image;
+    file.mv(__dirname + '/../public/assets/images/' + path, (err) => {
+      if (err) return console.log(err);
+      res.redirect("/dashboard");
+    });
+  } else {
+    res.redirect("/dashboard");
+  }
 });
 
 // EXTEND PART
@@ -158,38 +117,32 @@ router.get("/:partCode/extend", middleware.isLoggedIn, middleware.canExtend, (re
     });
 });
 
-router.post("/:partCode/extend", middleware.isLoggedIn, middleware.canExtend, (req, res) => {
+router.post("/:partCode/extend", middleware.isLoggedIn, middleware.canExtend, async (req, res) => {
    var extendedPart = req.body.extendedPart;
-   Course.findOne({code: req.params.courseCode}, (err, course) => {
+   var course = await Course.findOne({code: req.params.courseCode});
+   var user = req.user;
+   var targetedPartBundle = method.getPartInArrayById(user.parts, extendedPart.toString());
+   targetedPartBundle.expired = false;
+   targetedPartBundle.checked = false;
+   targetedPartBundle.expiredAt = method.getExpiredDate();
+   var part = await Part.findById(targetedPartBundle.part._id.toString());
+   var newOrder = {
+     course, part, user, type: "extend"
+   };
+   var order = await Order.create(newOrder);
+   user.orders.push(order);
+   part.expiredUsers = part.expiredUsers.filter(function(expiredUser) { return expiredUser.toString() !== user._id.toString()});
+   part.users.push(user);
+   part.save((err) => {
      if (err) return console.log(err);
-     var user = req.user;
-     var targetedPartBundle = method.getPartInArrayById(user.parts, extendedPart.toString());
-     targetedPartBundle.expired = false;
-     targetedPartBundle.checked = false;
-     targetedPartBundle.expiredAt = method.getExpiredDate();
-     Part.findById(targetedPartBundle.part._id.toString(), (err, part) => {
+     var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
+     if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
+         var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
+         userCourse.expired = false;
+     }
+     user.save((err) => {
        if (err) return console.log(err);
-       var newOrder = {
-         course, part, user, type: "extend"
-       };
-       Order.create(newOrder, (err, order) => {
-         if (err) return console.log(err);
-         user.orders.push(order);
-         part.expiredUsers = part.expiredUsers.filter(function(expiredUser) { return expiredUser.toString() !== user._id.toString()});
-         part.users.push(user);
-         part.save((err) => {
-           if (err) return console.log(err);
-           var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
-           if (!method.checkIfCourseShouldExpired(userCourseBundle, user.parts)) {
-               var userCourse = method.getCourseInArrayById(user.courses, course._id.toString());
-               userCourse.expired = false;
-           }
-           user.save((err) => {
-             if (err) return console.log(err);
-             res.redirect("/dashboard");
-           });
-         });
-       });
+       res.redirect("/dashboard");
      });
    });
 });

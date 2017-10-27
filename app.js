@@ -1,3 +1,4 @@
+var http = require("http");
 var express = require("express");
 var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
@@ -20,6 +21,9 @@ var fileUpload = require('express-fileupload');
 var Promise = require("bluebird");
 var schedule = require('node-schedule');
 var checkExpiry = require("./method/checkExpiry");
+var server = http.createServer(app);
+// var io = require('socket.io')(server);
+
 
 // ======== ROUTES ========
 var indexRoutes = require("./routes/index");
@@ -111,8 +115,9 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // Fix chem 4,5,6 it stinks!!!!
 
 
-schedule.scheduleJob('0 * 5 * * *', function(){
+schedule.scheduleJob('0,30 * * * * *', function(){
     checkExpiry();
+    // io.sockets.emit('expiry');
 });
 
 // app.get("/test", (req, res) => {
@@ -122,3 +127,5 @@ schedule.scheduleJob('0 * 5 * * *', function(){
 app.listen(3000, () => {
    console.log("Server started");
 });
+
+module.exports = app;

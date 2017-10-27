@@ -225,4 +225,15 @@ $(document).ready(function() {
     $(".nextVideo a").text("End Part");
   }
   $(".nextVideo a").attr("href", link);
+  $("body").click(function(e) {
+    if (e.clientY > $(".videoLabels").outerHeight(true) && e.clientY < $(window).height() - 20 - ($(".videoControls").outerHeight(true))) {
+      if(!videoPlayer[0].paused) {
+        videoPlayer[0].pause();
+        $(".glyphicon-pause").attr("class", "glyphicon glyphicon-play");
+      } else {
+        videoPlayer[0].play();
+        $(".glyphicon-play").attr("class", "glyphicon glyphicon-pause");
+      }
+    }
+  });
 });
