@@ -74,6 +74,7 @@ methodObj.toClockTime = function(timeInSec) {
 };
 
 methodObj.toTime = function(str) {
+  if (!str) return 0;
 	var array = str.split(":");
 	var sec = array[array.length-1];
   var min = array[0];
@@ -214,6 +215,16 @@ methodObj.getDuration = function(videoArray) {
     duration += methodObj.toTime(video.duration);
   });
   return methodObj.toClockTime(duration);
+}
+
+methodObj.createArray = function(suspectedArray) {
+  var result = [];
+  if (Array.isArray(suspectedArray)) {
+      result = suspectedArray;
+  } else {
+      result.push(suspectedArray);
+  }
+  return result;
 }
 
 module.exports = methodObj;

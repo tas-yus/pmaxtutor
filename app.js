@@ -18,11 +18,9 @@ var middleware = require("./middleware");
 var seedDB = require("./seed");
 var methodOverride = require("method-override");
 var fileUpload = require('express-fileupload');
-var Promise = require("bluebird");
 var schedule = require('node-schedule');
 var checkExpiry = require("./method/checkExpiry");
-var server = http.createServer(app);
-// var io = require('socket.io')(server);
+var path = require("path");
 
 
 // ======== ROUTES ========
@@ -69,26 +67,17 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 
-app.use(function(req, res, next) {
-    var user = req.user;
-    Course.populate(user, {path: "courses.course"}, (err, user) => {
-      if (err) return console.log(err);
-      Course.populate(user, {path: "cartCourses"}, (err, user) => {
-        if (err) return console.log(err);
-        Part.populate(user, {path: "parts.part"}, (err, user) => {
-          if (err) return console.log(err);
-          Video.populate(user, {path: "videos.video"}, (err, user) => {
-            if (err) return console.log(err);
-            Video.populate(user, {path: "mostRecentVideo", select: "code part title"}, (err, user) => {
-              res.locals.user = user;
-              res.locals.error = req.flash("error");
-              res.locals.success = req.flash("success");
-              next();
-            });
-          });
-        });
-      });
-    });
+app.use(async function(req, res, next) {
+  var user = req.user;
+  user = await Course.populate(user, {path: "courses.course"});
+  user = await Course.populate(user, {path: "cartCourses"});
+  user = await Part.populate(user, {path: "parts.part"});
+  user = await Video.populate(user, {path: "videos.video"});
+  user = await Video.populate(user, {path: "mostRecentVideo", select: "code part title"});
+  res.locals.user = user;
+  res.locals.error = req.flash("error");
+  res.locals.success = req.flash("success");
+  next();
 });
 
 // ======== ROUTES ========
@@ -110,19 +99,16 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // logging
 // Sign Up - includes other info + in the database
 // Add video model to course
-// When a new video is added, all user enrolled should own those videos as well + numVids should increase;
 // Credit card validation
 // Fix chem 4,5,6 it stinks!!!!
+// publish or no!
+// find ways to sort query
+// fix vid done();
+// numFinishedVideos && mostRecentVideo should be moved into course;
 
-
-schedule.scheduleJob('0,30 * * * * *', function(){
+schedule.scheduleJob('0,30 5 * * * *', function(){
     checkExpiry();
-    // io.sockets.emit('expiry');
 });
-
-// app.get("/test", (req, res) => {
-//     res.render("videos/test");
-// });
 
 app.listen(3000, () => {
    console.log("Server started");

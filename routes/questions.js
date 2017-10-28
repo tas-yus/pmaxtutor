@@ -5,7 +5,6 @@ var Course = require("./../models/course");
 var Question = require("./../models/question");
 var User = require("./../models/user");
 var Answer = require("./../models/answer");
-var Promise = require("bluebird");
 
 // QUESTIONS
 router.get("/questions", async (req, res) => {

@@ -5,7 +5,6 @@ var Course = require("./../models/course");
 var Part = require("./../models/part");
 var passport = require("passport");
 var middleware = require("./../middleware");
-var Promise = require("bluebird");
 var method = require("./../method");
 
 // REGISTER
@@ -14,16 +13,17 @@ router.get("/register", (req, res) => {
 });
 
 router.post("/register", (req, res) => {
-  var newUser = new User({username: req.body.username});
+  var newUser = new User(req.body.user);
+  newUser.username = req.body.username;
   User.register(newUser, req.body.password, (err, user) => {
-      if (err) {
-        req.flash("error", err.message);
-        return res.redirect("/register");
-      }
-      passport.authenticate("local")(req, res, () => {
-         req.flash("success", `คุณ ${user.username} ได้ทำการลงทะเบียนเรียบร้อยแล้ว`);
-         res.redirect("/dashboard");
-      });
+    if (err) {
+      req.flash("error", err.message);
+      return res.redirect("/register");
+    }
+    passport.authenticate("local")(req, res, () => {
+       req.flash("success", `คุณ ${user.username} ได้ทำการลงทะเบียนเรียบร้อยแล้ว`);
+       res.redirect("/dashboard");
+    });
   });
 });
 
@@ -33,12 +33,12 @@ router.get("/login", middleware.noDuplicateLogin, (req, res) => {
 });
 
 router.post("/login", middleware.noDuplicateLogin, middleware.checkRememberMe, passport.authenticate("local",
-    {
-        successRedirect: "/dashboard",
-        failureRedirect: "/courses",
-        failureFlash: "Invalid username or password",
-        successFlash: "เข้าสู้ระบบเรียบร้อยแล้ว"
-    }),(req, res) => {
+  {
+    successRedirect: "/dashboard",
+    failureRedirect: "/courses",
+    failureFlash: "Invalid username or password",
+    successFlash: "เข้าสู้ระบบเรียบร้อยแล้ว"
+  }),(req, res) => {
 });
 
 // LOGOUT
