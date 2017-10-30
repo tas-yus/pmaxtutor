@@ -1,0 +1,49 @@
+<% include ../partials/header %>
+  <h1 id="form-header">Edit <%= video.title %></h1>
+  <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vidCode %>?_method=PUT" enctype="multipart/form-data" method="POST" id="regular-form">
+      <div class="form-group">
+        <label>ชื่อวีดีโอ</label>
+        <input class="form-control" type="text" name="title" value="<%= video.title %>">
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="thumbnail">
+              <img src="/assets/thumbnails/<%=video.thumbnail %>" alt="<%=video.thumbnail%>">
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+                <input class="form-control" type="text" name="videoFileName" placeholder="ชื่อไฟล์">
+            </div>
+            <div class="form-group">
+                <input type="file" name="videoFile">
+            </div>
+            <div class="form-group">
+              <label>Change Custom Thumbnail</label>
+              <input type="file" name="thumbnailFile">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Choose From Old Videos</label>
+        <div class="row">
+          <% thumbPaths.forEach((img) => { %>
+            <% var imageId = removeExtension(img) %>
+            <div class="col-sm-6 col-md-4">
+              <div class="thumbnail">
+                <i class="fa fa-2x fa-check-circle-o check-on-image hidden" aria-hidden="true"></i>
+                <img class="chosen-image" src="/assets/thumbnails/<%= img %>" alt="<%= imageId %>">
+              </div>
+              <div class="caption">
+                <input id="<%=imageId %>" type="radio" name="chosenVideo" value="<%= imageId %>.mp4"><label> <%= imageId %></label>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block">Add</button>
+  </form>
+  <script src="/assets/js/chosenImage.js"></script>
+<% include ../partials/footer %>

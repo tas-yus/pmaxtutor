@@ -56,6 +56,7 @@ methodObj.getCourseInArrayById = function(arr, id) {
 };
 
 methodObj.createCode = function(str) {
+    if (!str) return "";
     var result;
     result = str.toLowerCase();
     result = result.trim();
@@ -225,6 +226,11 @@ methodObj.createArray = function(suspectedArray) {
       result.push(suspectedArray);
   }
   return result;
+}
+
+methodObj.removeExtension = function(fileName) {
+  var name = fileName.split(".")[0];
+  return name;
 }
 
 module.exports = methodObj;

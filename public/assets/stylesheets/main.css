@@ -347,3 +347,20 @@ div.panel-body:hover {
       width: 100%;
   }
 }
+
+.chosen-image:hover {
+  cursor: pointer;
+}
+
+.fade {
+  opacity: 0.5;
+}
+
+.check-on-image {
+  position: absolute;
+  top: 3px;
+  left: 20px;
+  color: #3de822;
+  z-index: 99;
+  text-shadow: 1px 1px 5px #333333;
+}

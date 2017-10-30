@@ -20,6 +20,7 @@
     "express": "^4.15.4",
     "express-fileupload": "^0.2.0",
     "express-session": "^1.15.5",
+    "fluent-ffmpeg": "^2.1.2",
     "get-video-duration": "^0.2.0",
     "get-video-info": "^1.0.0",
     "method-override": "^2.3.9",

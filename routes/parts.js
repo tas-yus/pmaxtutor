@@ -7,6 +7,9 @@ var Order = require("./../models/order");
 var User = require("./../models/user");
 var middleware = require("./../middleware");
 var method = require("./../method");
+var fs = require("fs");
+var config = require("./../config");
+var async = require("async");
 
 // LEARN PART
 router.get("/:partCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, middleware.canLearn, (req, res) => {
@@ -22,7 +25,10 @@ router.get("/:partCode/learn", middleware.isLoggedIn, middleware.canAccessLearn,
 // NEW PART
 router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     var courseCode = req.params.courseCode;
-    res.render("parts/new", {courseCode});
+    var removeExtension = method.removeExtension;
+    fs.readdir(__dirname + config.imagePath, (err, imgPaths) => {
+      res.render("parts/new", {courseCode, imgPaths, removeExtension});
+    });
 });
 
 // CREATE PART
@@ -31,7 +37,7 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
       return res.redirect(`/courses/${req.params.courseCode}/parts/new`);
   }
   let file = req.files.file;
-  var path = req.body.image + ".jpg";
+  var path = req.body.fileName ? req.body.fileName + ".jpg" : method.createCode(req.body.title) + ".jpg";
   file.mv(__dirname + '/../public/assets/images/' + path).then( async () => {
     var course = await Course.findOne({code: req.params.courseCode});
     var newPart = {
@@ -55,11 +61,15 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
 
 // EDIT PART
 router.get("/:partCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+  var removeExtension = method.removeExtension;
   Course.findOne({code: req.params.courseCode}, (err, course) => {
     if (err) return console.log(err);
     Part.findOne({code: req.params.partCode}, (err, part) => {
       if (err) return console.log(err);
-      res.render("parts/edit", {part, course});
+      fs.readdir(__dirname + config.imagePath, (err, imgPaths) => {
+        if (err) return console.log(err);
+        res.render("parts/edit", {part, course, imgPaths, removeExtension});
+      });
     });
   });
 });
@@ -67,43 +77,63 @@ router.get("/:partCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, r
 // UPDATE PART
 router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
   var part = await Part.findOne({code: req.params.partCode});
+  var course = await Course.findOne({code: req.params.courseCode});
   var oldPartId = part._id.toString();
   var oldPart = part.title;
   var changedTitle = Boolean(part.title !== req.body.title);
+  var path;
+  if (!req.files.file && !req.body.chosenImage) {
+    photoStatus = "none";
+  } else if (req.files.file) {
+    photoStatus = "uploaded";
+    path = req.body.fileName? req.body.fileName + ".jpg" : method.createCode(req.body.title) + ".jpg";
+  } else {
+    photoStatus = "chosen"
+    path = req.body.chosenImage;
+  }
   part.title = req.body.title;
   part.code = method.createCode(req.body.title);
   part.price = req.body.price;
   part.description = req.body.description;
-  var course = await Course.findOne({code: req.params.courseCode});
-  course.parts = course.parts.filter(function(part) { return part.toString() !== oldPartId });
-  course.parts.push(part);
-  course.save((err) => {
-    if (err) {
-        return console.log(err);
-    }
-  });
-  if(changedTitle) {
-    var videos = await Video.find({part: oldPart});
-    videos.forEach((vid) => {
-      vid.part = req.body.title;
-      vid.save((err) => {
-          if (err) return console.log(err);
-      });
-    });
-  }
-  part.save((err) => {
-    if (err) return console.log(err);
-  });
   let file = req.files.file;
-  if (file) {
-    var path = part.image;
-    file.mv(__dirname + '/../public/assets/images/' + path, (err) => {
+  async.waterfall([
+    function(callback) {
+      if (!changedTitle) return callback(null, null);
+      Video.find({part: oldPart}, (err, videos) => {
+        if (err) return console.log(err);
+        callback(null, videos);
+      });
+    },
+    function(videos, callback) {
+      if (!changedTitle) return callback();
+      async.eachSeries(videos, (vid, cb1) => {
+        vid.part = req.body.title;
+        vid.save((err) => {
+          if (err) return console.log(err);
+          cb1();
+        });
+      }, (err) => {
+        callback();
+      });
+    },
+    function(callback) {
+      if (photoStatus !== "uploaded") return callback();
+      file.mv(__dirname + config.imagePath + path, (err) => {
+        if (err) return console.log(err);
+        callback();
+      });
+    },
+    function(callback) {
+      if (photoStatus === "none") return callback();
+      part.image = path;
+      callback();
+    }
+  ], (err) => {
+    part.save((err) => {
       if (err) return console.log(err);
       res.redirect("/dashboard");
     });
-  } else {
-    res.redirect("/dashboard");
-  }
+  });
 });
 
 // EXTEND PART

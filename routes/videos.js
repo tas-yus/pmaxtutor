@@ -11,6 +11,7 @@ var method = require("./../method");
 var config = require("./../config");
 var fs = require("fs");
 var async = require("async");
+var ffmpeg = require("fluent-ffmpeg");
 
 // LEARN VID
 router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, middleware.canLearn, async (req, res) => {
@@ -35,22 +36,25 @@ router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, 
 router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     var courseCode = req.params.courseCode;
     var partCode = req.params.partCode;
+    var removeExtension = method.removeExtension;
     fs.readdir(__dirname + config.videoPath, (err, vidPaths) => {
-      res.render("videos/new", {courseCode, partCode, vidPaths});
+      if (err) return console.log(err);
+      fs.readdir(__dirname + config.thumbnailPath, (err, thumbPaths) => {
+        if (err) return console.log(err);
+        res.render("videos/new", {courseCode, partCode, vidPaths, thumbPaths, removeExtension});
+      });
     });
 });
 
 // CREATE VIDS
 router.post("/", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
-  var fileUploaded = false;
   var path;
-  if (!req.files.file && !req.body.chosenVideo) {
-    return res.redirect("/courses");
-  } else if (req.files.file) {
-    fileUploaded = true;
-    path = method.createCode(req.body.title) + ".mp4";
+  if (!req.files.videoFile && !req.body.chosenVideo) {
+    req.flash("error", "โปรด upload video หรือเลือกจากที่มีอยู่แล้ว");
+    return res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/videos/new`);
+  } else if (req.files.videoFile) {
+    path = req.body.videoFileName ? req.body.videoFileName + ".mp4" : method.createCode(req.body.title) + ".mp4";
   } else {
-    fileUploaded = false;
     path = req.body.chosenVideo;
   }
   var course = await Course.findOne({code: req.params.courseCode});
@@ -58,26 +62,51 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => 
   course.save((err) => {
     if (err) return console.log(err);
   });
-  let file = req.files.file;
+  let file = req.files.videoFile;
+  let thumbnailFile = req.files.thumbnailFile;
   async.waterfall([
     function(callback) {
-      Part.findOne({code: req.params.partCode}).populate("users").populate("expiredUsers").exec((err, part) => {
-        if (err) return console.log(err);
-        callback(null, part);
-      });
-    },
-    function(part, callback) {
-      if (!file) return callback(null,part);
+      if (!file) return callback();
       file.mv(__dirname + config.videoPath + path, (err) => {
         if (err) return console.log(err);
-        callback(null, part)
+        callback()
       });
     },
-    function(part, callback) {
+    function(callback) {
+      if (!file || thumbnailFile) return callback();
+      ffmpeg(__dirname + config.videoPath + path)
+        .on('end', function() {
+          callback();
+          console.log('Screenshots taken');
+        })
+        .on('error', function(err) {
+          callback(null, part);
+          console.error(err);
+        })
+        .screenshots({
+          count: 1,
+          filename: method.removeExtension(path) + ".jpg",
+          folder: __dirname + config.thumbnailPath,
+        });
+    },
+    function(callback) {
+      if (!file || !thumbnailFile) return callback();
+      thumbnailFile.mv(__dirname + config.thumbnailPath + method.removeExtension(path) + ".jpg", (err) => {
+        if (err) return console.log(err);
+        callback();
+      });
+    },
+    function(callback) {
       getVideoInfo(__dirname + config.videoPath + path).then((info) => {
-        callback(null, part, info);
+        callback(null, info);
       }).catch((err) => {
         console.log(err);
+      });
+    },
+    function(info, callback) {
+      Part.findOne({code: req.params.partCode}, (err, part) => {
+        if (err) return console.log(err);
+        callback(null, part, info);
       });
     },
     function(part, info, callback) {
@@ -86,6 +115,7 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => 
           path,
           course: part.course,
           part: part.title,
+          thumbnail: method.removeExtension(path) + ".jpg",
           duration: method.toClockTime(info.format.duration)
       };
       Video.create(newVid, (err, vid) => {
@@ -129,6 +159,101 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => 
   });
 });
 
+// EDIT VIDEO
+router.get("/:vidCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+  var courseCode = req.params.courseCode;
+  var partCode = req.params.partCode;
+  var vidCode = req.params.vidCode
+  var removeExtension = method.removeExtension;
+  Video.findOne({code: req.params.vidCode}, (err, video) => {
+    if (err) return console.log(err);
+    fs.readdir(__dirname + config.videoPath, (err, vidPaths) => {
+      if (err) return console.log(err);
+      fs.readdir(__dirname + config.thumbnailPath, (err, thumbPaths) => {
+        if (err) return console.log(err);
+        res.render("videos/edit", {courseCode, partCode, vidCode, video, vidPaths, thumbPaths, removeExtension});
+      });
+    });
+  });
+});
+
+// UPDATE VIDEO
+router.put("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
+  var video = await Video.findOne({code: req.params.vidCode});
+  var path;
+  if (!req.files.videoFile && !req.body.chosenVideo) {
+    videoStatus = "none";
+  } else if (req.files.videoFile) {
+    videoStatus = "uploaded";
+    path = req.body.videoFileName? req.body.videoFileName + ".mp4" : method.createCode(req.body.title) + ".mp4";
+  } else {
+    videoStatus = "chosen"
+    path = req.body.chosenVideo;
+  }
+  video.path = path;
+  video.title = req.body.title;
+  video.thumbnail = method.removeExtension(path) + ".jpg";
+  video.save((err) => {
+    if (err) return console.log(err);
+  });
+  let file = req.files.videoFile;
+  let thumbnailFile = req.files.thumbnailFile;
+  async.waterfall([
+    function(callback) {
+      if (!file) return callback();
+      file.mv(__dirname + config.videoPath + path, (err) => {
+        if (err) return console.log(err);
+        callback();
+      });
+    },
+    function(callback) {
+      if (!file || thumbnailFile) return callback();
+      ffmpeg(__dirname + config.videoPath + path)
+        .on('end', function() {
+          callback();
+          console.log('Screenshots taken');
+        })
+        .on('error', function(err) {
+          callback();
+          console.error(err);
+        })
+        .screenshots({
+          count: 1,
+          filename: method.removeExtension(path) + ".jpg",
+          folder: __dirname + config.thumbnailPath,
+        });
+    },
+    function(callback) {
+      if (!file || !thumbnailFile) return callback();
+      thumbnailFile.mv(__dirname + config.thumbnailPath + method.removeExtension(path) + ".jpg", (err) => {
+        if (err) return console.log(err);
+        callback();
+      });
+    },
+    function(callback) {
+      if (videoStatus === "none") return callback(null, null);
+      getVideoInfo(__dirname + config.videoPath + path).then((info) => {
+        callback(null, info);
+      }).catch((err) => {
+        console.log(err);
+      });
+    },
+    function(info, callback) {
+      if (videoStatus === "none") return callback();
+      Part.findOne({code: req.params.partCode}, (err, part) => {
+        if (err) return console.log(err);
+        part.duration = method.toClockTime(method.toTime(part.duration) + Number(info.format.duration));
+        part.save((err) => {
+          if (err) return console.log(err);
+          callback();
+        });
+      });
+    }
+  ], (err) => {
+    res.redirect("/dashboard");
+  });
+});
+
 // DELETE VID
 router.delete("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
   Part.findOne({code: req.params.partCode}).populate("videos").exec((err, part) => {
@@ -145,15 +270,17 @@ router.delete("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, (req, res)
 });
 
 // DONE VID
-router.post("/:vidCode/done", (req, res) => {
+router.post("/:vidCode/done", async (req, res) => {
+  var course = await Course.findOne({code: req.params.courseCode});
   Video.findOne({code: req.params.vidCode}, (err, video) => {
     if (err) return console.log(err);
     var user = req.user;
     var targetedVideo = method.getVideoInArrayById(user.videos, video._id.toString());
     var nextVidCode = req.body.next;
+    var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
     if (!user.isAdmin && !targetedVideo.finished) {
       targetedVideo.finished = true;
-      user.numFinishedVideos++;
+      userCourseBundle.numFinishedVideos++;
       user.save((err) => {
         if (err) return console.log(err);
         if (nextVidCode) {

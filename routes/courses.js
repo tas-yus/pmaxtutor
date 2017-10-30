@@ -12,43 +12,62 @@ var config = require("./../config");
 var mongoose = require("mongoose");
 var forEach = require('async-foreach').forEach;
 var async = require('async');
+var fs = require("fs");
 
 // ALL COURSES
 router.get("/", (req, res) => {
-    Course.find({}).sort({order:1}).exec((err, courses) => {
-        if (err) {
-           return console.log(err);
-        }
-        res.render("courses/index", {courses});
-    });
+  Course.find({}).sort({order:1}).exec((err, courses) => {
+    if (err) return console.log(err);
+    res.render("courses/index", {courses});
+  });
 });
 
 // NEW COURSE
 router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-    res.render("courses/new");
+  var removeExtension = method.removeExtension
+  fs.readdir(__dirname + config.imagePath, (err, imgPaths) => {
+    res.render("courses/new", { imgPaths, removeExtension });
+  });
 });
 
 // CREATE COURSE
 router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-  if (!req.files.file) {
-    req.flash("error", "โปรด upload ไฟล์");
-    return res.redirect("/courses/new");
+  var fileUploaded = false;
+  var path;
+  if (!req.files.file && !req.body.chosenImage) {
+    req.flash("error", "โปรด upload ไฟล์ หรือเลือกภาพที่ต้องการ");
+    return res.redirect(`/courses/new`);
+  } else if (req.files.file) {
+    fileUploaded = true;
+    path = req.body.fileName? req.body.fileName + ".jpg" : method.createCode(req.body.title) + ".jpg";
+  } else {
+    fileUploaded = false;
+    path = req.body.chosenImage;
   }
   let file = req.files.file;
-  var path = req.body.image + ".jpg";
-  var newCourse = {
-      title: req.body.title,
-      code: method.createCode(req.body.title),
-      description: req.body.description,
-      video: req.body.video,
-      price: req.body.price,
-      image: path
-  };
-  Course.create(newCourse, (err, course) => {
-    if (err) return console.log(err);
-  });
-  file.mv(__dirname + config.imagePath + path, (err) => {
-    if (err) return console.log(err);
+  async.waterfall([
+    function(callback) {
+      var newCourse = {
+          title: req.body.title,
+          code: method.createCode(req.body.title),
+          description: req.body.description,
+          video: req.body.video,
+          price: req.body.price,
+          image: path
+      };
+      Course.create(newCourse, (err, course) => {
+        if (err) return console.log(err);
+        callback();
+      });
+    },
+    function(callback) {
+      if(!file) return callback();
+      file.mv(__dirname + config.imagePath + path, (err) => {
+        if (err) return console.log(err);
+        callback();
+      });
+    }
+  ], (err) => {
     res.redirect("/dashboard");
   });
 });
@@ -138,12 +157,14 @@ router.post("/checkout", middleware.isLoggedIn, (req, res) => {
 
 // EDIT COURSE
 router.get("/:courseCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-    Course.findOne({code: req.params.courseCode}, (err, course) => {
-        if (err) {
-            return console.log(err);
-        }
-        res.render("courses/edit", {course});
+  var removeExtension = method.removeExtension
+  Course.findOne({code: req.params.courseCode}, (err, course) => {
+    if (err) return console.log(err);
+    fs.readdir(__dirname + config.imagePath, (err, imgPaths) => {
+      if (err) return console.log(err);
+      res.render("courses/edit", {course, imgPaths, removeExtension});
     });
+  });
 });
 
 // SHOW COURSE
@@ -167,67 +188,84 @@ router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, async (req
   var course = await Course.findOne({code: req.params.courseCode}).populate("parts").exec();
   var parts = await Video.populate(course.parts, {path: "videos"});
   var changedTitle = (course.title !== req.body.title);
+  var photoStatus;
+  var path;
+  if (!req.files.file && !req.body.chosenImage) {
+    photoStatus = "none";
+  } else if (req.files.file) {
+    photoStatus = "uploaded";
+    path = req.body.fileName? req.body.fileName + ".jpg" : method.createCode(req.body.title) + ".jpg";
+  } else {
+    photoStatus = "chosen"
+    path = req.body.chosenImage;
+  }
   course.title = req.body.title;
   course.code = method.createCode(req.body.title);
   course.price = req.body.price;
   course.description = req.body.description;
   course.video = req.body.video;
-  course.save((err) => {
-    if (err) return console.log(err);
-  });
   let file = req.files.file;
-  if (file) {
-    var path = course.image;
-    file.mv(__dirname + config.imagePath + path, (err) => {
-      if (err) return console.log(err);
-    });
-  }
-  if (changedTitle) {
-    async.waterfall([
-      // change Title of Part and videos
-      function(callback) {
-        async.eachSeries(parts, (part, cb1) => {
-          part.course = req.body.title;
-          async.eachSeries(part.videos, (video, cb2) => {
-            video.course = req.body.title;
-            video.save((err) => {
-              if (err) return console.log(err);
-              cb2();
-            });
-          }, (err) => {
-            part.save((err) => {
-              console.log(err);
-              cb1();
-            });
-          });
-        }, (err) => {
-          callback();
-        });
-      },
-      // change Title of Order
-      function(callback) {
-        Order.find({course: course._id.toString()}, (err, orders) => {
-          if (err) return console.log(err);
-          callback(null, orders);
-        });
-      },
-      function(orders, callback) {
-        async.eachSeries(orders, (order, cb3) => {
-          order.course = course._id;
-          order.save((err) => {
+  async.waterfall([
+    // change Title of Part and videos
+    function(callback) {
+      if (!changedTitle) return callback();
+      async.eachSeries(parts, (part, cb1) => {
+        part.course = req.body.title;
+        async.eachSeries(part.videos, (video, cb2) => {
+          video.course = req.body.title;
+          video.save((err) => {
             if (err) return console.log(err);
-            cb3();
+            cb2();
           });
         }, (err) => {
-          callback();
+          part.save((err) => {
+            console.log(err);
+            cb1();
+          });
         });
-      },
-    ], (err) => {
+      }, (err) => {
+        callback();
+      });
+    },
+    // change Title of Order
+    function(callback) {
+      if (!changedTitle) return callback(null, null);
+      Order.find({course: course._id.toString()}, (err, orders) => {
+        if (err) return console.log(err);
+        callback(null, orders);
+      });
+    },
+    function(orders, callback) {
+      if (!changedTitle) return callback();
+      async.eachSeries(orders, (order, cb3) => {
+        order.course = course._id;
+        order.save((err) => {
+          if (err) return console.log(err);
+          cb3();
+        });
+      }, (err) => {
+        callback();
+      });
+    },
+    // deal with file
+    function(callback) {
+      if (photoStatus !== "uploaded") return callback();
+      file.mv(__dirname + config.imagePath + path, (err) => {
+        if (err) return console.log(err);
+        callback();
+      });
+    },
+    function(callback) {
+      if (photoStatus === "none") return callback();
+      course.image = path;
+      callback();
+    }
+  ], (err) => {
+    course.save((err) => {
+      if (err) return console.log(err);
       res.redirect("/dashboard");
     });
-  } else {
-    res.redirect("/dashboard");
-  }
+  });
 });
 
 // LEARN COURSE
@@ -240,8 +278,10 @@ router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLear
   if (req.user.isAdmin) {
     res.render("courses/learn", {course, parts, checkPartOwnership, isFinished, createCode});
   } else {
-      var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
-    res.render("courses/learn", {course, getPartInUserArrayByCourseTitle, checkPartOwnership, isFinished, createCode});
+    var numFinishedVideos = method.getCourseInArrayById(req.user.courses, course._id.toString()).numFinishedVideos;
+    var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
+    res.render("courses/learn", {course, getPartInUserArrayByCourseTitle,
+      checkPartOwnership, isFinished, createCode, numFinishedVideos});
   }
 });
 

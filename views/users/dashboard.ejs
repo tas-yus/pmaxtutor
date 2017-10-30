@@ -22,11 +22,14 @@
       <p>All Courses</p>
       <% courses.forEach((course) => { %>
           <li><a href="/courses/<%= course.code %>/learn"><%= course.title %></a>
-          <a href="/courses/<%= course.code %>/parts/new" class="btn btn-sm btn-danger">Add Part</a>
+          <a href="/courses/<%= course.code %>/parts/new" class="btn btn-xs btn-danger">Add Part</a>
               <ul>
                 <% var userPart = getPartInPartArrayByCourseTitle(parts, course.title) %>
                   <% userPart.forEach((part) => { %>
-                       <li><%= part.title %></li>
+                       <li>
+                         <%= part.title %>
+                         <a class="btn btn-xs btn-info" href="/courses/<%= course.code %>/parts/<%= part.code%>/edit">Edit</a>
+                       </li>
                        <ul>
                          <li>
                            <h5><%= part.users.length %> Active Students</h5>

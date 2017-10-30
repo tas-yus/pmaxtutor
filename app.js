@@ -104,7 +104,11 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // publish or no!
 // find ways to sort query
 // fix vid done();
-// numFinishedVideos && mostRecentVideo should be moved into course;
+// mostRecentVideo should be moved into course;
+// add update video route!
+// fix all param routes so they dont crash
+// reference all
+// push video thumbnail
 
 schedule.scheduleJob('0,30 5 * * * *', function(){
     checkExpiry();
@@ -113,5 +117,3 @@ schedule.scheduleJob('0,30 5 * * * *', function(){
 app.listen(3000, () => {
    console.log("Server started");
 });
-
-module.exports = app;

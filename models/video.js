@@ -6,6 +6,7 @@ var VideoSchema = new mongoose.Schema({
     title: String,
     code: Number,
     part: String,
+    thumbnail: String,
     course: String,
     path: String,
     duration: String,

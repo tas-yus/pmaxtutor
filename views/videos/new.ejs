@@ -4,20 +4,37 @@
     <!--<i class="fa fa-minus" aria-hidden="true" id="remove-vids"></i></h1>-->
     <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos" enctype="multipart/form-data" method="POST" id="regular-form">
         <div class="form-group">
-            <input class="form-control" type="text" name="title" placeholder="video title">
+          <input class="form-control" type="text" name="title" placeholder="video title">
         </div>
         <div class="form-group">
-            <input type="file" name="file">
+          <input class="form-control" type="text" name="videoFileName" placeholder="ชื่อไฟล์">
+        </div>
+        <div class="form-group">
+          <label>Video</label>
+          <input type="file" name="videoFile">
+        </div>
+        <div class="form-group">
+          <label>Custom Thumbnail</label>
+          <input type="file" name="thumbnailFile">
         </div>
         <div class="form-group">
           <label>Choose From Old Videos</label>
-          <ul>
-            <% vidPaths.forEach((vid) => { %>
-              <li><%= vid %> <input type="radio" name="chosenVideo" value="<%= vid %>"></li>
+          <div class="row">
+            <% thumbPaths.forEach((img) => { %>
+              <% var imageId = removeExtension(img) %>
+              <div class="col-sm-6 col-md-4">
+                <div class="thumbnail">
+                  <i class="fa fa-2x fa-check-circle-o check-on-image hidden" aria-hidden="true"></i>
+                  <img class="chosen-image" src="/assets/thumbnails/<%= img %>" alt="<%= imageId %>">
+                </div>
+                <div class="caption">
+                  <input id="<%=imageId %>" type="radio" name="chosenVideo" value="<%= imageId %>.mp4"><label> <%= imageId %></label>
+                </div>
+              </div>
             <% }); %>
-          </ul>
+          </div>
         </div>
         <button class="btn btn-primary">Add</button>
     </form>
-    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/chosenImage.js"></script>
 <% include ../partials/footer %>

@@ -1,18 +1,50 @@
 <% include ../partials/header %>
-    <h1 id="form-header">Edit <%= part.title %></h1>
-        <form action="/courses/<%= course.code %>/parts/<%= part.code %>?_method=PUT" enctype="multipart/form-data" method="POST" id="regular-form">
-            <div class="form-group">
-                <input class="form-control" type="text" name="title" value="<%= part.title %>">
+  <h1 id="form-header">Edit <%= part.title %></h1>
+  <form action="/courses/<%= course.code %>/parts/<%= part.code %>?_method=PUT" enctype="multipart/form-data" method="POST" id="regular-form">
+      <div class="form-group">
+          <input class="form-control" type="text" name="title" value="<%= part.title %>">
+      </div>
+      <div class="form-group">
+          <input class="form-control" type="text" name="price" value="<%= part.price %>">
+      </div>
+      <div class="form-group">
+          <textarea class="form-control" type="text" name="description"><%= part.description %><% part.description %></textarea>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="thumbnail">
+              <img src="/assets/images/<%=part.image%>" alt="<%=part.image%>">
             </div>
+          </div>
+          <div class="col-sm-6">
             <div class="form-group">
-                <input class="form-control" type="text" name="price" value="<%= part.price %>">
-            </div>
-            <div class="form-group">
-                <textarea class="form-control" type="text" name="description"><%= part.description %><% part.description %></textarea>
+                <input class="form-control" type="text" name="fileName" placeholder="ชื่อไฟล์">
             </div>
             <div class="form-group">
                 <input type="file" name="file">
             </div>
-            <button class="btn btn-primary btn-block">Add</button>
-        </form>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Choose From Old Photos</label>
+        <div class="row">
+          <% imgPaths.forEach((img) => { %>
+            <% var imageId = removeExtension(img) %>
+            <div class="col-sm-6 col-md-4">
+              <div class="thumbnail">
+                <i class="fa fa-2x fa-check-circle-o check-on-image hidden" aria-hidden="true"></i>
+                <img class="chosen-image" src="/assets/images/<%= img %>" alt="<%= imageId %>">
+              </div>
+              <div class="caption">
+                <input id="<%=imageId %>" type="radio" name="chosenImage" value="<%= img %>"><label> <%= img %></label>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block">Add</button>
+  </form>
+  <script src="/assets/js/chosenImage.js"></script>
 <% include ../partials/footer %>
