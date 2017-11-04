@@ -105,13 +105,16 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // find ways to sort query
 // fix vid done();
 // mostRecentVideo should be moved into course;
-// add update video route!
 // fix all param routes so they dont crash
-// reference all
-// push video thumbnail
+// 404 Percentage
+// Handle Await Errors!
 
 schedule.scheduleJob('0,30 5 * * * *', function(){
     checkExpiry();
+});
+
+app.get('*', function(req, res){
+  res.send('404 not found', 404);
 });
 
 app.listen(3000, () => {

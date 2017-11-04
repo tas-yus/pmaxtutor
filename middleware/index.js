@@ -16,6 +16,7 @@ middlewareObj.isLoggedIn = function (req, res, next) {
 middlewareObj.canAccessLearn = function (req, res, next) {
     Course.findOne({code: req.params.courseCode}, (err, course) => {
         if (err) return console.log(err);
+        if (!course) return res.redirect("*");
         if (req.user.isAdmin || method.checkCourseOwnership(req.user.courses, course._id.toString()) === true) {
             return next();
         } else if (method.checkCourseOwnership(req.user.courses, course._id.toString()) === "expired") {
@@ -31,8 +32,10 @@ middlewareObj.canAccessLearn = function (req, res, next) {
 middlewareObj.canLearn = function(req, res, next) {
     Course.findOne({code: req.params.courseCode}, (err, course) => {
         if (err) return console.log(err);
+        if (!course) return res.redirect("*");
         Part.findOne({code: req.params.partCode}, (err, part) => {
             if (err) return console.log(err);
+            if (!part) return res.redirect("*");
             if (req.user.isAdmin || method.checkPartOwnership(req.user.parts, part._id.toString()) === true) {
                 return next();
             } else if (method.checkPartOwnership(req.user.parts, part._id.toString()) === "expired") {
@@ -59,6 +62,8 @@ middlewareObj.canBuy = function(req, res, next) {
         } else {
             next();
         }
+    }).catch((err) => {
+      res.redirect("*");
     });
 };
 
@@ -68,6 +73,7 @@ middlewareObj.canAdd = function(req, res, next) {
         return res.redirect(`/${req.params.courseCode}/learn`);
     }
     Course.findOne({code: req.params.courseCode}).exec().then((course) => {
+        if(!course) return res.redirect("*");
         if (method.checkCartCourseOwnership(req.user.cartCourses, course._id.toString()) === true) {
             req.flash("error", "คุณมีคอร์สนี้ในตะกร้าเรียบร้อยแล้ว");
             res.redirect(`/courses/checkout`);
@@ -86,13 +92,14 @@ middlewareObj.canExtend = function(req, res, next) {
         return res.redirect(`/${req.params.courseCode}/learn`);
     }
     Course.findOne({code: req.params.courseCode}).populate("parts").exec().then((course) => {
-        var extendableParts = method.getExtendableParts(course.parts, req.user.parts);
-        if (extendableParts.length === 0) {
-            req.flash("error", "ไม่มีบทที่จำเป็นต้องต่ออายุ");
-            res.redirect(`/courses/${req.params.courseCode}/learn`);
-        } else {
-            next();
-        }
+      if(!course) return res.redirect("*");
+      var extendableParts = method.getExtendableParts(course.parts, req.user.parts);
+      if (extendableParts.length === 0) {
+          req.flash("error", "ไม่มีบทที่จำเป็นต้องต่ออายุ");
+          res.redirect(`/courses/${req.params.courseCode}/learn`);
+      } else {
+          next();
+      }
     });
 };
 

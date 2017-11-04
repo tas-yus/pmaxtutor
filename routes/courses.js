@@ -160,6 +160,7 @@ router.get("/:courseCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req,
   var removeExtension = method.removeExtension
   Course.findOne({code: req.params.courseCode}, (err, course) => {
     if (err) return console.log(err);
+    if (!course) return res.redirect("/courses");
     fs.readdir(__dirname + config.imagePath, (err, imgPaths) => {
       if (err) return console.log(err);
       res.render("courses/edit", {course, imgPaths, removeExtension});
@@ -169,12 +170,22 @@ router.get("/:courseCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req,
 
 // SHOW COURSE
 router.get("/:courseCode", async (req, res) => {
-  var course = await Course.findOne({code: req.params.courseCode});
-  if (!course) {
-      return res.redirect("/courses");
+  try {
+    var course = await Course.findOne({code: req.params.courseCode});
+    if (!course) return res.redirect("/courses");
+  } catch(err) {
+    return console.log(err);
   }
-  var parts = await Part.find({course: course.title}).populate("videos").exec();
-  var videos = await Video.find({course: course.title});
+  try {
+    var parts = await Part.find({course: course.title}).populate("videos").exec();
+  } catch(err) {
+    return console.log(err);
+  }
+  try {
+    var videos = await Video.find({course: course.title});
+  } catch(err) {
+    return console.log(err);
+  }
   var array = videos.map(function(vid){return vid.duration});
   var averageHours = method.getAverageHours(array);
   var checkPartOwnership = method.checkPartOwnership;
@@ -185,8 +196,17 @@ router.get("/:courseCode", async (req, res) => {
 
 // UPDATE COURSE
 router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
-  var course = await Course.findOne({code: req.params.courseCode}).populate("parts").exec();
-  var parts = await Video.populate(course.parts, {path: "videos"});
+  try {
+    var course = await Course.findOne({code: req.params.courseCode}).populate("parts").exec();
+    if (!course) return res.redirect("/courses");
+  } catch(err) {
+    return console.log(err);
+  }
+  try {
+    var parts = await Video.populate(course.parts, {path: "videos"});
+  } catch(err) {
+    return console.log(err);
+  }
   var changedTitle = (course.title !== req.body.title);
   var photoStatus;
   var path;
@@ -270,8 +290,17 @@ router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, async (req
 
 // LEARN COURSE
 router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, async (req, res) => {
-  var course = await Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "code title videos"}).exec();
-  var parts = await Video.populate(course.parts, {path: "videos"});
+  try {
+    var course = await Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "code title videos"}).exec();
+    if (!course) return res.redirect("/courses");
+  } catch(err) {
+    return console.log(err);
+  }
+  try {
+    var parts = await Video.populate(course.parts, {path: "videos"});
+  } catch(err) {
+    return console.log(err);
+  }
   var checkPartOwnership = method.checkPartOwnership;
   var isFinished = method.isFinished;
   var createCode = method.createCode;
@@ -289,6 +318,7 @@ router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLear
 router.get("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, (req, res) => {
   Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "title"}).exec((err, course) => {
     if (err) return console.log(err);
+    if (!course) return res.redirect("/courses");
     var parts = method.getBuyableParts(course.parts, req.user.parts);
     res.render("courses/buy", {course, parts});
   });
@@ -300,7 +330,12 @@ router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, async 
     return res.redirect(`/courses/${req.params.courseCode}/buy`);
   }
   var insertedParts = method.createArray(req.body.selectedParts);
-  var course = await Course.findOne({code: req.params.courseCode});
+  try {
+    var course = await Course.findOne({code: req.params.courseCode});
+    if (!course) return res.redirect("/courses");
+  } catch(err) {
+    return console.log(err);
+  }
   var user = req.user;
   if (!method.checkCourseOwnership(user.courses, course._id.toString())) {
       user.courses.push({course});
@@ -368,6 +403,7 @@ router.post("/:courseCode/buy", middleware.isLoggedIn, middleware.canBuy, async 
 router.get("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, (req, res) => {
     Course.findOne({code: req.params.courseCode}).populate({path: "parts", select: "title"}).exec((err, course) => {
         if (err) return console.log(err);
+        if (!course) return res.redirect("/courses");
         var parts = method.getExtendableParts(course.parts, req.user.parts);
         res.render("courses/extend", {course, parts});
     });
@@ -376,7 +412,12 @@ router.get("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, (
 router.post("/:courseCode/extend", middleware.isLoggedIn, middleware.canExtend, async (req, res) => {
   var selectedParts = method.createArray(req.body.selectedParts);
   var user = req.user;
-  var course = await Course.findOne({code: req.params.courseCode});
+  try {
+    var course = await Course.findOne({code: req.params.courseCode});
+    if (!course) return res.redirect("/courses");
+  } catch(err) {
+    return console.log(err);
+  }
   async.eachSeries(selectedParts, (selectedPart, cb1) => {
     async.waterfall([
       function(callback) {
@@ -438,6 +479,7 @@ router.post("/:courseCode/cart", middleware.isLoggedIn, middleware.canAdd, (req,
   var user = req.user;
   Course.findOne({code: req.params.courseCode}, (err, course) => {
     if (err) return console.log(err);
+    if (!course) return res.redirect("/courses");
     if(method.checkCourseOwnership(user.courses, course._id.toString()) === false && method.checkCartCourseOwnership(user.cartCourses, course._id.toString()) === false) {
       user.cartCourses.push(course);
       user.save((err, data) => {

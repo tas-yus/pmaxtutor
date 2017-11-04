@@ -247,16 +247,18 @@ a[role="button"] > i.fa-minus {
 
 .part-length {
   font-size: 14px;
-  padding-left: 10%;
+  padding-left: 2.5%;
+  padding-right: 2.5%;
   font-weight: 400;
   float: right;
 }
 
 .part-duration {
   font-size: 14px;
-  padding-left: 10%;
   font-weight: 400;
   float: right;
+  padding-left: 2.5%;
+  padding-right: 2.5%;
 }
 
 .panel-heading {

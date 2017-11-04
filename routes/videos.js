@@ -20,7 +20,12 @@ router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, 
     var checkPartOwnership = method.checkPartOwnership;
     var course = await Course.findOne({code: courseCode}).populate("parts").exec();
     var parts = await Video.populate(course.parts, {path: "videos"});
-    var video = await Video.findOne({code: req.params.vidCode}).sort({order:1}).populate("questions").populate("resources").exec();
+    try {
+      var video = await Video.findOne({code: req.params.vidCode}).sort({order:1}).populate("questions").populate("resources").exec();
+      if (!video) return res.redirect(`/courses/${req.params.courseCode}/learn`);
+    } catch(err) {
+      return res.redirect(`/courses/${req.params.courseCode}/learn`);
+    }
     var questions = await User.populate(video.questions, {path: "author", select: "username"});
     questions = await Answer.populate(questions, {path: "answers", select: "author body"});
     questions = await User.populate(questions, {path: "answers.author", select: "username", model: User});
@@ -167,6 +172,7 @@ router.get("/:vidCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, re
   var removeExtension = method.removeExtension;
   Video.findOne({code: req.params.vidCode}, (err, video) => {
     if (err) return console.log(err);
+    if (!video) return res.redirect(`/courses/${req.params.courseCode}/learn`);
     fs.readdir(__dirname + config.videoPath, (err, vidPaths) => {
       if (err) return console.log(err);
       fs.readdir(__dirname + config.thumbnailPath, (err, thumbPaths) => {
@@ -179,7 +185,12 @@ router.get("/:vidCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, re
 
 // UPDATE VIDEO
 router.put("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
-  var video = await Video.findOne({code: req.params.vidCode});
+  try {
+    var video = await Video.findOne({code: req.params.vidCode});
+    if (!video) return res.redirect(`/courses/${req.params.courseCode}/learn`);
+  } catch(err) {
+    return res.redirect(`/courses/${req.params.courseCode}/learn`);
+  }
   var path;
   if (!req.files.videoFile && !req.body.chosenVideo) {
     videoStatus = "none";
@@ -274,6 +285,7 @@ router.post("/:vidCode/done", async (req, res) => {
   var course = await Course.findOne({code: req.params.courseCode});
   Video.findOne({code: req.params.vidCode}, (err, video) => {
     if (err) return console.log(err);
+    if (!video) return res.redirect(`/courses/${req.params.courseCode}/learn`);
     var user = req.user;
     var targetedVideo = method.getVideoInArrayById(user.videos, video._id.toString());
     var nextVidCode = req.body.next;
