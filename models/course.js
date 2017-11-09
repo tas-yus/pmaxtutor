@@ -4,7 +4,7 @@ var CourseSchema = new mongoose.Schema({
     title: String,
     code: {
         type: String,
-        unique: true
+        // unique: true
     },
     image: String,
     description: String,

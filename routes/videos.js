@@ -5,6 +5,7 @@ var Course = require("./../models/course");
 var Video = require("./../models/video");
 var User = require("./../models/user");
 var Answer = require("./../models/answer");
+var Question = require("./../models/question");
 var getVideoInfo = require('get-video-info');
 var middleware = require("./../middleware");
 var method = require("./../method");
@@ -12,23 +13,65 @@ var config = require("./../config");
 var fs = require("fs");
 var async = require("async");
 var ffmpeg = require("fluent-ffmpeg");
+var path = require("path");
+var multer = require("multer");
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    var destination;
+    if (path.extname(file.originalname) === ".jpg" || path.extname(file.originalname) === ".png") {
+      destination = __dirname + config.thumbnailPath;
+    } else {
+      destination = __dirname + config.videoPath;
+    }
+    cb(null, destination);
+  },
+  filename: function (req, file, cb) {
+    var filename;
+    if (path.extname(file.originalname) === ".jpg" || path.extname(file.originalname) === ".png") {
+      filename = req.body.videoFileName? req.body.videoFileName : req.body.originalFileName;
+    } else {
+      filename = req.body.videoFileName? req.body.videoFileName : method.createCode(req.body.title);
+    }
+    filename += path.extname(file.originalname);
+    cb(null, filename);
+  }
+});
+
+var upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 500 * 1024 * 1024 // 500mb, in bytes
+  }
+});
 
 // LEARN VID
 router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, middleware.canLearn, async (req, res) => {
     var courseCode = req.params.courseCode;
     var partCode = req.params.partCode;
     var checkPartOwnership = method.checkPartOwnership;
+    var isFinished = method.checkPartOwnership;
     var course = await Course.findOne({code: courseCode}).populate("parts").exec();
     var parts = await Video.populate(course.parts, {path: "videos"});
     try {
-      var video = await Video.findOne({code: req.params.vidCode}).sort({order:1}).populate("questions").populate("resources").exec();
+      var video = await Video.findOne({code: req.params.vidCode}).sort({order:1})
+        .populate("questions").populate("resources").populate("part").exec();
       if (!video) return res.redirect(`/courses/${req.params.courseCode}/learn`);
     } catch(err) {
       return res.redirect(`/courses/${req.params.courseCode}/learn`);
     }
-    var questions = await User.populate(video.questions, {path: "author", select: "username"});
-    questions = await Answer.populate(questions, {path: "answers", select: "author body"});
-    questions = await User.populate(questions, {path: "answers.author", select: "username", model: User});
+    var questions = await Question.find({video: video._id}).sort({createdAt:-1}).populate("author")
+      .populate({
+        path: "answers",
+        model: "Answer",
+        populate: {
+          path: "author",
+          model: "User"
+        }
+      }).exec();
+      console.log(questions);
+    // var questions = await User.populate(video.questions, {path: "author", select: "username"});
+    // questions = await Answer.populate(questions, {path: "answers", select: "author body"});
+    // questions = await User.populate(questions, {path: "answers.author", select: "username", model: User});
     var user = req.user;
     user.mostRecentVideo = video;
     user.save((err) => {
@@ -52,13 +95,17 @@ router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
 });
 
 // CREATE VIDS
-router.post("/", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
+router.post("/", middleware.isLoggedIn, middleware.isAdmin, upload.fields([{
+           name: 'videoFile', maxCount: 1
+         }, {
+           name: 'thumbnailFile', maxCount: 1
+         }]), async (req, res) => {
   var path;
   if (!req.files.videoFile && !req.body.chosenVideo) {
     req.flash("error", "โปรด upload video หรือเลือกจากที่มีอยู่แล้ว");
     return res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/videos/new`);
   } else if (req.files.videoFile) {
-    path = req.body.videoFileName ? req.body.videoFileName + ".mp4" : method.createCode(req.body.title) + ".mp4";
+    path = req.files.videoFile[0].filename;
   } else {
     path = req.body.chosenVideo;
   }
@@ -67,18 +114,9 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => 
   course.save((err) => {
     if (err) return console.log(err);
   });
-  let file = req.files.videoFile;
-  let thumbnailFile = req.files.thumbnailFile;
   async.waterfall([
     function(callback) {
-      if (!file) return callback();
-      file.mv(__dirname + config.videoPath + path, (err) => {
-        if (err) return console.log(err);
-        callback()
-      });
-    },
-    function(callback) {
-      if (!file || thumbnailFile) return callback();
+      if (!req.files.videoFile || req.files.thumbnailFile) return callback();
       ffmpeg(__dirname + config.videoPath + path)
         .on('end', function() {
           callback();
@@ -93,13 +131,6 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => 
           filename: method.removeExtension(path) + ".jpg",
           folder: __dirname + config.thumbnailPath,
         });
-    },
-    function(callback) {
-      if (!file || !thumbnailFile) return callback();
-      thumbnailFile.mv(__dirname + config.thumbnailPath + method.removeExtension(path) + ".jpg", (err) => {
-        if (err) return console.log(err);
-        callback();
-      });
     },
     function(callback) {
       getVideoInfo(__dirname + config.videoPath + path).then((info) => {
@@ -119,7 +150,7 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => 
           title: req.body.title,
           path,
           course: part.course,
-          part: part.title,
+          part: part._id,
           thumbnail: method.removeExtension(path) + ".jpg",
           duration: method.toClockTime(info.format.duration)
       };
@@ -184,7 +215,11 @@ router.get("/:vidCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, re
 });
 
 // UPDATE VIDEO
-router.put("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
+router.put("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, upload.fields([{
+           name: 'videoFile', maxCount: 1
+         }, {
+           name: 'thumbnailFile', maxCount: 1
+         }]), async (req, res) => {
   try {
     var video = await Video.findOne({code: req.params.vidCode});
     if (!video) return res.redirect(`/courses/${req.params.courseCode}/learn`);
@@ -192,14 +227,14 @@ router.put("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, async (req, r
     return res.redirect(`/courses/${req.params.courseCode}/learn`);
   }
   var path;
-  if (!req.files.videoFile && !req.body.chosenVideo) {
-    videoStatus = "none";
-  } else if (req.files.videoFile) {
-    videoStatus = "uploaded";
-    path = req.body.videoFileName? req.body.videoFileName + ".mp4" : method.createCode(req.body.title) + ".mp4";
-  } else {
-    videoStatus = "chosen"
+  var noFileUpload = false;
+  if (req.files.videoFile) {
+    path = req.files.videoFile[0].filename;
+  } else if(req.body.chosenVideo) {
     path = req.body.chosenVideo;
+  } else {
+    path = video.path;
+    noFileUpload = true;
   }
   video.path = path;
   video.title = req.body.title;
@@ -207,18 +242,9 @@ router.put("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, async (req, r
   video.save((err) => {
     if (err) return console.log(err);
   });
-  let file = req.files.videoFile;
-  let thumbnailFile = req.files.thumbnailFile;
   async.waterfall([
     function(callback) {
-      if (!file) return callback();
-      file.mv(__dirname + config.videoPath + path, (err) => {
-        if (err) return console.log(err);
-        callback();
-      });
-    },
-    function(callback) {
-      if (!file || thumbnailFile) return callback();
+      if (!req.files.videoFile || req.files.thumbnailFile) return callback();
       ffmpeg(__dirname + config.videoPath + path)
         .on('end', function() {
           callback();
@@ -235,14 +261,7 @@ router.put("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, async (req, r
         });
     },
     function(callback) {
-      if (!file || !thumbnailFile) return callback();
-      thumbnailFile.mv(__dirname + config.thumbnailPath + method.removeExtension(path) + ".jpg", (err) => {
-        if (err) return console.log(err);
-        callback();
-      });
-    },
-    function(callback) {
-      if (videoStatus === "none") return callback(null, null);
+      if (noFileUpload) return callback(null, null);
       getVideoInfo(__dirname + config.videoPath + path).then((info) => {
         callback(null, info);
       }).catch((err) => {
@@ -250,7 +269,7 @@ router.put("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, async (req, r
       });
     },
     function(info, callback) {
-      if (videoStatus === "none") return callback();
+      if (noFileUpload) return callback();
       Part.findOne({code: req.params.partCode}, (err, part) => {
         if (err) return console.log(err);
         part.duration = method.toClockTime(method.toTime(part.duration) + Number(info.format.duration));

@@ -1,7 +1,11 @@
 var mongoose = require("mongoose");
 
 var PartSchema = new mongoose.Schema({
-    course: String,
+    courseTitle: String,
+    course: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course"
+    },
     title: String,
     code: String,
     image: String,

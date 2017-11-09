@@ -19,7 +19,8 @@ var isChrome = !!window.chrome && !!window.chrome.webstore;
 // Blink engine detection
 var isBlink = (isChrome || isOpera) && !!window.CSS;
 
-
+var overview = false;
+var qa = false;
 
 $(document).ready(function() {
   var defaultVolume = 1;
@@ -207,11 +208,19 @@ $(document).ready(function() {
       var videoWidth = $video.width(),
           windowWidth = $window.width(),
       marginLeftAdjust =   (windowWidth - videoWidth) / 2;
-
       $video.css({
           'height': height,
           'marginLeft' : marginLeftAdjust
       });
+      if ((qa || overview) && $(window).width() < 960) {
+        videoPlayer[0].pause();
+        $(".glyphicon-pause").attr("class", "glyphicon glyphicon-play");
+      }
+      if ((qa || overview) && $(window).width() < 1100) {
+        $(".videoTime").addClass("tiny");
+      } else {
+        $(".videoTime").removeClass("tiny");
+      }
   }).resize();
   videoPlayer.on("ended", () => {
     $("#done").trigger('click');
@@ -236,4 +245,54 @@ $(document).ready(function() {
       }
     }
   });
+  $("#overview-btn").on("click", () => {
+    if (!overview) {
+      overview = true;
+      if (qa) {
+        qa = false;
+        $(".questions-and-answers").removeClass("opened");
+        $(".inner-right").removeClass("wrapper-right-opened");
+        $(".video-content").removeClass("content-small");
+      }
+      $(".course-overview").addClass("opened");
+      $(".inner-left").addClass("wrapper-left-opened");
+      $(".video-content").addClass("content-small");
+    } else {
+      overview = false;
+      $(".course-overview").removeClass("opened");
+      $(".inner-left").removeClass("wrapper-left-opened");
+      $(".video-content").removeClass("content-small");
+    }
+  });
+  $("#QA-btn").on("click", () => {
+    if (!qa) {
+      qa = true;
+      if (overview) {
+        overview = false;
+        $(".course-overview").removeClass("opened");
+        $(".inner-left").removeClass("wrapper-left-opened");
+        $(".video-content").removeClass("content-small");
+      }
+      $(".questions-and-answers").addClass("opened");
+      $(".inner-right").addClass("wrapper-right-opened");
+      $(".video-content").addClass("content-small");
+    } else {
+      qa = false;
+      $(".questions-and-answers").removeClass("opened");
+      $(".inner-right").removeClass("wrapper-right-opened");
+      $(".video-content").removeClass("content-small");
+    }
+  });
+  // $(".course-overview").on("click", () => {
+  //   overview = false;
+  //   qa = false;
+  //   $(".course-overview").removeClass("opened");
+  //   $(".video-content").removeClass("content-small");
+  // });
+  // $(".questions-and-answers").on("click", () => {
+  //   overview = false;
+  //   qa = false;
+  //   $(".questions-and-answers").removeClass("opened");
+  //   $(".video-content").removeClass("content-small");
+  // });
 });

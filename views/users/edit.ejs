@@ -8,11 +8,11 @@
                 <li><%= userCourseBundle.course.title %>
                     <ul>
                         <li>
-                            <% var removableParts = getPartInUserArrayByCourseTitle(user.parts, userCourseBundle.course.title); %>
+                            <% var removableParts = getPartInArrayByCourseId(user.parts, userCourseBundle.course._id); %>
                             <% removableParts.forEach((partBundle) => { %>
                                 <label><%= partBundle.part.title %></label>
                                 <input type="checkbox" name="removeParts" value="<%= partBundle.part._id.toString() %>">
-                            <% }); %> 
+                            <% }); %>
                         </li>
                     </ul>
                 </li>
@@ -51,4 +51,4 @@
             </ul>
         </li>
     </ul>
-<% include ../partials/footer %> 
+<% include ../partials/footer %>

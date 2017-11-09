@@ -4,7 +4,7 @@
     <img src="/assets/images/banner.jpg">
 </div>
 <div class="container" id="course-list">
-  <div class="row flexthis">
+  <div class="row flexthis" id="content">
   <% courses.forEach((course) => { %>
       <div class="col-md-4 col-sm-6">
         <a href="/courses/<%= course.code %>" class="thumbnail">
@@ -21,4 +21,44 @@
   <% }); %>
   </div>
 </div>
+<script type="text/javascript">
+  $(document).ready(() => {
+    var numSeen = 6;
+    var numLoad = 6;
+    var url = "/api/courses";
+    $(window).scroll(() => {
+      var scrollTop = $(document).scrollTop();
+      var windowHeight = $(window).height();
+      var bodyHeight = $(document).height() - windowHeight;
+      var scrollPercentage = (scrollTop / bodyHeight);
+      if(scrollPercentage > 0.99999) {
+        $.getJSON(url).done((courses) => {
+          var chosenCourses = courses.splice(numSeen, numLoad);
+          numSeen += 3;
+          chosenCourses.forEach((course) => {
+            var newCourse = $(`
+              <div class="col-md-4 col-sm-6">
+                <a href="/courses/${course.code}" class="thumbnail">
+                  <img src="/assets/images/${course.image}">
+                  <div class="caption">
+                    <div class="container-fluid">
+                      <h3>${course.title}</h3>
+                      <p>${course.description}</p>
+                      <p><span>${course.price} บาท</span></p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            `)
+            setTimeout(() => {
+              $("#content").append(newCourse);
+            }, 300);
+          });
+        }).fail((err) => {
+          console.log(err);
+        });
+      }
+    });
+  });
+</script>
 <% include ../partials/footer %>

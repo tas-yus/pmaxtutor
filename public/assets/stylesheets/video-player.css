@@ -1,18 +1,51 @@
+html, body {margin: 0; height: 100%; overflow: hidden}
+
+body {
+  display: flex;
+}
+
+#overview-btn {
+  outline: none;
+}
+
+#QA-btn {
+  outline: none;
+}
+
 .videoControls {
   width: 100%;
   font-size: 20px;
   position: absolute;
-  z-index:999;
-  bottom: 0%;
+  bottom: 0;
   background: -moz-linear-gradient(bottom, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
   background: -webkit-linear-gradient(bottom, rgba(0,0,0,0.80) 0%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(to top, rgba(0,0,0,0.80) 0%,rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   padding-bottom: 15px;
-  z-index: 2147483647;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
 }
 
-.videoControls span, .videoControls div {
-  display: inline-block;
+.bottom-level {
+  display: flex;
+  justify-content: space-between;
+}
+
+.top-level {
+  display: flex;
+  justify-content: space-between;
+}
+
+.left-side {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-basis: 60%;
+}
+
+.right-side {
+  display: flex;
+  flex-direction: row;
 }
 
 .btnFullscreen, .btnMute, .btnPlay, .btnForward, .btnBack, .btnSpeed, .btnOptions  {
@@ -26,14 +59,13 @@
 }
 
 .videoOptions, .videoFullscreen {
-  float: right;
   text-align: right;
   padding: 8px;
 }
 
 .videoTime {
-  text-align: right;
-  width: 9%;
+  text-align: center;
+  width: 10%;
   font-size: 17px;
   text-shadow: 2px 2px 10px #222;
   text-shadow: 1px 1px 2px #111;
@@ -41,19 +73,18 @@
 }
 
 .videoSeekBar {
-  width: 89%;
+  flex-basis: 89%;
 }
 
 .videoVolumeBar {
-  width: 10%;
+  flex-basis: 20%;
 }
 
 .videoLabels {
   width: 100%;
   position: absolute;
   background:#000;
-  z-index: 2147483647;
-  top: 0%;
+  z-index: 999;
   background: -moz-linear-gradient(top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
   background: -webkit-linear-gradient(top, rgba(0,0,0,0.80) 0%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(to bottom, rgba(0,0,0,0.80) 0%,rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
@@ -63,39 +94,13 @@
   color: #fff;
 }
 
-
-@media screen and (max-width: 1024px) {
-  .videoTime {
-    font-size: 15px;
-    width: 9%;
-  }
-  .videoSeekBar {
-    width: 89%;
-  }
-  .QA button.btn.btn-lg, .QA a.btn.btn-lg {
-    font-size: 16px;
-  }
-  .videoName h2 {
-    font-size: 23px;
-  }
-  .videoName p {
-    font-size: 14px;
-  }
-  .btnFullscreen, .btnMute, .btnPlay, .btnForward, .btnBack, .btnSpeed, .btnOptions  {
-    font-size: 25px;
-  }
-  .nextVideo a.btn {
-    font-size: 15px;
-  }
-}
-
 @media screen and (max-width: 950px) {
   .videoTime {
     font-size: 15px;
     width: 12%;
   }
   .videoSeekBar {
-    width: 86%;
+    width: 82%;
   }
   .QA button.btn.btn-lg, .QA a.btn.btn-lg {
     font-size: 14px;
@@ -120,7 +125,7 @@
     width: 15%;
   }
   .videoSeekBar {
-    width: 83%;
+    width: 81%;
   }
   .QA button.btn.btn-lg, .QA a.btn.btn-lg {
     font-size: 12px;
@@ -317,4 +322,167 @@ video::-moz-media-controls-enclosure {
 .nextVideo i {
   padding-left: 7px;
   vertical-align: center;
+}
+
+.video-content {
+  position: relative;
+  top: 0;
+  left: 0;
+  flex-basis: 100%;
+  height: 100vh;
+}
+
+video {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+.course-overview {
+  order: -1;
+  flex-basis: 0;
+  flex-grow: 0;
+  -webkit-transition: all 0.6s ease;
+  -moz-transition: all 0.6s ease;
+  -o-transition: all 0.6s ease;
+  transition: all 0.6s ease;
+  overflow: auto;
+  background-color: #F2F3F5;
+}
+
+.inner-left {
+  overflow: hidden;
+  opacity: 0;
+  width: 450px;
+  left: -450px;
+  -webkit-transition: all 0.4s ease;
+  -moz-transition: all 0.4s ease;
+  -o-transition: all 0.4s ease;
+  transition: all 0.4s ease;
+}
+
+.inner-right {
+  overflow: hidden;
+  opacity: 0;
+  width: 450px;
+  right: -450px;
+  -webkit-transition: all 0.4s ease;
+  -moz-transition: all 0.4s ease;
+  -o-transition: all 0.4s ease;
+  transition: all 0.4s ease;
+}
+
+.wrapper-left-opened {
+  overflow: auto;
+  width: 100%;
+  opacity: 1.0;
+  left: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+.wrapper-right-opened {
+  overflow: auto;
+  width: 100%;
+  opacity: 1.0;
+  left: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+.questions-and-answers {
+  width: 450px;
+  order: 1;
+  flex-basis: 0;
+  flex-grow: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  overflow: auto;
+  background-color: #F2F3F5;
+}
+
+.opened {
+  flex-basis: 450px;
+  flex-grow: 0;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  z-index: 1000;
+}
+
+.content-small {
+  flex-basis: 450px;
+  flex-grow: 1;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
+
+@media screen and (max-width: 960px) {
+  .content-small {
+    flex-basis: 0px;
+    flex-grow: 0;
+  }
+  .opened {
+    flex-grow: 1;
+  }
+}
+
+.inner-right h3 {
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.question-and-answer-wrapper {
+  margin: 20px;
+  border-radius: 5px;
+  background-color: #eee;
+}
+
+.question-section {
+  padding: 10px 20px;
+}
+
+.question-section h4 {
+  font-weight: bold;
+  color: #006699;
+  text-shadow: 1px 1px 1px #ccc;
+}
+
+.question-header {
+  font-weight: 700;
+}
+
+.answer-section {
+  padding-left: 20px;
+}
+
+.answer-body {
+  margin: 10px 0;
+}
+
+#askQuestion {
+  margin: 20px;
+}
+
+.tiny {
+  width: 10%;
+  font-size: 13px;
+}
+
+ul {
+  list-style: none;
 }

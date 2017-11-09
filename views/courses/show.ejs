@@ -58,53 +58,37 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-8">
-                <!--<div class="row">-->
-                <!--    <div class="col-sm-4">-->
-                <!--        <div class="list-group" id="part-list" data-spy="affix">-->
-                <!--             <% var ctr = 0; %>-->
-                <!--              <% parts.forEach((part) => { %>-->
-                <!--              <% ctr++; %>-->
-                <!--                  <% if (ctr === 1) { %>-->
-                <!--                      <a href="#<%= part.code %>" class="list-group-item active"><%= part.title %></a>-->
-                <!--                  <% } else { %>-->
-                <!--                      <a href="#<%= part.code %>" class="list-group-item"><%= part.title %></a>-->
-                <!--                  <% } %>-->
-                <!--              <% }); %>  -->
-                <!--        </div>-->
-                <!--    </div>-->
-                    <!--<div class="col-sm-8">-->
-                         <% parts.forEach((part) => { %>
-                             <div class="group-item" id="<%= part.code %>">
-                                <h3><%= part.title %></h3>
-                                <div class="thumbnail">
-                                    <img src="/assets/images/<%= part.image%>">
-                                </div>
-                                <p><%= part.description %></p>
-                                <% if (user) { %>
-                                    <% if (user.isAdmin) { %>
-                                        <h4><%= part.price %> Baht</h4>
-                                        <a href="/courses/<%= course.code %>/learn/" class="btn btn-primary">View</a>
-                                    <% } else if(checkPartOwnership(user.parts, part._id.toString()) === true) { %>
-                                        <a href="/courses/<%= course.code %>/learn" class="btn btn-primary">Learn</a>
-                                    <% } else if (checkPartOwnership(user.parts, part._id.toString()) === "expired") { %>
-                                        <a href="/courses/<%= course.code %>/learn" class="btn btn-primary disabled">Learn</a>
-                                        <a href="/courses/<%= course.code %>/parts/<%= part.code %>/extend" class="btn btn-success">Extend</a>
-                                    <% } else { %>
-                                        <h4><%= part.price %> Baht</h4>
-                                        <form action="/courses/<%= course.code %>/buy" method="GET">
-                                            <button class="btn btn-danger">Buy Now</button>
-                                        </form>
-                                        <form action="/courses/<%= course._id %>/cart" method="POST">
-                                            <button class="btn btn-success">Add To Cart</button>
-                                        </form>
-                                    <% } %>
-                                <% } %>
-                             </div>
-                             <hr>
-                        <% }); %>
-                    <!--</div>-->
-                <!--</div>-->
-                <% include ../partials/overview %>
+              <% parts.forEach((part) => { %>
+                  <div class="group-item" id="<%= part.code %>">
+                     <h3><%= part.title %></h3>
+                     <div class="thumbnail">
+                         <img src="/assets/images/<%= part.image%>">
+                     </div>
+                    <div class="captions">
+                      <p><%= part.description %></p>
+                      <% if (user) { %>
+                          <% if (user.isAdmin) { %>
+                              <h4><%= part.price %> Baht</h4>
+                              <a href="/courses/<%= course.code %>/learn/" class="btn btn-primary">View</a>
+                          <% } else if(checkPartOwnership(user.parts, part._id.toString()) === true) { %>
+                              <a href="/courses/<%= course.code %>/learn" class="btn btn-primary">Learn</a>
+                          <% } else if (checkPartOwnership(user.parts, part._id.toString()) === "expired") { %>
+                              <a href="/courses/<%= course.code %>/learn" class="btn btn-primary disabled">Learn</a>
+                              <a href="/courses/<%= course.code %>/parts/<%= part.code %>/extend" class="btn btn-success">Extend</a>
+                          <% } else { %>
+                              <div class="price-and-buy">
+                                <h4><%= part.price %> Baht</h4>
+                                <form action="/courses/<%= course.code %>/buy" method="GET">
+                                    <button class="btn btn-danger">Buy Now</button>
+                                </form>
+                              </div>
+                          <% } %>
+                      <% } %>
+                    </div>
+                  </div>
+                  <hr>
+             <% }); %>
+             <% include ../partials/overview %>
             </div>
         </div>
     <div>

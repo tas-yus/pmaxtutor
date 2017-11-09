@@ -1,10 +1,20 @@
 <% include ../partials/header %>
-    <form action="/courses/<%= course.code %>/buy" method="POST">
-        <% parts.forEach((part) => { %>
-            <label><%= part.title %></label><input type="checkbox" name="selectedParts" value="<%= part._id.toString() %>">
-        <% }); %>
-        <label>Buy All</label><input type="checkbox" id="checkAllRadios">
-        <button class="btn btn-success">Buy now</button>
-    </form>
+    <div class="container">
+      <div class="buy-and-checkout">
+        <form action="/courses/<%= course.code %>/buy" method="POST">
+            <ul>
+              <% parts.forEach((part) => { %>
+                  <div>
+                    <label><%= part.title %></label><input type="checkbox" name="selectedParts" value="<%= part._id.toString() %>">
+                  </div>
+              <% }); %>
+              <div>
+                <label>Buy All</label><input type="checkbox" id="checkAllRadios">
+              </div>
+            </ul>
+            <button class="btn btn-success">Buy now</button>
+        </form>
+      </div>
+    </div>
     <script src="/assets/js/checkbox.js"></script>
 <% include ../partials/footer %>

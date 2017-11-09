@@ -18,15 +18,34 @@ methodObj.getCourseInArrayByTitle = function (courseArray, title) {
     return result? result[0] : null; // or undefined
 };
 
-methodObj.getPartInUserArrayByCourseTitle = function (partArray, courseTitle) {
-    var result  = partArray.filter(function(partBundle){return partBundle.part.course === courseTitle} );
+// methodObj.getPartInUserArrayByCourseTitle = function (partArray, courseTitle) {
+//     var result  = partArray.filter(function(partBundle){return partBundle.part.course === courseTitle} );
+//     return result? result : null; // or undefined
+// };
+
+methodObj.getPartInArrayByCourseId = function (partArray, courseId) {
+    var result  = partArray.filter(function(o){
+      if (o.part) {
+        if (o.part.course._id) {
+            return o.part.course_id.equals(courseId);
+        } else if (o.part.course) {
+            return o.part.course.equals(courseId);
+        }
+      } else {
+        if (o.course._id) {
+             return o.course._id.equals(courseId);
+         } else if (o.course) {
+             return o.course.equals(courseId);
+         }
+      }
+    });
     return result? result : null; // or undefined
 };
 
-methodObj.getPartInPartArrayByCourseTitle = function (partArray, courseTitle) {
-    var result  = partArray.filter(function(part){return part.course === courseTitle;} );
-    return result? result : null; // or undefined
-};
+// methodObj.getPartInPartArrayByCourseTitle = function (partArray, courseTitle) {
+//     var result  = partArray.filter(function(part){return part.course === courseTitle;} );
+//     return result? result : null; // or undefined
+// };
 
 methodObj.getVideoInArrayById = function (arr, id) {
     var result  = arr.filter(function(o){

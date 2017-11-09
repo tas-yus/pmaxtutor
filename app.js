@@ -10,6 +10,7 @@ var connectMongo = require("connect-mongo");
 var MongoStore = connectMongo(expressSession);
 var localStrategy = require("passport-local");
 var app = express();
+var multer = require("multer");
 var Course = require("./models/course");
 var User = require("./models/user");
 var Part = require("./models/part");
@@ -17,10 +18,10 @@ var Video = require("./models/video");
 var middleware = require("./middleware");
 var seedDB = require("./seed");
 var methodOverride = require("method-override");
-var fileUpload = require('express-fileupload');
 var schedule = require('node-schedule');
 var checkExpiry = require("./method/checkExpiry");
 var path = require("path");
+var config = require("./config");
 
 
 // ======== ROUTES ========
@@ -32,6 +33,10 @@ var videoRoutes = require("./routes/videos");
 var resourceRoutes = require("./routes/resources");
 var questionRoutes = require("./routes/questions");
 var answerRoutes = require("./routes/answers");
+var courseApiRoutes = require("./routes/apiRoutes/courses");
+var partApiRoutes = require("./routes/apiRoutes/parts");
+var questionApiRoutes = require("./routes/apiRoutes/questions");
+var answerApiRoutes = require("./routes/apiRoutes/answers");
 // ========================
 
 mongoose.Promise = Promise;
@@ -39,7 +44,6 @@ mongoose.connect("mongodb://localhost:27017/pmaxapp", {useMongoClient: true});
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
-app.use(fileUpload());
 app.use(flash());
 seedDB();
 
@@ -73,7 +77,14 @@ app.use(async function(req, res, next) {
   user = await Course.populate(user, {path: "cartCourses"});
   user = await Part.populate(user, {path: "parts.part"});
   user = await Video.populate(user, {path: "videos.video"});
-  user = await Video.populate(user, {path: "mostRecentVideo", select: "code part title"});
+  user = await Video.populate(user, {
+    path: "mostRecentVideo",
+    select: "code part title",
+    populate: {
+      path: "part",
+      model: "Part"
+    }
+  });
   res.locals.user = user;
   res.locals.error = req.flash("error");
   res.locals.success = req.flash("success");
@@ -89,6 +100,10 @@ app.use("/courses/:courseCode/parts/:partCode/videos", videoRoutes);
 app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/resources", resourceRoutes);
 app.use("/courses/:courseCode", questionRoutes);
 app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questionCode/answers", answerRoutes);
+app.use("/api/courses", courseApiRoutes);
+app.use("/api/courses/:courseId/parts", partApiRoutes);
+app.use("/api/courses/:courseCode", questionApiRoutes);
+app.use("/api/courses/:courseCode/parts/:partCode/videos/:videoCode/questions/:questionCode/answers", answerApiRoutes);
 // ========================
 
 // AGENDA
@@ -108,13 +123,18 @@ app.use("/courses/:courseCode/parts/:partCode/videos/:vidCode/questions/:questio
 // fix all param routes so they dont crash
 // 404 Percentage
 // Handle Await Errors!
+// Check VIDEOS UPDATE AND CREATE
+// REST APIS
+// Continue with APIs & Now change everything to reflect the change in model
+// FIX bug after check out , checkExpiry Fail!
+// AJAX QUESTIONs
 
-schedule.scheduleJob('0,30 5 * * * *', function(){
+schedule.scheduleJob('0,30 5 5 * * *', function(){
     checkExpiry();
 });
 
 app.get('*', function(req, res){
-  res.send('404 not found', 404);
+  res.status(404).send('404 not found');
 });
 
 app.listen(3000, () => {

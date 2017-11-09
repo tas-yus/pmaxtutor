@@ -9,6 +9,7 @@ var Answer = require("./models/answer");
 var Order = require("./models/order");
 var forEach = require('async-foreach').forEach;
 var method = require("./method");
+var async = require("async");
 
 var data = [
     {
@@ -64,14 +65,95 @@ var data = [
         video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
         price: 1900,
         order: 6
-    }
+    },
+    {
+        title: "POSN1",
+        code: "posn1",
+        image: "chem1.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 7
+    },
+    {
+        title: "POSN2",
+        code: "posn2",
+        image: "chem2.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 8
+    },
+    {
+        title: "POSN3",
+        code: "posn3",
+        image: "chem3.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 9
+    },
+    {
+        title: "POSN4",
+        code: "posn4",
+        image: "chem4.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 10
+    },
+    {
+        title: "POSN5",
+        code: "posn5",
+        image: "chem5.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 11
+    },
+    {
+        title: "POSN6",
+        code: "posn6",
+        image: "chem6.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 12
+    },
+    {
+        title: "Organic Chem1",
+        code: "organic-chem1",
+        image: "chem1.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 13
+    },
+    {
+        title: "Organic Chem2",
+        code: "organic-chem2",
+        image: "chem2.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 14
+    },
+    {
+        title: "Organic Chem3",
+        code: "organic-chem3",
+        image: "chem3.jpg",
+        description: "อัตราการเกิดปฏิกิริยา (Rate of reaction) สมดุลเคมี (Chemical Equilibrium) รวมไปถึงเนื้อหาชั้นสูงเช่นเรื่องเทอร์โมไดนามิกส์ (Thermodynamics)",
+        video: "https://www.youtube.com/embed/vMTPl2Iv2e8",
+        price: 1900,
+        order: 15
+    },
 ];
 
 var videos = [
     {
         title: "Electron Configuration",
-        part: "Atom",
-        course: "Chem Olympic 1",
+        partTitle: "Atom",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "15:50",
         previewAllowed: true,
@@ -79,8 +161,8 @@ var videos = [
     },
     {
         title: "Atomic Model",
-        part: "Atom",
-        course: "Chem Olympic 1",
+        partTitle: "Atom",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "12:49",
         previewAllowed: true,
@@ -88,120 +170,120 @@ var videos = [
     },
     {
         title: "spdf",
-        part: "Atom",
-        course: "Chem Olympic 1",
+        partTitle: "Atom",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "20:12",
         order: 3
     },
     {
         title: "2882 Config",
-        part: "Atom",
-        course: "Chem Olympic 1",
+        partTitle: "Atom",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "20:12",
         order: 4
     },
     {
         title: "[Ar] using Noble gas",
-        part: "Atom",
-        course: "Chem Olympic 1",
+        partTitle: "Atom",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "20:12",
         order: 5
     },
     {
         title: "Electron Diagram",
-        part: "Atom",
-        course: "Chem Olympic 1",
+        partTitle: "Atom",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "20:12",
         order: 6
     },
     {
         title: "Quantum Number",
-        part: "Atom",
-        course: "Chem Olympic 1",
+        partTitle: "Atom",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "20:12",
         order: 7
     },
     {
         title: "Heisenberg",
-        part: "Atom",
-        course: "Chem Olympic 1",
+        partTitle: "Atom",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "20:12",
         order: 8
     },
     {
         title: "Excited State",
-        part: "Spectra",
-        course: "Chem Olympic 1",
+        partTitle: "Spectra",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "12:41",
         order: 9
     },
     {
         title: "Covalent Bond",
-        part: "Chemical Bonding",
-        course: "Chem Olympic 1",
+        partTitle: "Chemical Bonding",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "09:56",
         order: 10
     },
     {
         title: "VSEPR",
-        part: "Chemical Bonding",
-        course: "Chem Olympic 1",
+        partTitle: "Chemical Bonding",
+        courseTitle: "Chem Olympic 1",
         path: "small.mp4",
         duration: "11:72",
         order: 11
     },
     {
         title: "What is mol?",
-        part: "Stoichiometry",
-        course: "Chem Olympic 2",
+        partTitle: "Stoichiometry",
+        courseTitle: "Chem Olympic 2",
         path: "small.mp4",
         duration: "12:44",
         order: 1
     },
     {
         title: "Unit Conversion Factor",
-        part: "Stoichiometry",
-        course: "Chem Olympic 2",
+        partTitle: "Stoichiometry",
+        courseTitle: "Chem Olympic 2",
         path: "small.mp4",
         duration: "08:62",
         order: 2
     },
     {
         title: "Percentage by weight",
-        part: "Empirical Formula",
-        course: "Chem Olympic 2",
+        partTitle: "Empirical Formula",
+        courseTitle: "Chem Olympic 2",
         path: "small.mp4",
         duration: "05:29",
         order: 3
     },
     {
         title: "Molar ratio",
-        part: "Empirical Formula",
-        course: "Chem Olympic 2",
+        partTitle: "Empirical Formula",
+        courseTitle: "Chem Olympic 2",
         path: "small.mp4",
         duration: "10:41",
         order: 4
     },
     {
         title: "What is Equilibrium?",
-        part: "Equilibrium",
-        course: "Chem Olympic 3",
+        partTitle: "Equilibrium",
+        courseTitle: "Chem Olympic 3",
         path: "small.mp4",
         duration: "05:50",
         order: 1
     },
     {
         title: "Equilibrium constant",
-        part: "Equilibrium",
-        course: "Chem Olympic 3",
+        partTitle: "Equilibrium",
+        courseTitle: "Chem Olympic 3",
         path: "small.mp4",
         duration: "09:55",
         order: 2
@@ -210,7 +292,7 @@ var videos = [
 
 var parts = [
     {
-        course: "Chem Olympic 1",
+        courseTitle: "Chem Olympic 1",
         title: "Atom",
         code: "atom",
         image: "chem1-a.jpg",
@@ -218,7 +300,7 @@ var parts = [
         price: 600
     },
     {
-        course: "Chem Olympic 1",
+        courseTitle: "Chem Olympic 1",
         title: "Spectra",
         code: "spectra",
         image: "chem1-s.jpg",
@@ -226,7 +308,7 @@ var parts = [
         price: 650
     },
     {
-        course: "Chem Olympic 2",
+        courseTitle: "Chem Olympic 2",
         title: "Stoichiometry",
         code: "stoichiometry",
         image: "chem2-s.jpg",
@@ -234,7 +316,7 @@ var parts = [
         price: 700
     },
     {
-        course: "Chem Olympic 2",
+        courseTitle: "Chem Olympic 2",
         title: "Empirical Formula",
         code: "empirical-formula",
         image: "chem2-ef.jpg",
@@ -242,7 +324,7 @@ var parts = [
         price: 850
     },
     {
-        course: "Chem Olympic 1",
+        courseTitle: "Chem Olympic 1",
         title: "Chemical Bonding",
         code: "chemical-bonding",
         image: "chem1-cb.jpg",
@@ -250,7 +332,7 @@ var parts = [
         price: 650
     },
     {
-        course: "Chem Olympic 3",
+        courseTitle: "Chem Olympic 3",
         title: "Equilibrium",
         code: "equilibrium",
         image: "chem3-eq.jpg",
@@ -422,49 +504,80 @@ function seedDB() {
     // setTimeout(setUpQA, 2000);
 
     function linkVideos() {
-        Part.find({}, (err, parts) => {
-            if (err) {
-                return console.log(err);
-            }
-            parts.forEach((part) => {
-                Video.find({ part: part.title }, (err, foundVideos) => {
-                    if (err) {
-                        return console.log(err);
-                    }
-                    part.videos = foundVideos;
-                    part.duration = method.getDuration(foundVideos);
-                    part.save((err) => {
-                       if (err) {
-                           return console.log(err);
-                       }
-                       console.log("Vids Linked With Parts: " + part.title);
-                    });
-                });
+      Part.find({}, (err, parts) => {
+        if (err) {
+            return console.log(err);
+        }
+        async.forEachSeries(parts, (part, cb1) => {
+          Video.find({ partTitle: part.title }, (err, foundVideos) => {
+            if (err) return console.log(err);
+            part.videos = foundVideos;
+            part.duration = method.getDuration(foundVideos);
+            async.forEachSeries(foundVideos, (vid, cb2) => {
+              vid.part = part;
+              vid.save((err) => {
+                if (err) return console.log(err);
+                cb2();
+              });
+            }, (err) => {
+              if (err) return console.log(err);
+              part.save((err) => {
+                 if (err) return console.log(err);
+                 console.log("Vids Linked With Parts: " + part.title);
+                 cb1();
+              });
             });
+          });
         });
+      });
    }
 
    function linkParts() {
+     var numVideos;
       Course.find({}, (err, courses) => {
         if (err) return console.log(err);
-        forEach(courses, function(course){
-          var ctr = 0;
-          var numVideos = course.numVideos;
-          var done = this.async();
-          Part.find({course: course.title}, (err, foundParts) => {
+        async.forEachSeries(courses, (course, cb1) => {
+          numVideos = course.numVideos;
+          Part.find({courseTitle: course.title}, (err, foundParts) => {
             if (err) return console.log(err);
-            foundParts.forEach((part) => {
+            async.forEachSeries(foundParts, (part, cb2) => {
               numVideos += part.videos.length;
               course.parts.push(part);
-              ctr++;
-              if (ctr === foundParts.length) {
-                course.numVideos = numVideos;
-                course.save((err) => {
+              part.course = course;
+              part.save((err) => {
+                if (err) return console.log(err);
+                cb2();
+              });
+            }, (err) => {
+              if (err) return console.log(err);
+              course.numVideos = numVideos;
+              course.save((err) => {
+                if (err) return console.log(err);
+                console.log("Parts Linked With Courses: " + course.title);
+                cb1();
+              });
+            });
+          });
+        }, (err) => {
+          if (err) return console.log(err);
+          Part.find({}, (err, parts) => {
+            if (err) {
+                return console.log(err);
+            }
+            async.forEachSeries(parts, (part, cb1) => {
+              Video.find({ partTitle: part.title }, (err, foundVideos) => {
+                if (err) return console.log(err);
+                async.forEachSeries(foundVideos, (vid, cb2) => {
+                  vid.course = part.course;
+                  vid.save((err) => {
+                    if (err) return console.log(err);
+                    cb2();
+                  });
+                }, (err) => {
                   if (err) return console.log(err);
-                  done();
-                  console.log("Parts Linked With Courses: " + course.title);
+                  cb1();
                 });
-              }
+              });
             });
           });
         });

@@ -10,13 +10,30 @@ var method = require("./../method");
 var fs = require("fs");
 var config = require("./../config");
 var async = require("async");
+var path = require("path");
+var multer = require("multer");
+var storage = multer.diskStorage({
+  destination: __dirname + config.imagePath,
+  filename: function (req, file, cb) {
+    var filename = req.body.fileName? req.body.fileName : method.createCode(req.body.title);
+    filename += path.extname(file.originalname);
+    cb(null, filename);
+  }
+});
+
+var upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 2 * 1024 * 1024 // 2mb, in bytes
+  }
+});
 
 // LEARN PART
 router.get("/:partCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, middleware.canLearn, (req, res) => {
   const render = async () => {
     var course = await Course.findOne({code: req.params.courseCode});
     var part = await Part.findOne({code: req.params.partCode});
-    var videos = await Video.find({ part: part.title }).populate("resources").exec();
+    var videos = await Video.find({ part: part._id }).populate("resources").exec();
     res.render("parts/index", {part, course, videos});
   }
   render();
@@ -31,31 +48,31 @@ router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
     });
 });
 
-// CREATE PART
-router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-  if (!req.files.file) {
-      return res.redirect(`/courses/${req.params.courseCode}/parts/new`);
+// CREATE PART **fix
+router.post("/", middleware.isLoggedIn, middleware.isAdmin, upload.single("file"), async (req, res) => {
+  var path;
+  if (!req.file && !req.body.chosenImage) {
+    req.flash("error", "โปรด upload ไฟล์ หรือเลือกภาพที่ต้องการ");
+    return res.redirect(`/courses/${req.params.courseCode}/parts/new`);
+  } else if (req.file) {
+    path = req.file.filename;
+  } else {
+    path = req.body.chosenImage;
   }
-  let file = req.files.file;
-  var path = req.body.fileName ? req.body.fileName + ".jpg" : method.createCode(req.body.title) + ".jpg";
-  file.mv(__dirname + '/../public/assets/images/' + path).then( async () => {
-    var course = await Course.findOne({code: req.params.courseCode});
-    var newPart = {
-      title: req.body.title,
-      code: method.createCode(req.body.title),
-      description: req.body.description,
-      price: req.body.price,
-      image: path,
-      course: course.title
-    };
-    var part = await Part.create(newPart);
-    course.parts.push(part);
-    course.save((err) => {
-      if (err) return console.log(err);
-      res.redirect(`/courses/${course.code}/parts/${part.code}/videos/new`);
-    });
-  }).catch((err) => {
-    console.log(err);
+  var course = await Course.findOne({code: req.params.courseCode});
+  var newPart = {
+    title: req.body.title,
+    code: method.createCode(req.body.title),
+    description: req.body.description,
+    price: req.body.price,
+    image: path,
+    course: course._id
+  };
+  var part = await Part.create(newPart);
+  course.parts.push(part);
+  course.save((err) => {
+    if (err) return console.log(err);
+    res.redirect(`/courses/${course.code}/learn`);
   });
 });
 
@@ -75,31 +92,31 @@ router.get("/:partCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, r
 });
 
 // UPDATE PART
-router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
+router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, upload.single("file"), async (req, res) => {
   var part = await Part.findOne({code: req.params.partCode});
   var course = await Course.findOne({code: req.params.courseCode});
   var oldPartId = part._id.toString();
-  var oldPart = part.title;
   var changedTitle = Boolean(part.title !== req.body.title);
   var path;
-  if (!req.files.file && !req.body.chosenImage) {
-    photoStatus = "none";
-  } else if (req.files.file) {
-    photoStatus = "uploaded";
-    path = req.body.fileName? req.body.fileName + ".jpg" : method.createCode(req.body.title) + ".jpg";
-  } else {
-    photoStatus = "chosen"
+  if (req.file) {
+    path = req.file.filename;
+  } else if (req.body.chosenImage) {
     path = req.body.chosenImage;
+  } else {
+    path = part.image;
   }
   part.title = req.body.title;
   part.code = method.createCode(req.body.title);
   part.price = req.body.price;
   part.description = req.body.description;
-  let file = req.files.file;
+  part.image = path;
+  part.save((err) => {
+    if (err) return console.log(err);
+  });
   async.waterfall([
     function(callback) {
       if (!changedTitle) return callback(null, null);
-      Video.find({part: oldPart}, (err, videos) => {
+      Video.find({part: oldPartId}, (err, videos) => {
         if (err) return console.log(err);
         callback(null, videos);
       });
@@ -115,24 +132,10 @@ router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, async (req, 
       }, (err) => {
         callback();
       });
-    },
-    function(callback) {
-      if (photoStatus !== "uploaded") return callback();
-      file.mv(__dirname + config.imagePath + path, (err) => {
-        if (err) return console.log(err);
-        callback();
-      });
-    },
-    function(callback) {
-      if (photoStatus === "none") return callback();
-      part.image = path;
-      callback();
     }
   ], (err) => {
-    part.save((err) => {
-      if (err) return console.log(err);
-      res.redirect("/dashboard");
-    });
+    if (err) return console.log(err);
+    res.redirect("/dashboard");
   });
 });
 

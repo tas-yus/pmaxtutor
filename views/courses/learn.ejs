@@ -15,7 +15,7 @@
             <%= course.title %> Completed!
           </a>
         <% } else if (user.mostRecentVideo) { %>
-          <a href="/courses/<%= course.code %>/parts/<%= createCode(user.mostRecentVideo.part) %>/videos/<%= user.mostRecentVideo.code %>/learn" class="btn btn-lg btn-primary">
+          <a href="/courses/<%= course.code %>/parts/<%= user.mostRecentVideo.part.code %>/videos/<%= user.mostRecentVideo.code %>/learn" class="btn btn-lg btn-primary">
             ดู <%= user.mostRecentVideo.title %> ต่อ
           </a>
         <% } else { %>

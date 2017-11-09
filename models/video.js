@@ -5,9 +5,17 @@ autoIncrement.initialize(mongoose.connect("mongodb://localhost/pmaxapp", {useMon
 var VideoSchema = new mongoose.Schema({
     title: String,
     code: Number,
-    part: String,
+    partTitle: String,
+    part: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Part"
+    },
     thumbnail: String,
-    course: String,
+    courseTitle: String,
+    course: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course"
+    },
     path: String,
     duration: String,
     resources: [

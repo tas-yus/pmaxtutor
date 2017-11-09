@@ -1,6 +1,6 @@
 body {
     padding-top: 50px;
-    font-family: 'Lato', sans-serif;
+    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 .thumbnail>img {
     width: 100%;
@@ -365,4 +365,35 @@ div.panel-body:hover {
   color: #3de822;
   z-index: 99;
   text-shadow: 1px 1px 5px #333333;
+}
+
+.price-and-buy {
+  display: flex;
+  justify-content: space-between;
+}
+
+.buy-and-checkout {
+  margin-top: 30px;
+}
+
+.buy-and-checkout label {
+  cursor: pointer;
+}
+
+.buy-and-checkout ul {
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  padding: 0px;
+}
+
+.buy-and-checkout ul:last-child {
+  margin-bottom: 20px;
+}
+
+.buy-and-checkout div {
+  display: flex;
+  justify-content: space-between;
+  width: 30%;
+  padding: 5px;
 }

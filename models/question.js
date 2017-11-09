@@ -20,8 +20,8 @@ var QuestionSchema = new mongoose.Schema({
         default: []
     }],
     createdAt: {
-        type: Number,
-        default: new Date().getTime()
+        type: Date,
+        default: Date.now
     }
 });
 

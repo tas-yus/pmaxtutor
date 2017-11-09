@@ -32,23 +32,47 @@ var upload = multer({
 });
 
 // ALL COURSES
-router.get("/", (req, res) => {
-  Course.find({}).sort({order:1}).limit(6).exec((err, courses) => {
-    if (err) return console.log(err);
-    res.render("courses/index", {courses});
+router.get("/courses", (req, res) => {
+  Course.find({}).sort({order:1}).exec((err, courses) => {
+    if (err) {
+      return res.status(400).send("There's an error with the database");
+    } else {
+      if (!courses) {
+        return res.status(400).send("Cannot find courses");
+      }
+      res.status(200).json(courses);
+    }
   });
 });
 
-// NEW COURSE
-router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
-  var removeExtension = method.removeExtension
-  fs.readdir(__dirname + config.imagePath, (err, imgPaths) => {
-    res.render("courses/new", { imgPaths, removeExtension });
-  });
+router.get("/courses/:id", async (req, res) => {
+  try {
+    var course = await Course.findById(req.params.id).populate({
+      path: "parts",
+      model: "Part",
+      populate: {
+        path: "videos",
+        model: "Video"
+      }
+    }).exec();
+    if (!course) {
+      res.status(200).send("Cannot find a course with particular id");
+    } else {
+      res.status(400).send(course);
+    }
+  } catch(err) {
+    return res.status(200).send("There's an error with the database");
+  }
+  // var array = videos.map(function(vid){return vid.duration});
+  // var averageHours = method.getAverageHours(array);
+  // var checkPartOwnership = method.checkPartOwnership;
+  // var checkCourseOwnership = method.checkCourseOwnership;
+  // var checkCartCourseOwnership = method.checkCartCourseOwnership;
+  // res.render("courses/show", {course, parts, averageHours, checkPartOwnership, checkCourseOwnership, checkCartCourseOwnership});
 });
 
 // CREATE COURSE
-router.post("/", middleware.isLoggedIn, middleware.isAdmin, upload.single("file"), (req, res) => {
+router.post("/courses", upload.single("file"), (req, res) => {
   var path;
   if (!req.file && !req.body.chosenImage) {
     req.flash("error", "โปรด upload ไฟล์ หรือเลือกภาพที่ต้องการ");
@@ -70,11 +94,12 @@ router.post("/", middleware.isLoggedIn, middleware.isAdmin, upload.single("file"
       };
       Course.create(newCourse, (err, course) => {
         if (err) return console.log(err);
-        callback();
+        callback(null, course);
       });
     },
-  ], (err) => {
-    res.redirect("/dashboard");
+  ], (err, course) => {
+    if (err) return res.status(400).send("Something went wrong");
+    res.status(201).send(course);
   });
 });
 
@@ -201,7 +226,7 @@ router.get("/:courseCode", async (req, res) => {
 });
 
 // UPDATE COURSE
-router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, upload.single("file"), async (req, res) => {
+router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, async (req, res) => {
   try {
     var course = await Course.findOne({code: req.params.courseCode}).populate("parts").exec();
     if (!course) return res.redirect("/courses");
@@ -216,23 +241,21 @@ router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, upload.sin
   var changedTitle = (course.title !== req.body.title);
   var photoStatus;
   var path;
-  if (req.file) {
-    path = req.file.filename;
-  } else if (req.body.chosenImage) {
-    path = req.body.chosenImage;
+  if (!req.files.file && !req.body.chosenImage) {
+    photoStatus = "none";
+  } else if (req.files.file) {
+    photoStatus = "uploaded";
+    path = req.body.fileName? req.body.fileName + ".jpg" : method.createCode(req.body.title) + ".jpg";
   } else {
-    path = course.image;
+    photoStatus = "chosen"
+    path = req.body.chosenImage;
   }
-  // update course
   course.title = req.body.title;
   course.code = method.createCode(req.body.title);
   course.price = req.body.price;
   course.description = req.body.description;
   course.video = req.body.video;
-  course.image = path;
-  course.save((err) => {
-    if (err) return console.log(err);
-  });
+  let file = req.files.file;
   async.waterfall([
     // change Title of Part and videos
     function(callback) {
@@ -274,10 +297,25 @@ router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, upload.sin
       }, (err) => {
         callback();
       });
+    },
+    // deal with file
+    function(callback) {
+      if (photoStatus !== "uploaded") return callback();
+      file.mv(__dirname + config.imagePath + path, (err) => {
+        if (err) return console.log(err);
+        callback();
+      });
+    },
+    function(callback) {
+      if (photoStatus === "none") return callback();
+      course.image = path;
+      callback();
     }
   ], (err) => {
-    if (err) return console.log(err);
-    res.redirect("/dashboard");
+    course.save((err) => {
+      if (err) return console.log(err);
+      res.redirect("/dashboard");
+    });
   });
 });
 

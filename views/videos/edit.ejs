@@ -15,6 +15,7 @@
           <div class="col-sm-6">
             <div class="form-group">
                 <input class="form-control" type="text" name="videoFileName" placeholder="ชื่อไฟล์">
+                <input type="hidden" name="originalFileName" value="<%= removeExtension(video.path) %>">
             </div>
             <div class="form-group">
                 <input type="file" name="videoFile">

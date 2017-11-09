@@ -56,9 +56,8 @@ router.get("/logout", function(req, res){
 router.get("/dashboard", middleware.isLoggedIn, async (req, res) => {
   var courses = await Course.find({}).populate("users").populate("expiredUsers").populate("parts").exec();
   var parts = await Part.find({}).populate("users").populate("expiredUsers").exec();
-  var getPartInUserArrayByCourseTitle = method.getPartInUserArrayByCourseTitle;
-  var getPartInPartArrayByCourseTitle = method.getPartInPartArrayByCourseTitle;
-  res.render("users/dashboard", {courses, parts, getPartInUserArrayByCourseTitle, getPartInPartArrayByCourseTitle});
+  var getPartInArrayByCourseId = method.getPartInArrayByCourseId;
+  res.render("users/dashboard", {courses, parts, getPartInArrayByCourseId});
 });
 
 module.exports = router;

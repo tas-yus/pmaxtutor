@@ -9,164 +9,181 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Kanit:300,400" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="/assets/js/main.js"></script>
   </head>
   <body style="padding: 0; background-color: black">
-    <video width="100%" id="videoPlayer">
-      <source src="/assets/videos/test.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    <div class="videoLabels container">
-      <div class="videoName">
-        <h2><%= vid.title %></h2>
-        <br>
-        <p>Part: <%= vid.part %></p>
-      </div>
-      <div class="QA">
-        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
-          Launch Q&A
-        </button>
-        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal2">
-          Course Overview
-        </button>
-        <a class="btn btn-primary btn-lg" href="/courses/<%= courseCode %>/learn">
-          Go To Dashboard
-        </a>
-      </div>
-    </div>
-    <div class="videoControls container">
-        <div class="videoSeekBar">
-          <progress id='progress-bar' min='0' max='100' value='0'>0% played</progress>
-          <!-- <input type="range" class="seek-bar" value="0"> -->
+    <div class="video-content">
+      <video id="videoPlayer">
+        <source src="/assets/videos/test.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+      </video>
+      <div class="videoLabels container">
+        <div class="videoName">
+          <h2><%= vid.title %></h2>
+          <br>
+          <p>Part: <%= vid.part.title %></p>
         </div>
-        <div class="videoTime">
-          <span class="current">0:00</span>/<span class="duration">0:00</span>
-        </div>
-        <div class="videoPlay">
-          <a href="#" class="btnPlay"><span class="glyphicon glyphicon-play"></span></a>
-        </div>
-        <div class="videoBack">
-          <a href="#" class="btnBack"><span class="glyphicon glyphicon-step-backward"></span></a>
-        </div>
-        <div class="videoSpeed dropup">
-          <a href="#" class="btnSpeed" class="btnOptions dropdown-toggle" id="videoSpeed" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-menu-up"></span></a>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
-            <li><a href="#" class="super-fast">2.0x</a></li>
-            <li><a href="#" class="fast">1.5x</a></li>
-            <li><a href="#" class="slightly-fast">1.25x</a></li>
-            <li><a href="#" class="normal">1.0x</a></li>
-            <li><a href="#" class="slow">0.75x</a></li>
-            <li><a href="#" class="super-slow">0.5x</a></li>
-          </ul>
-        </div>
-        <div class="videoForward">
-          <a href="#" class="btnForward"><span class="glyphicon glyphicon-step-forward"></span></a>
-        </div>
-        <div class="videoMute">
-          <a href="#" class="btnMute"><span class="glyphicon glyphicon-volume-up"></span></a>
-        </div>
-        <div class="videoVolumeBar">
-          <progress id='volume-bar' min='0' max='1' step="0.1" value='1'>0% played</progress>
-        </div>
-        <div class="videoFullscreen">
-          <a href="#" class="btnFullscreen enterFullScreenBtn"><span class="glyphicon glyphicon-fullscreen"></span></a>
-        </div>
-        <div class="videoOptions dropup">
-          <a href="#" class="btnOptions dropdown-toggle" id="videoOptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span></a>
-          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="videoOptions">
-            <li><a href="#" class="high-quality">720p</a></li>
-            <li><a href="#" class="medium-quality">480p</a></li>
-            <li><a href="#">360p</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Download Lecture</a></li>
-          </ul>
-        </div>
-        <div class="nextVideo">
-          <a class="btn btn-primary btn-lg" href="#">
-            Continue <i class="fa fa-chevron-right" aria-hidden="true"></i>
+        <div class="QA">
+          <!-- <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+            Launch Q&A
+          </button> -->
+          <button id="overview-btn" type="button" class="btn btn-primary btn-lg">
+            Course Overview
+          </button>
+          <button id="QA-btn" type="button" class="btn btn-primary btn-lg">
+            Launch Q&A
+          </button>
+          <!-- <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal2">
+            Course Overview
+          </button> -->
+          <a class="btn btn-primary btn-lg" href="/courses/<%= courseCode %>/learn">
+            Go To Dashboard
           </a>
         </div>
+      </div>
+      <div class="videoControls container">
+          <div class="top-level">
+            <div class="videoSeekBar">
+              <progress id='progress-bar' min='0' max='100' value='0'>0% played</progress>
+            </div>
+            <div class="videoTime">
+              <span class="current">0:00</span>/<span class="duration">0:00</span>
+            </div>
+          </div>
+          <div class="bottom-level">
+            <div class="left-side">
+              <div class="videoPlay">
+                <a href="#" class="btnPlay"><span class="glyphicon glyphicon-play"></span></a>
+              </div>
+              <div class="videoBack">
+                <a href="#" class="btnBack"><span class="glyphicon glyphicon-step-backward"></span></a>
+              </div>
+              <div class="videoSpeed dropup">
+                <a href="#" class="btnSpeed" class="btnOptions dropdown-toggle" id="videoSpeed" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-menu-up"></span></a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
+                  <li><a href="#" class="super-fast">2.0x</a></li>
+                  <li><a href="#" class="fast">1.5x</a></li>
+                  <li><a href="#" class="slightly-fast">1.25x</a></li>
+                  <li><a href="#" class="normal">1.0x</a></li>
+                  <li><a href="#" class="slow">0.75x</a></li>
+                  <li><a href="#" class="super-slow">0.5x</a></li>
+                </ul>
+              </div>
+              <div class="videoForward">
+                <a href="#" class="btnForward"><span class="glyphicon glyphicon-step-forward"></span></a>
+              </div>
+              <div class="videoMute">
+                <a href="#" class="btnMute"><span class="glyphicon glyphicon-volume-up"></span></a>
+              </div>
+              <div class="videoVolumeBar">
+                <progress id='volume-bar' min='0' max='1' step="0.1" value='1'>0% played</progress>
+              </div>
+            </div>
+            <div class="right-side">
+              <div class="nextVideo">
+                <a class="btn btn-primary btn-lg" href="#">
+                  Continue <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                </a>
+              </div>
+              <div class="videoOptions dropup">
+                <a href="#" class="btnOptions dropdown-toggle" id="videoOptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span></a>
+                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="videoOptions">
+                  <li><a href="#" class="high-quality">720p</a></li>
+                  <li><a href="#" class="medium-quality">480p</a></li>
+                  <li><a href="#">360p</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="#">Download Lecture</a></li>
+                </ul>
+              </div>
+              <div class="videoFullscreen">
+                <a href="#" class="btnFullscreen enterFullScreenBtn"><span class="glyphicon glyphicon-fullscreen"></span></a>
+              </div>
+            </div>
+          </div>
+      </div>
     </div>
+    <div class="course-overview">
+      <div class="inner-left">
 
-    <!-- Modal -->
-    <div class="modal fade draggable" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel">All Questions for <%= vid.title %></h4>
-          </div>
-          <div class="modal-body">
-            <% vid.resources.forEach((res) => { %>
-                   <a href="/assets/resources/<%= res.path %>" download>Download <%= res.title %></a><br>
-                   <% if(user.isAdmin) { %>
-                       <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/resources/<%= res.code %>?_method=DELETE" method="POST">
-                           <button><i class="fa fa-times" aria-hidden="true"></i></button>
-                       </form>
-                   <% } %>
-               <% }) %>
-           <% if(user.isAdmin) { %>
-               <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>?_method=DELETE" method="POST">
-                   <button class="btn btn-danger">Delete Video</button>
-               </form>
-               <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/resources/new" method="GET">
-                   <button class="btn btn-success">Add Resource</button>
-               </form>
-               <br>
-           <% } %>
-           <div id="myGroup">
-           <ul>
-             <% questions.forEach((question) => { %>
-               <h4 style="color:blue"><%= question.title %></h4>
-               <li><%= question.body %></li>
-               <p><strong>posted by <%= question.author.username %></strong></p>
-               <button class="btn btn-primary" type="button" data-toggle="collapse" data-parent="#myGroup" data-target="#collapse<%= question.code %>" aria-expanded="false" aria-controls="collapseExample<%= question.code %>">
-                 Reply
-               </button>
-               <div class="collapse" id="collapse<%= question.code %>">
-                 <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/questions/<%= question.code %>/answers" method="POST" id="regular-form">
-                     <div class="form-group">
-                         <textarea class="form-control" type="text" name="answer[body]" placeholder="answer goes here!"></textarea>
-                     </div>
-                     <button class="btn btn-primary btn-block">Reply</button>
-                 </form>
-               </div>
-               <hr>
-               <% question.answers.forEach((ans) => { %>
-                   <div class="container">
-                       <h4><%= ans.body %></h4>
-                       <p><strong>posted by <%= ans.author.username %></strong></p>
-                   </div>
-                   <hr>
-               <% }); %>
-             <% }); %>
-           </ul>
-            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#askQuestion" aria-expanded="false" aria-controls="askQuestion">
-               Ask New Question
-           </button>
-           <div class="collapse" id="askQuestion">
-             <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/questions" method="POST" id="regular-form">
-                 <div class="form-group">
-                         <input class="form-control" type="text" name="question[title]" placeholder="title">
-                 </div>
-                 <div class="form-group">
-                     <textarea class="form-control" type="text" name="question[body]" placeholder="question goes here!"></textarea>
-                 </div>
-                 <button class="btn btn-primary btn-block">Ask New Question</button>
+      </div>
+    </div>
+    <div class="questions-and-answers">
+      <div class="inner-right">
+        <div class="container-fluid">
+          <% vid.resources.forEach((res) => { %>
+                 <a href="/assets/resources/<%= res.path %>" download>Download <%= res.title %></a><br>
+                 <% if(user.isAdmin) { %>
+                     <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/resources/<%= res.code %>?_method=DELETE" method="POST">
+                         <button><i class="fa fa-times" aria-hidden="true"></i></button>
+                     </form>
+                 <% } %>
+             <% }) %>
+         <% if(user.isAdmin) { %>
+             <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>?_method=DELETE" method="POST">
+                 <button class="btn btn-danger">Delete Video</button>
              </form>
+             <form action="/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/resources/new" method="GET">
+                 <button class="btn btn-success">Add Resource</button>
+             </form>
+             <br>
+         <% } %>
+         <h3>Questions</h3>
+         <div id="myGroup">
+             <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#askQuestion" aria-expanded="false" aria-controls="askQuestion">
+                Ask New Question
+            </button>
+            <div class="collapse container-fluid" id="askQuestion">
+              <div class="form-group">
+                   <input class="form-control" type="text" name="question[title]" placeholder="title" id="title">
+              </div>
+              <div class="form-group">
+                  <textarea class="form-control" type="text" name="question[body]" placeholder="question goes here!" id="body"></textarea>
+              </div>
+              <button class="btn btn-primary btn-block" id="question-btn">Ask New Question</button>
+            </div>
+           <div id="questions">
+             <% questions.forEach((question) => { %>
+               <div class="question-and-answer-wrapper">
+                 <div class="question-section">
+                   <div class="question-header">
+                     <h4><%= question.title %></h4>
+                     <div class="question-caption">
+                       <p>
+                         <strong>By <%= question.author.username %></strong>
+                         <%= question.createdAt.toLocaleDateString() %> - <%= question.createdAt.toLocaleTimeString() %>
+                       </p>
+                     </div>
+                   </div>
+                   <p><%= question.body %></p>
+                   <button class="btn btn-success btn-sm" type="button" data-toggle="collapse" data-target="#<%= question.code %>" aria-expanded="false" aria-controls="answers-of-<%= question.code %>">show comments</button>
+                 </div>
+                 <div class="answer-section collapse" id="<%= question.code %>">
+                   <% if (question.answers.length <= 0) { %>
+                     <div class="answer-body container-fluid">
+                       <p>No comments to show</p>
+                     </div>
+                   <% } %>
+                   <% question.answers.forEach((ans) => { %>
+                       <div class="answer-body container-fluid">
+                           <p><%= ans.body %></p>
+                           <p><strong>posted by <%= ans.author.username %></strong></p>
+                       </div>
+                   <% }); %>
+                   <div class="form-group">
+                       <textarea class="form-control" type="text" name="answer[body]" placeholder="answer goes here!" id="answerBody"></textarea>
+                   </div>
+                   <button class="btn btn-primary btn-block" id="reply-btn">Reply</button>
+                 </div>
+               </div>
+             <% }); %>
            </div>
-           </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <a href="/dashboard" class="btn btn-primary">Back to Dashboard</a>
-          </div>
         </div>
       </div>
     </div>
+
     <% var nextVidCode; %>
     <!-- Modal -->
     <div class="modal fade draggable" id="myModal2" tabindex="0" role="dialog" aria-labelledby="myModalLabel2">
@@ -263,6 +280,72 @@
     <% } else { %>
       <% link = `/courses/${courseCode}/learn&` %>
     <% } %>
+    <script type="text/javascript">
+    $("#question-btn").on("click", (e) => {
+      var url = "/api/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/questions";
+      e.preventDefault();
+      var question = {
+        title: $("#title").val(),
+        body: $("#body").val()
+      };
+      $.post(url, {question}).done((question) => {
+        var newQuestion = $(`
+          <div class="question-and-answer-wrapper">
+            <div class="question-section">
+              <div class="question-header">
+                <h4>${question.title}</h4>
+                <div class="question-caption">
+                  <p>
+                  <strong>By ${question.author.username}</strong>
+                  ${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+              <p>${question.body}</p>
+              <button class="btn btn-success btn-sm" type="button" data-toggle="collapse" data-target="#${question.code}" aria-expanded="false" aria-controls="answers-of-${question.code}">show comments</button>
+            </div>
+            <div class="answer-section collapse" id="${question.code}">
+              <div class="answer-body container newly-created">
+                <h4>No comments to show</h4>
+              </div>
+              <div class="form-group">
+                  <textarea class="form-control" type="text" name="answer[body]" placeholder="answer goes here!" id="answerBody"></textarea>
+              </div>
+              <button class="btn btn-primary btn-block" id="reply-btn">Reply</button>
+            </div>
+          </div>
+        `);
+        setTimeout(() => {
+          $("#questions").prepend(newQuestion);
+          $("#title").val("");
+          $("#body").val("");
+        }, 200);
+      }).fail((err) => {
+        console.log(err);
+      });
+    });
+    $("#questions").on("click", "#reply-btn", function(e) {
+      e.stopPropagation();
+      var questionCode = $(this).parent().attr("id");
+      var url = `/api/courses/<%= courseCode %>/parts/<%= partCode %>/videos/<%= vid.code %>/questions/${questionCode}/answers`;
+      var answer = {
+        body: $(this).prev().children().val()
+      };
+      $.post(url, {answer}).done((ans) => {
+        var newAnswer = $(`
+          <div class="answer-body container-fluid">
+              <p>${ans.body}</p>
+              <p><strong>posted by ${ans.author.username}</strong></p>
+          </div>
+        `);
+        $(".newly-created").html("");
+        $(`#${questionCode}`).prepend(newAnswer);
+        $(this).prev().children().val("");
+      }).fail((err) => {
+        console.log(err);
+      });
+    });
+    </script>
     <script src="/assets/js/accordion.js"></script>
     <script src="/assets/js/video-player.js?<%= link %>"></script>
   </body>

@@ -12,10 +12,14 @@ var AnswerSchema = new mongoose.Schema({
     question: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Question"
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 });
 
-AnswerSchema.plugin(autoIncrement.plugin,  
+AnswerSchema.plugin(autoIncrement.plugin,
     {
         model: 'Answer',
         field: 'code',

@@ -7,7 +7,7 @@
       <% user.courses.forEach((userCourseBundle) => { %>
           <li><a href="/courses/<%= userCourseBundle.course.code %>/learn"><%= userCourseBundle.course.title %></a>
               <ul>
-                  <% var userCourseParts = getPartInUserArrayByCourseTitle(user.parts, userCourseBundle.course.title) %>
+                  <% var userCourseParts = getPartInArrayByCourseId(user.parts, userCourseBundle.course._id) %>
                   <% userCourseParts.forEach((partBundle) => { %>
                        <li><%= partBundle.part.title %> - Expired At <%= partBundle.expiredAt.toLocaleString() %></li>
                        <% if (partBundle.expired) { %>
@@ -24,8 +24,8 @@
           <li><a href="/courses/<%= course.code %>/learn"><%= course.title %></a>
           <a href="/courses/<%= course.code %>/parts/new" class="btn btn-xs btn-danger">Add Part</a>
               <ul>
-                <% var userPart = getPartInPartArrayByCourseTitle(parts, course.title) %>
-                  <% userPart.forEach((part) => { %>
+                <% var userParts = getPartInArrayByCourseId(parts, course._id) %>
+                  <% userParts.forEach((part) => { %>
                        <li>
                          <%= part.title %>
                          <a class="btn btn-xs btn-info" href="/courses/<%= course.code %>/parts/<%= part.code%>/edit">Edit</a>
