@@ -6,25 +6,27 @@
     </div>
     <div class="col-sm-6">
       <h2>Learn <%= course.title %></h2>
+      <% var mostRecentVideo = getCourseInArrayById(user.courses, course._id).mostRecentVideo %>
       <% if (user.isAdmin) { %>
         <% numFinishedVideos = 0; %>
-        <a class="btn btn-primary" href="/courses/<%= course.code %>/edit">Edit Course</a>
+        <a class="btn btn-primary main-button" href="/courses/<%= course.code %>/edit">Edit Course</a>
       <% } else { %>
         <% if (numFinishedVideos === course.numVideos) { %>
           <a href="#" class="btn btn-lg btn-primary">
             <%= course.title %> Completed!
           </a>
-        <% } else if (user.mostRecentVideo) { %>
-          <a href="/courses/<%= course.code %>/parts/<%= user.mostRecentVideo.part.code %>/videos/<%= user.mostRecentVideo.code %>/learn" class="btn btn-lg btn-primary">
-            ดู <%= user.mostRecentVideo.title %> ต่อ
+        <% } else if (mostRecentVideo.video) { %>
+          <a href="/courses/<%= course.code %>/parts/<%= mostRecentVideo.video.part.code %>/videos/<%= mostRecentVideo.video.code %>/learn?start=<%= mostRecentVideo.start %>"
+            class="btn btn-lg btn-primary main-button">
+            ดู <%= mostRecentVideo.video.title %> ต่อ
           </a>
         <% } else { %>
-          <a href="#" class="btn btn-lg btn-primary">เริ่มดูม้วนแรก</a>
+          <a href="#" class="btn btn-lg btn-primary main-button">เริ่มดูม้วนแรก</a>
         <% } %>
       <% } %>
-      <p class="progress-caption"><%= numFinishedVideos %> of <%= course.numVideos%> items complete</p>
+      <p class="progress-caption"><span id="num-finished-videos"><%= numFinishedVideos %></span> of <%= course.numVideos%> items complete</p>
       <div class="progress">
-        <div class="progress-bar" role="progressbar" aria-valuenow="<%= numFinishedVideos/course.numVideos*100 %>"
+        <div class="progress-bar" numVideos="<%= course.numVideos %>" role="progressbar" aria-valuenow="<%= numFinishedVideos/course.numVideos*100 %>"
         aria-valuemin="0" aria-valuemax="100" style="width:<%= numFinishedVideos/course.numVideos*100 %>%">
           <span class="sr-only">70% Complete</span>
         </div>

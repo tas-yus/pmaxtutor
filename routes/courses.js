@@ -295,15 +295,16 @@ router.get("/:courseCode/learn", middleware.isLoggedIn, middleware.canAccessLear
     return console.log(err);
   }
   var checkPartOwnership = method.checkPartOwnership;
+  var getCourseInArrayById = method.getCourseInArrayById;
+  var getVideoInArrayById = method.getVideoInArrayById;
   var isFinished = method.isFinished;
   var createCode = method.createCode;
   if (req.user.isAdmin) {
     res.render("courses/learn", {course, parts, checkPartOwnership, isFinished, createCode});
   } else {
     var numFinishedVideos = method.getCourseInArrayById(req.user.courses, course._id.toString()).numFinishedVideos;
-    var getPartInArrayByCourseId = method.getPartInArrayByCourseId;
-    res.render("courses/learn", {course, getPartInArrayByCourseId,
-      checkPartOwnership, isFinished, createCode, numFinishedVideos});
+    res.render("courses/learn", {course, checkPartOwnership, isFinished, createCode,
+      numFinishedVideos, getCourseInArrayById, getVideoInArrayById});
   }
 });
 

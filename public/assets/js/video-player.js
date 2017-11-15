@@ -21,6 +21,9 @@ var isBlink = (isChrome || isOpera) && !!window.CSS;
 
 var overview = false;
 var qa = false;
+var queryString = window.location.search;
+queryString = queryString.substring(1);
+var queries = queryString.split("=");
 
 $(document).ready(function() {
   var defaultVolume = 1;
@@ -56,6 +59,9 @@ $(document).ready(function() {
     $(".current").text(toClockTime(Math.round(videoPlayer[0].currentTime)));
   });
   videoPlayer.on("loadedmetadata", function() {
+    if (queries[0] === "start" && queries[1] >= 0 && queries[1] <= videoPlayer[0].duration) {
+      videoPlayer[0].currentTime = queries[1];
+    }
     $(".duration").text(toClockTime(Math.round(videoPlayer[0].duration)));
   });
   $(".btnMute").click(function(e) {
@@ -295,4 +301,41 @@ $(document).ready(function() {
   //   $(".questions-and-answers").removeClass("opened");
   //   $(".video-content").removeClass("content-small");
   // });
+
+  $("#dashboard-btn").on("click", function(e) {
+    e.preventDefault();
+    $(".loader-wrapper").removeClass("hidden");
+    var videoCode = (window.location.href.split("videos/")[1]).split("/learn")[0];
+    var url = "/api/users/videos/" + videoCode;
+    var body = {
+      start: videoPlayer[0].currentTime
+    };
+    setTimeout(() => {
+      $.post(url, body).done((data) => {
+        console.log(data);
+        window.location.href = $("#dashboard-btn").attr("href");
+      }).fail((err) => {
+        console.log(err);
+      });
+    }, 200)
+  });
+    // $(window).on("unload", () => {
+    //   $(".loader-wrapper").removeClass("hidden");
+    //   var videoCode = (window.location.href.split("videos/")[1]).split("/learn")[0];
+    //   var url = "/api/users/videos/" + videoCode;
+    //   var body = {
+    //     start: videoPlayer[0].currentTime
+    //   };
+    //   $.ajax({
+    //     type: 'POST',
+    //     url,
+    //     data: body,
+    //     dataType: json,
+    //     async: false,
+    //   }).done((data) => {
+    //     console.log(data);
+    //   }).fail((err) => {
+    //     console.log(err);
+    //   });
+    // });
 });

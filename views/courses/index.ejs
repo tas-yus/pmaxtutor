@@ -22,36 +22,43 @@
   </div>
 </div>
 <script type="text/javascript">
+  function createCourse(course) {
+    var newCourse = $(`
+      <div class="col-md-4 col-sm-6">
+        <a href="/courses/${course.code}" class="thumbnail">
+          <img src="/assets/images/${course.image}">
+          <div class="caption">
+            <div class="container-fluid">
+              <h3>${course.title}</h3>
+              <p>${course.description}</p>
+              <p><span>${course.price} บาท</span></p>
+            </div>
+          </div>
+        </a>
+      </div>
+    `);
+    return newCourse;
+  }
   $(document).ready(() => {
-    var numSeen = 6;
-    var numLoad = 6;
-    var url = "/api/courses";
+    var default_skip = 6;
+    var current_skip = default_skip;
+    var stop = false;
     $(window).scroll(() => {
       var scrollTop = $(document).scrollTop();
       var windowHeight = $(window).height();
       var bodyHeight = $(document).height() - windowHeight;
       var scrollPercentage = (scrollTop / bodyHeight);
-      if(scrollPercentage > 0.99999) {
+      if(!stop && scrollPercentage > 0.99999) {
+        var url = `/api/courses?skip=${current_skip}`;
         $.getJSON(url).done((courses) => {
-          var chosenCourses = courses.splice(numSeen, numLoad);
-          numSeen += 3;
-          chosenCourses.forEach((course) => {
-            var newCourse = $(`
-              <div class="col-md-4 col-sm-6">
-                <a href="/courses/${course.code}" class="thumbnail">
-                  <img src="/assets/images/${course.image}">
-                  <div class="caption">
-                    <div class="container-fluid">
-                      <h3>${course.title}</h3>
-                      <p>${course.description}</p>
-                      <p><span>${course.price} บาท</span></p>
-                    </div>
-                  </div>
-                </a>
-              </div>
-            `)
+          current_skip += default_skip;
+          console.log(current_skip);
+          if (courses.length === 0) {
+            stop = true;
+          }
+          courses.forEach((course) => {
             setTimeout(() => {
-              $("#content").append(newCourse);
+              $("#content").append(createCourse(course));
             }, 300);
           });
         }).fail((err) => {

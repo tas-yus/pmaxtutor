@@ -50,7 +50,18 @@ function fetchCourse(id) {
 
 // ALL COURSES
 router.get("/", (req, res) => {
-  Course.find({}).sort({order:1}).exec((err, courses) => {
+  var sort = req.query.sort;
+  var order = req.query.order;
+  var limit = req.query.limit? Number(req.query.limit) : 100;
+  var skip = req.query.skip? Number(req.query.skip) : 0;
+  var sortObject = sort? new Object: null;
+  // var queryObject =
+  if (order === 1 || order === -1) {
+    sortObject[sort] = order? order : 1;
+  }
+  var query = req.query;
+  delete query.sort; delete query.order; delete query.limit; delete query.skip;
+  Course.find(query).sort(sortObject).skip(skip).limit(limit).exec((err, courses) => {
     if (err) {
       return res.status(400).send("There's an error with the database");
     } else {

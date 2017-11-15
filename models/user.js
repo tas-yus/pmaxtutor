@@ -17,6 +17,16 @@ var UserSchema = new mongoose.Schema({
             type: Number,
             default: 0
         },
+        mostRecentVideo: {
+            video: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Video"
+            },
+            start: {
+              type: Number,
+              default: 0
+            }
+        },
         _id: false
     }],
     parts: [{
@@ -45,6 +55,10 @@ var UserSchema = new mongoose.Schema({
         finished: {
             type: Boolean,
             default: false
+        },
+        start: {
+          type: Number,
+          default: 0
         },
         _id: false
     }],
@@ -76,10 +90,6 @@ var UserSchema = new mongoose.Schema({
             default: []
         }
     ],
-    mostRecentVideo: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Video"
-    },
     isAdmin: {
         type: Boolean,
         default: false

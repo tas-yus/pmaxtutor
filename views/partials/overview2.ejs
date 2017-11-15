@@ -23,11 +23,12 @@
               <% var ownershipStatus = checkPartOwnership(user.parts, part._id.toString()); %>
               <% part.videos.forEach((vid) => { %>
                 <% count++ %>
+                <% var start = user.isAdmin? "":getVideoInArrayById(user.videos, vid._id).start %>
                 <div class="panel-body">
-                  <a href="/courses/<%= course.code %>/parts/<%= part.code %>/videos/<%= vid.code %>/learn">
+                  <a href="/courses/<%= course.code %>/parts/<%= part.code %>/videos/<%= vid.code %>/learn?start=<%= start %>">
                     <p style="float: left"> <%= count %>. <%= vid.title %> </p>
                     <i style="padding-left: 20px; transform: scale(1.5)"  class="fa fa-play-circle" aria-hidden="true"></i>
-                    <span class="part-duration">
+                    <span class="part-duration" id="<%= vid.code %>">
                       <%= vid.duration %>
                       <% if (user.isAdmin || isFinished(user.videos, vid._id.toString())) { %>
                         <i style="transform: scale(1.5)" class="fa fa-check-circle-o checkable" aria-hidden="true"></i>

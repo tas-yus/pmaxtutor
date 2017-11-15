@@ -37,6 +37,7 @@ var courseApiRoutes = require("./routes/apiRoutes/courses");
 var partApiRoutes = require("./routes/apiRoutes/parts");
 var questionApiRoutes = require("./routes/apiRoutes/questions");
 var answerApiRoutes = require("./routes/apiRoutes/answers");
+var userApiRoutes = require("./routes/apiRoutes/users");
 // ========================
 
 mongoose.Promise = Promise;
@@ -78,7 +79,7 @@ app.use(async function(req, res, next) {
   user = await Part.populate(user, {path: "parts.part"});
   user = await Video.populate(user, {path: "videos.video"});
   user = await Video.populate(user, {
-    path: "mostRecentVideo",
+    path: "courses.mostRecentVideo.video",
     select: "code part title",
     populate: {
       path: "part",
@@ -104,6 +105,7 @@ app.use("/api/courses", courseApiRoutes);
 app.use("/api/courses/:courseId/parts", partApiRoutes);
 app.use("/api/courses/:courseCode", questionApiRoutes);
 app.use("/api/courses/:courseCode/parts/:partCode/videos/:videoCode/questions/:questionCode/answers", answerApiRoutes);
+app.use("/api/users", userApiRoutes);
 // ========================
 
 // AGENDA
@@ -128,13 +130,14 @@ app.use("/api/courses/:courseCode/parts/:partCode/videos/:videoCode/questions/:q
 // Continue with APIs & Now change everything to reflect the change in model
 // FIX bug after check out , checkExpiry Fail!
 // AJAX QUESTIONs
+// Reset "start" value to 0 when user finish vid.
 
 schedule.scheduleJob('0,30 5 5 * * *', function(){
     checkExpiry();
 });
 
 app.get('*', function(req, res){
-  res.status(404).send('404 not found');
+  res.render("users/404");
 });
 
 app.listen(3000, () => {

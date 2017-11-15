@@ -68,12 +68,11 @@ router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, 
           model: "User"
         }
       }).exec();
-      console.log(questions);
     // var questions = await User.populate(video.questions, {path: "author", select: "username"});
     // questions = await Answer.populate(questions, {path: "answers", select: "author body"});
     // questions = await User.populate(questions, {path: "answers.author", select: "username", model: User});
     var user = req.user;
-    user.mostRecentVideo = video;
+    method.getCourseInArrayById(user.courses, course._id).mostRecentVideo = {video};
     user.save((err) => {
       if (err) return console.log(err);
       res.render("videos/index", {vid: video, course, courseCode, partCode, questions, checkPartOwnership});

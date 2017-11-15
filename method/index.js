@@ -5,9 +5,9 @@ const expiryPeriod = 10000;
 methodObj.getPartInArrayById = function (arr, id) {
     var result  = arr.filter(function(o){
         if (o.part._id) {
-            return o.part._id.toString() === id;
+            return o.part._id.equals(id);
         } else {
-            return o.part.toString() === id;
+            return o.part.equals(id);
         }
     });
     return result? result[0] : null; // or undefined
@@ -17,11 +17,6 @@ methodObj.getCourseInArrayByTitle = function (courseArray, title) {
     var result  = courseArray.filter(function(courseBundle){return courseBundle.course.title === title;} );
     return result? result[0] : null; // or undefined
 };
-
-// methodObj.getPartInUserArrayByCourseTitle = function (partArray, courseTitle) {
-//     var result  = partArray.filter(function(partBundle){return partBundle.part.course === courseTitle} );
-//     return result? result : null; // or undefined
-// };
 
 methodObj.getPartInArrayByCourseId = function (partArray, courseId) {
     var result  = partArray.filter(function(o){
@@ -42,17 +37,12 @@ methodObj.getPartInArrayByCourseId = function (partArray, courseId) {
     return result? result : null; // or undefined
 };
 
-// methodObj.getPartInPartArrayByCourseTitle = function (partArray, courseTitle) {
-//     var result  = partArray.filter(function(part){return part.course === courseTitle;} );
-//     return result? result : null; // or undefined
-// };
-
 methodObj.getVideoInArrayById = function (arr, id) {
     var result  = arr.filter(function(o){
         if (o.video._id) {
-            return o.video._id.toString() === id;
+            return o.video._id.equals(id);
         } else {
-            return o.video.toString() === id;
+            return o.video.equals(id);
         }
     });
     return result? result[0] : null; // or undefined
@@ -66,9 +56,9 @@ methodObj.isFinished = function (arr, id) {
 methodObj.getCourseInArrayById = function(arr, id) {
     var result  = arr.filter(function(o){
         if (o.course._id) {
-            return o.course._id.toString() === id;
+            return o.course._id.equals(id);
         } else {
-            return o.course.toString() === id;
+            return o.course.equals(id);
         }
     });
     return result? result[0] : null; // or undefined
