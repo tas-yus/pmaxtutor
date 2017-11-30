@@ -52,7 +52,6 @@
         var url = `/api/courses?skip=${current_skip}`;
         $.getJSON(url).done((courses) => {
           current_skip += default_skip;
-          console.log(current_skip);
           if (courses.length === 0) {
             stop = true;
           }

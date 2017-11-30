@@ -43,7 +43,7 @@ router.get("/", (req, res) => {
 router.get("/new", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
   var removeExtension = method.removeExtension
   fs.readdir(__dirname + config.imagePath, (err, imgPaths) => {
-    res.render("courses/new", { imgPaths, removeExtension });
+    res.render("courses/new", { imgPaths, removeExtension});
   });
 });
 
@@ -213,7 +213,6 @@ router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, upload.sin
   } catch(err) {
     return console.log(err);
   }
-  var changedTitle = (course.title !== req.body.title);
   var photoStatus;
   var path;
   if (req.file) {
@@ -232,53 +231,54 @@ router.put("/:courseCode", middleware.isLoggedIn, middleware.isAdmin, upload.sin
   course.image = path;
   course.save((err) => {
     if (err) return console.log(err);
-  });
-  async.waterfall([
-    // change Title of Part and videos
-    function(callback) {
-      if (!changedTitle) return callback();
-      async.eachSeries(parts, (part, cb1) => {
-        part.course = req.body.title;
-        async.eachSeries(part.videos, (video, cb2) => {
-          video.course = req.body.title;
-          video.save((err) => {
-            if (err) return console.log(err);
-            cb2();
-          });
-        }, (err) => {
-          part.save((err) => {
-            console.log(err);
-            cb1();
-          });
-        });
-      }, (err) => {
-        callback();
-      });
-    },
-    // change Title of Order
-    function(callback) {
-      if (!changedTitle) return callback(null, null);
-      Order.find({course: course._id.toString()}, (err, orders) => {
-        if (err) return console.log(err);
-        callback(null, orders);
-      });
-    },
-    function(orders, callback) {
-      if (!changedTitle) return callback();
-      async.eachSeries(orders, (order, cb3) => {
-        order.course = course._id;
-        order.save((err) => {
-          if (err) return console.log(err);
-          cb3();
-        });
-      }, (err) => {
-        callback();
-      });
-    }
-  ], (err) => {
-    if (err) return console.log(err);
     res.redirect("/dashboard");
   });
+  // async.waterfall([
+  //   // change Title of Part and videos
+  //   function(callback) {
+  //     if (!changedTitle) return callback();
+  //     async.eachSeries(parts, (part, cb1) => {
+  //       part.course = req.body.title;
+  //       async.eachSeries(part.videos, (video, cb2) => {
+  //         video.course = req.body.title;
+  //         video.save((err) => {
+  //           if (err) return console.log(err);
+  //           cb2();
+  //         });
+  //       }, (err) => {
+  //         part.save((err) => {
+  //           console.log(err);
+  //           cb1();
+  //         });
+  //       });
+  //     }, (err) => {
+  //       callback();
+  //     });
+  //   },
+  //   // change Title of Order
+  //   function(callback) {
+  //     if (!changedTitle) return callback(null, null);
+  //     Order.find({course: course._id.toString()}, (err, orders) => {
+  //       if (err) return console.log(err);
+  //       callback(null, orders);
+  //     });
+  //   },
+  //   function(orders, callback) {
+  //     if (!changedTitle) return callback();
+  //     async.eachSeries(orders, (order, cb3) => {
+  //       order.course = course._id;
+  //       order.save((err) => {
+  //         if (err) return console.log(err);
+  //         cb3();
+  //       });
+  //     }, (err) => {
+  //       callback();
+  //     });
+  //   }
+  // ], (err) => {
+  //   if (err) return console.log(err);
+  //
+  // });
 });
 
 // LEARN COURSE

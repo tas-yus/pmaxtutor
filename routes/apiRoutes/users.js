@@ -30,16 +30,16 @@ router.put("/videos/:videoCode", async (req, res) => {
   var user = req.user;
   var videoBundle = method.getVideoInArrayById(user.videos, video._id);
   var courseBundle = method.getCourseInArrayById(user.courses, video.course);
-  if (done == 'true') {
-    videoBundle.finished = true;
-    courseBundle.numFinishedVideos++;
-  } else if (done == 'false') {
+  if (videoBundle.finished) {
     videoBundle.finished = false;
     courseBundle.numFinishedVideos--;
+  } else {
+    videoBundle.finished = true;
+    courseBundle.numFinishedVideos++;
   }
   user.save((err) => {
     if (err) return res.status(400).send("Something went wrong");
-    res.status(200).send(courseBundle);
+    res.status(200).send({courseBundle, videoBundle});
   })
 });
 

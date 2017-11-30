@@ -6,7 +6,7 @@
     </div>
     <div class="col-sm-6">
       <h2>Learn <%= course.title %></h2>
-      <% var mostRecentVideo = getCourseInArrayById(user.courses, course._id).mostRecentVideo %>
+      <% var mostRecentVideo = user.isAdmin? null: getCourseInArrayById(user.courses, course._id).mostRecentVideo %>
       <% if (user.isAdmin) { %>
         <% numFinishedVideos = 0; %>
         <a class="btn btn-primary main-button" href="/courses/<%= course.code %>/edit">Edit Course</a>

@@ -12,24 +12,6 @@ var config = require("./../../config");
 var mongoose = require("mongoose");
 var forEach = require('async-foreach').forEach;
 var async = require('async');
-var fs = require("fs");
-var path = require("path");
-var multer = require("multer");
-var storage = multer.diskStorage({
-  destination: __dirname + config.imagePath,
-  filename: function (req, file, cb) {
-    var filename = req.body.fileName? req.body.fileName : method.createCode(req.body.title);
-    filename += path.extname(file.originalname);
-    cb(null, filename);
-  }
-});
-
-var upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 2 * 1024 * 1024 // 2mb, in bytes
-  }
-});
 
 function fetchCourse(id) {
   return new Promise((resolve, reject) => {
@@ -83,25 +65,22 @@ router.get("/:id", (req, res) => {
 });
 
 // CREATE COURSE
-router.post("/", upload.single("file"), (req, res) => {
-  var path;
-  if (!req.file && !req.body.chosenImage) {
-    req.flash("error", "โปรด upload ไฟล์ หรือเลือกภาพที่ต้องการ");
-    return res.status(400).send("Please upload files or choose existing ones");
-  } else if (req.file) {
-    path = req.file.filename;
-  } else {
-    path = req.body.chosenImage;
+router.post("/", (req, res) => {
+  if (!req.body.title) {
+    return res.status(400).send("โปรดใส่ชื่อคอร์ส");
   }
-  var newCourse = {
+  if (!req.body.image) {
+    return res.status(400).send("โปรดเลือกภาพ");
+  }
+  var course = new Course({
       title: req.body.title,
       code: method.createCode(req.body.title),
       description: req.body.description,
       video: req.body.video,
       price: req.body.price,
-      image: path
-  };
-  Course.create(newCourse).then((course) => {
+      image: req.body.image + '.jpg'
+  });
+  course.save().then((course) => {
     res.status(201).send(course);
   }).catch((err) => {
     res.status(400).send("Something went wrong");
@@ -111,7 +90,7 @@ router.post("/", upload.single("file"), (req, res) => {
 // UPDATE COURSE
 
 // UP DATE PART AND ORDER AND VIDEO IF NAME HAS CHANGEd.
-router.put("/:id", upload.single("file"), (req, res) => {
+router.put("/:id", (req, res) => {
   fetchCourse(req.params.id).then((course) => {
     var path;
     if (req.file) {

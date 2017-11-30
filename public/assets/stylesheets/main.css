@@ -118,6 +118,8 @@ div.col-sm-4>img {
 
 .invisible {
     visibility: hidden;
+    -webkit-transition: visibility 0.5s;
+    transition: visibility 0.5s;
 }
 
 a.thumbnail:hover {
@@ -439,4 +441,44 @@ div.panel-body:hover {
 
 .page-not-found-wrapper span {
   font-size: 55px;
+}
+
+div#show-old-photos:hover {
+  cursor: pointer;
+}
+
+.disable-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.closable {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.closable:hover {
+  cursor: pointer;
+  text-shadow: 1px 1px 2px #bbb;
+}
+
+.loader-wrapper-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2000;
+  opacity: 1;
+}
+
+.err-message {
+  font-weight: bold;
+  color: #f22e2e;
 }

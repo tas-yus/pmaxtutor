@@ -23,7 +23,6 @@ var checkExpiry = require("./method/checkExpiry");
 var path = require("path");
 var config = require("./config");
 
-
 // ======== ROUTES ========
 var indexRoutes = require("./routes/index");
 var courseRoutes = require("./routes/courses");
@@ -38,6 +37,7 @@ var partApiRoutes = require("./routes/apiRoutes/parts");
 var questionApiRoutes = require("./routes/apiRoutes/questions");
 var answerApiRoutes = require("./routes/apiRoutes/answers");
 var userApiRoutes = require("./routes/apiRoutes/users");
+var imageApiRoutes = require("./routes/apiRoutes/images");
 // ========================
 
 mongoose.Promise = Promise;
@@ -106,6 +106,7 @@ app.use("/api/courses/:courseId/parts", partApiRoutes);
 app.use("/api/courses/:courseCode", questionApiRoutes);
 app.use("/api/courses/:courseCode/parts/:partCode/videos/:videoCode/questions/:questionCode/answers", answerApiRoutes);
 app.use("/api/users", userApiRoutes);
+app.use("/api/images", imageApiRoutes);
 // ========================
 
 // AGENDA
@@ -123,14 +124,13 @@ app.use("/api/users", userApiRoutes);
 // fix vid done();
 // mostRecentVideo should be moved into course;
 // fix all param routes so they dont crash
-// 404 Percentage
 // Handle Await Errors!
 // Check VIDEOS UPDATE AND CREATE
 // REST APIS
 // Continue with APIs & Now change everything to reflect the change in model
 // FIX bug after check out , checkExpiry Fail!
-// AJAX QUESTIONs
 // Reset "start" value to 0 when user finish vid.
+// Choose ID or Code?
 
 schedule.scheduleJob('0,30 5 5 * * *', function(){
     checkExpiry();

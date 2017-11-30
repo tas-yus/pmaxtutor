@@ -1,42 +1,89 @@
 <% include ../partials/header %>
-    <h1 id="form-header">Add Course</h1>
-    <form action="/courses" enctype="multipart/form-data" method="POST" id="regular-form">
-        <div class="form-group">
-            <input class="form-control" type="text" name="title" placeholder="course name">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="text" name="price" placeholder="ราคา">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="text" name="video" placeholder="ลิงค์วีดีโอ">
-        </div>
-        <div class="form-group">
-            <textarea class="form-control" type="text" name="description" placeholder="คำบรรยายคอร์ส"></textarea>
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="text" name="fileName" placeholder="ชื่อไฟล์">
-        </div>
-        <div class="form-group">
-            <input type="file" name="file">
-        </div>
-        <div class="form-group">
-          <label>Choose From Old Photos</label>
-          <div class="row">
-            <% imgPaths.forEach((img) => { %>
-              <% var imageId = removeExtension(img) %>
-              <div class="col-sm-6 col-md-4">
-                <div class="thumbnail">
-                  <i class="fa fa-2x fa-check-circle-o check-on-image hidden" aria-hidden="true"></i>
-                  <img class="chosen-image" src="/assets/images/<%= img %>" alt="<%= imageId %>">
-                </div>
-                <div class="caption">
-                  <input id="<%=imageId %>" type="radio" name="chosenImage" value="<%= img %>"><label> <%= img %></label>
-                </div>
-              </div>
-            <% }); %>
+    <div class="loader-wrapper-form hidden">
+      <img class="loader" src="/assets/svgs/Spinner-black.svg" alt="Loader">
+    </div>
+    <div class="form-wrapper">
+      <h1 id="form-header">Add Course</h1>
+      <form action="/courses" enctype="multipart/form-data" method="POST" id="regular-form">
+          <span class="err-message"></span>
+          <div class="form-group">
+              <input class="form-control" type="text" name="title" placeholder="course name">
           </div>
-        </div>
-        <button class="btn btn-primary btn-block">Add</button>
-    </form>
+          <div class="form-group">
+              <input class="form-control" type="text" name="price" placeholder="ราคา">
+          </div>
+          <div class="form-group">
+              <input class="form-control" type="text" name="video" placeholder="ลิงค์วีดีโอ">
+          </div>
+          <div class="form-group">
+              <textarea class="form-control" type="text" name="description" placeholder="คำบรรยายคอร์ส"></textarea>
+          </div>
+          <div class="form-group">
+              <input class="form-control" type="text" name="fileName" placeholder="ชื่อไฟล์">
+          </div>
+          <div class="form-group">
+              <input type="file" name="file">
+          </div>
+          <div class="row">
+            <div class="col-xs-12 col-sm-8 hidden">
+              <label>Your image</label>
+              <div class="thumbnail">
+                <img id="preview" src="#" alt="your image">
+                <i class="fa fa-close closable" aria-hidden="true"></i>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div id="show-old-photos">
+              <span style="font-weight: bold" class="disable-select">Choose From Old Photos</span>
+              <i class="fa fa-plus" aria-hidden="true"></i>
+            </div>
+            <div id="old-photos" class="row hidden">
+              <% imgPaths.forEach((img) => { %>
+                <% var imageId = removeExtension(img) %>
+                <div class="col-sm-6 col-md-4">
+                  <div class="thumbnail">
+                    <i class="fa fa-2x fa-check-circle-o check-on-image hidden" aria-hidden="true"></i>
+                    <img class="chosen-image" src="/assets/images/<%= img %>" alt="<%= imageId %>">
+                  </div>
+                  <div class="caption">
+                    <input id="<%=imageId %>" type="radio" name="chosenImage" value="<%= img %>"><label> <%= img %></label>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          </div>
+          <button id="addBtn" class="btn btn-primary btn-block">Add</button>
+      </form>
+    </div>
     <script src="/assets/js/chosenImage.js"></script>
+    <script>
+    $('#addBtn').on('click', (e) => {
+      e.preventDefault();
+      nowLoadingForm();
+      setTimeout(() => {
+        uploadFile().done((data) => {
+          sendForm("/api/courses");
+        }).fail((err) => {
+          if ($('#preview').data('fileName')) {
+            sendForm("/api/courses");
+          } else {
+            rejectForm(err)
+          }
+        });
+      }, 1000);
+    });
+    function sendForm(url) {
+      $.post(url, {
+        title: $("input[name='title']").val(),
+        description: $("input[name='description']").val(),
+        video: $("input[name='video']").val(),
+        price: $("input[name='price']").val(),
+        image: $('#preview').data('fileName')
+      }).done((data) => {
+        console.log(data);
+        window.location.href = "/courses";
+      }).fail(rejectForm);
+    }
+  </script>
 <% include ../partials/footer %>

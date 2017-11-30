@@ -12,24 +12,6 @@ var config = require("./../../config");
 var mongoose = require("mongoose");
 var forEach = require('async-foreach').forEach;
 var async = require('async');
-var fs = require("fs");
-var path = require("path");
-var multer = require("multer");
-var storage = multer.diskStorage({
-  destination: __dirname + config.imagePath,
-  filename: function (req, file, cb) {
-    var filename = req.body.fileName? req.body.fileName : method.createCode(req.body.title);
-    filename += path.extname(file.originalname);
-    cb(null, filename);
-  }
-});
-
-var upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 2 * 1024 * 1024 // 2mb, in bytes
-  }
-});
 
 function fetchPart(id) {
   return new Promise((resolve, reject) => {
@@ -70,38 +52,35 @@ router.get("/:id", (req, res) => {
 });
 
 // CREATE PART
-router.post("/", upload.single("file"), async (req, res) => {
-  var path;
-  if (!req.file && !req.body.chosenImage) {
-    req.flash("error", "โปรด upload ไฟล์ หรือเลือกภาพที่ต้องการ");
-    return res.status(400).send("Please upload files or choose existing ones");
-  } else if (req.file) {
-    path = req.file.filename;
-  } else {
-    path = req.body.chosenImage;
+router.post("/", middleware.isLoggedIn, middleware.isAdmin, (req, res) => {
+  if (!req.body.title) {
+    return res.status(400).send("โปรดใส่ชื่อบท");
   }
-  var course = await Course.findById(req.params.courseId);
-  var newPart = {
-    title: req.body.title,
-    code: method.createCode(req.body.title),
-    description: req.body.description,
-    price: req.body.price,
-    image: path,
-  };
-  var part = await Part.create(newPart);
-  course.parts.push(part);
-  course.save((err) => {
-    if (err) return res.status(400).send("Something is wrong with the database");
-    res.status(200).send(part);
+  if (!req.body.image) {
+    return res.status(400).send("โปรดเลือกภาพ");
+  }
+  Course.findOne({code: req.params.courseCode}).then((course) => {
+    var part = new Part({
+      title: req.body.title,
+      code: method.createCode(req.body.title),
+      description: req.body.description,
+      price: req.body.price,
+      image: req.body.image + '.jpg',
+      course: course._id
+    });
+    return part.save();
+  }).then((part) => {
+    res.status(201).send(part);
+  }).catch((err) => {
+    res.status(400).send("Something went wrong");
   });
 });
-
 
 // *** FROM HERE
 // UPDATE COURSE
 
 // UP DATE PART AND ORDER AND VIDEO IF NAME HAS CHANGEd.
-router.put("/:id", upload.single("file"), (req, res) => {
+router.put("/:id", (req, res) => {
   fetchCourse(req.params.id).then((course) => {
     var path;
     if (req.file) {

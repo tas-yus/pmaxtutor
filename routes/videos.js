@@ -72,7 +72,9 @@ router.get("/:vidCode/learn", middleware.isLoggedIn, middleware.canAccessLearn, 
     // questions = await Answer.populate(questions, {path: "answers", select: "author body"});
     // questions = await User.populate(questions, {path: "answers.author", select: "username", model: User});
     var user = req.user;
-    method.getCourseInArrayById(user.courses, course._id).mostRecentVideo = {video};
+    if (!user.isAdmin) {
+      method.getCourseInArrayById(user.courses, course._id).mostRecentVideo = {video};
+    }
     user.save((err) => {
       if (err) return console.log(err);
       res.render("videos/index", {vid: video, course, courseCode, partCode, questions, checkPartOwnership});
@@ -299,36 +301,36 @@ router.delete("/:vidCode", middleware.isLoggedIn, middleware.isAdmin, (req, res)
 });
 
 // DONE VID
-router.post("/:vidCode/done", async (req, res) => {
-  var course = await Course.findOne({code: req.params.courseCode});
-  Video.findOne({code: req.params.vidCode}, (err, video) => {
-    if (err) return console.log(err);
-    if (!video) return res.redirect(`/courses/${req.params.courseCode}/learn`);
-    var user = req.user;
-    var targetedVideo = method.getVideoInArrayById(user.videos, video._id.toString());
-    var nextVidCode = req.body.next;
-    var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
-    if (!user.isAdmin && !targetedVideo.finished) {
-      targetedVideo.finished = true;
-      userCourseBundle.numFinishedVideos++;
-      user.save((err) => {
-        if (err) return console.log(err);
-        if (nextVidCode) {
-          res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/videos/${nextVidCode}/learn`);
-        } else {
-          req.flash("success", `จบ ${req.params.partCode}`);
-          res.redirect(`/courses/${req.params.courseCode}/learn`);
-        }
-      });
-    } else {
-      if (nextVidCode) {
-        res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/videos/${nextVidCode}/learn`);
-      } else {
-        req.flash("success", `จบ ${req.params.partCode}`);
-        res.redirect(`/courses/${req.params.courseCode}/learn`);
-      }
-    }
-  });
-});
+// router.post("/:vidCode/done", async (req, res) => {
+//   var course = await Course.findOne({code: req.params.courseCode});
+//   Video.findOne({code: req.params.vidCode}, (err, video) => {
+//     if (err) return console.log(err);
+//     if (!video) return res.redirect(`/courses/${req.params.courseCode}/learn`);
+//     var user = req.user;
+//     var targetedVideo = method.getVideoInArrayById(user.videos, video._id.toString());
+//     var nextVidCode = req.body.next;
+//     var userCourseBundle = method.getCourseInArrayById(user.courses, course._id.toString());
+//     if (!user.isAdmin && !targetedVideo.finished) {
+//       targetedVideo.finished = true;
+//       userCourseBundle.numFinishedVideos++;
+//       user.save((err) => {
+//         if (err) return console.log(err);
+//         if (nextVidCode) {
+//           res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/videos/${nextVidCode}/learn`);
+//         } else {
+//           req.flash("success", `จบ ${req.params.partCode}`);
+//           res.redirect(`/courses/${req.params.courseCode}/learn`);
+//         }
+//       });
+//     } else {
+//       if (nextVidCode) {
+//         res.redirect(`/courses/${req.params.courseCode}/parts/${req.params.partCode}/videos/${nextVidCode}/learn`);
+//       } else {
+//         req.flash("success", `จบ ${req.params.partCode}`);
+//         res.redirect(`/courses/${req.params.courseCode}/learn`);
+//       }
+//     }
+//   });
+// });
 
 module.exports = router;

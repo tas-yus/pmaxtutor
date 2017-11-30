@@ -317,7 +317,7 @@ $(document).ready(function() {
       }).fail((err) => {
         console.log(err);
       });
-    }, 200)
+    }, 200);
   });
     // $(window).on("unload", () => {
     //   $(".loader-wrapper").removeClass("hidden");

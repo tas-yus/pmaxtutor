@@ -95,8 +95,6 @@ router.get("/:partCode/edit", middleware.isLoggedIn, middleware.isAdmin, (req, r
 router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, upload.single("file"), async (req, res) => {
   var part = await Part.findOne({code: req.params.partCode});
   var course = await Course.findOne({code: req.params.courseCode});
-  var oldPartId = part._id.toString();
-  var changedTitle = Boolean(part.title !== req.body.title);
   var path;
   if (req.file) {
     path = req.file.filename;
@@ -111,29 +109,6 @@ router.put("/:partCode", middleware.isLoggedIn, middleware.isAdmin, upload.singl
   part.description = req.body.description;
   part.image = path;
   part.save((err) => {
-    if (err) return console.log(err);
-  });
-  async.waterfall([
-    function(callback) {
-      if (!changedTitle) return callback(null, null);
-      Video.find({part: oldPartId}, (err, videos) => {
-        if (err) return console.log(err);
-        callback(null, videos);
-      });
-    },
-    function(videos, callback) {
-      if (!changedTitle) return callback();
-      async.eachSeries(videos, (vid, cb1) => {
-        vid.part = req.body.title;
-        vid.save((err) => {
-          if (err) return console.log(err);
-          cb1();
-        });
-      }, (err) => {
-        callback();
-      });
-    }
-  ], (err) => {
     if (err) return console.log(err);
     res.redirect("/dashboard");
   });
